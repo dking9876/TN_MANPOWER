@@ -1,0 +1,86 @@
+# TN MANPOWER — Project Status
+
+> **Last updated:** 2026-02-16
+> **Current conversation:** 1 of 3
+> **Current phase:** Phase 2 — Auth & Layout Shell
+
+---
+
+## Conversation Map
+
+| # | Scope | Phases | Status |
+|---|-------|--------|--------|
+| **1** | Foundation + Auth + Layout | 1-2 | 🔄 In Progress |
+| 2 | Candidates + Docs + Alerts | 3-4 | ⬜ Not Started |
+| 3 | Admin + Dashboard + Polish + Deploy | 5-6 | ⬜ Not Started |
+
+---
+
+## Phase Progress
+
+### Phase 1: Foundation ✅
+- [x] Create Supabase project (ID: `fgmamvzoueenisnuljze`, region: eu-central-1)
+- [x] Scaffold Next.js 16 with TypeScript + Tailwind v4
+- [x] Install dependencies (Supabase, shadcn, TanStack Query, Zustand, etc.)
+- [x] Initialize shadcn/ui
+- [x] Apply DB migrations (8 tables, enums, indexes, RLS, triggers)
+- [x] Seed data (admin user, 5 configs, 90 countries, 15 professions)
+- [x] Create `.env.local` with Supabase credentials
+- [x] Verify: build passes, DB schema correct
+
+### Phase 2: Auth & Layout Shell
+- [ ] Supabase Auth client/server setup
+- [ ] Login page with error/loading states
+- [ ] Failed login attempt tracking
+- [ ] App shell (sidebar, header, responsive)
+- [ ] Route protection middleware
+- [ ] Role-based navigation
+- [ ] 2-hour session timeout
+- [ ] Verify: login flow, role routing
+
+### Phase 3: Candidate CRUD (Conv 2)
+- [ ] Candidate list with search, filters, pagination
+- [ ] Candidate form (add/edit) with validation
+- [ ] Candidate detail view
+- [ ] Blacklist check (Rule 1)
+- [ ] Auto-create documents (Rule 2)
+- [ ] Age validation (Rule 3)
+- [ ] Unique constraints (Rule 4)
+- [ ] Audit logging (Rule 5)
+- [ ] Last updated timestamp (Rule 6)
+- [ ] CSV export
+
+### Phase 4: Documents & Alerts (Conv 2)
+- [ ] Document management UI
+- [ ] Alert generation Edge Function
+- [ ] Alerts page with filters
+- [ ] Alert resolve flow
+- [ ] Nav badge for unresolved alerts
+
+### Phase 5: Dashboard & Admin (Conv 3)
+- [ ] Dashboard with metrics/charts
+- [ ] User management
+- [ ] System settings
+- [ ] Reports & analytics
+
+### Phase 6: Polish & Deploy (Conv 3)
+- [ ] Error/loading/empty states
+- [ ] Final UI polish
+- [ ] Security audit
+- [ ] Vercel deployment
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16 (App Router), React 19, TypeScript |
+| Styling | Tailwind CSS v4, shadcn/ui |
+| State | Zustand (client) + TanStack Query (server) |
+| Forms | react-hook-form + zod |
+| Backend/DB | Supabase (PostgreSQL, Auth, Edge Functions) |
+| Charts | recharts |
+| Icons | lucide-react |
+| Dates | date-fns |
+| Deploy | Vercel |
