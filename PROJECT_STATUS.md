@@ -1,8 +1,8 @@
 # TN MANPOWER — Project Status
 
 > **Last updated:** 2026-02-16
-> **Current conversation:** 1 of 3
-> **Current phase:** Phase 2 — Auth & Layout Shell
+> **Current conversation:** 1 of 3 (completed)
+> **Current phase:** Phase 2 — Auth & Layout Shell ✅ DONE
 
 ---
 
@@ -10,9 +10,9 @@
 
 | # | Scope | Phases | Status |
 |---|-------|--------|--------|
-| **1** | Foundation + Auth + Layout | 1-2 | 🔄 In Progress |
-| 2 | Candidates + Docs + Alerts | 3-4 | ⬜ Not Started |
-| 3 | Admin + Dashboard + Polish + Deploy | 5-6 | ⬜ Not Started |
+| **1** | Foundation + Auth + Layout | 1-2 | ✅ Completed |
+| **2** | Candidates + Docs + Alerts | 3-4 | ⬜ Not Started |
+| **3** | Admin + Dashboard + Polish + Deploy | 5-6 | ⬜ Not Started |
 
 ---
 
@@ -22,23 +22,25 @@
 - [x] Create Supabase project (ID: `fgmamvzoueenisnuljze`, region: eu-central-1)
 - [x] Scaffold Next.js 16 with TypeScript + Tailwind v4
 - [x] Install dependencies (Supabase, shadcn, TanStack Query, Zustand, etc.)
-- [x] Initialize shadcn/ui
+- [x] Initialize shadcn/ui (11 components)
 - [x] Apply DB migrations (8 tables, enums, indexes, RLS, triggers)
 - [x] Seed data (admin user, 5 configs, 90 countries, 15 professions)
 - [x] Create `.env.local` with Supabase credentials
 - [x] Verify: build passes, DB schema correct
 
-### Phase 2: Auth & Layout Shell
-- [ ] Supabase Auth client/server setup
-- [ ] Login page with error/loading states
-- [ ] Failed login attempt tracking
-- [ ] App shell (sidebar, header, responsive)
-- [ ] Route protection middleware
-- [ ] Role-based navigation
-- [ ] 2-hour session timeout
-- [ ] Verify: login flow, role routing
+### Phase 2: Auth & Layout Shell ✅
+- [x] Supabase Auth client/server setup
+- [x] Login page with error/loading states
+- [x] App shell (collapsible dark sidebar, responsive)
+- [x] Route protection middleware (auth + admin guards)
+- [x] Role-based navigation (admin sections hidden from recruiters)
+- [x] Custom design system (teal/emerald, Inter font, sharp geometry)
+- [x] Placeholder pages for all 7 routes
+- [x] Git repo + pushed to GitHub
+- [x] Deployed to Vercel
+- [x] Verify: build passes, login works, deployment live
 
-### Phase 3: Candidate CRUD (Conv 2)
+### Phase 3: Candidate CRUD (Conv 2) ← NEXT
 - [ ] Candidate list with search, filters, pagination
 - [ ] Candidate form (add/edit) with validation
 - [ ] Candidate detail view
@@ -67,7 +69,7 @@
 - [ ] Error/loading/empty states
 - [ ] Final UI polish
 - [ ] Security audit
-- [ ] Vercel deployment
+- [ ] Final Vercel deployment
 
 ---
 
