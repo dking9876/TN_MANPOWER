@@ -11,7 +11,7 @@
 | # | Scope | Phases | Status |
 |---|-------|--------|--------|
 | **1** | Foundation + Auth + Layout | 1-2 | ✅ Completed |
-| **2** | Candidates + Docs + Alerts | 3-4 | ⬜ Not Started |
+| **2** | Candidates + Docs + Alerts | 3-4 | ✅ Completed |
 | **3** | Admin + Dashboard + Polish + Deploy | 5-6 | ⬜ Not Started |
 
 ---
@@ -40,10 +40,10 @@
 - [x] Deployed to Vercel
 - [x] Verify: build passes, login works, deployment live
 
-### Phase 3: Candidate CRUD (Conv 2) ✅
+### Phase 3: Candidate CRUD ✅
 - [x] Candidate list with search, filters, pagination
 - [x] Candidate form (add/edit) with validation
-- [x] Candidate detail view
+- [x] Candidate detail view with Documents tab
 - [x] Blacklist check (Rule 1)
 - [x] Auto-create documents (Rule 2)
 - [x] Age validation (Rule 3)
@@ -52,23 +52,25 @@
 - [x] Last updated timestamp (Rule 6)
 - [x] CSV export
 
-### Phase 4: Documents & Alerts (Conv 2) ✅
-- [x] Document management UI
+### Phase 4: Documents & Alerts ✅
+- [x] Document management UI (per-candidate, inside detail view)
 - [x] Alert generation Edge Function
 - [x] Alerts page with filters
 - [x] Alert resolve flow
 - [x] Nav badge for unresolved alerts
+- [x] Removed standalone documents page (consolidated into candidate detail)
 
 ### Phase 5: Dashboard & Admin (Conv 3)
-- [ ] Dashboard with metrics/charts
-- [ ] User management
-- [ ] System settings
+- [ ] Dashboard with metrics/charts (recharts)
+- [ ] User management (CRUD for admin/recruiter accounts)
+- [ ] System settings (configurable thresholds, etc.)
 - [ ] Reports & analytics
 
 ### Phase 6: Polish & Deploy (Conv 3)
-- [ ] Error/loading/empty states
+- [ ] Error/loading/empty states polish
 - [ ] Final UI polish
 - [ ] Security audit
+- [ ] Clean up debug files (diagnose_candidates.ts, debug specs, test output files)
 - [ ] Final Vercel deployment
 
 ---
