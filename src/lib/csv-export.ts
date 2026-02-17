@@ -1,49 +1,20 @@
-import { createClient } from "@/lib/supabase/client";
+import { getCandidatesForExport } from "@/app/actions/candidate-export";
+import { toast } from "sonner";
 
 export async function exportCandidatesToCSV(filters: any) {
-    const supabase = createClient();
-
-    // 1. Fetch data with same filters as list view (but no pagination)
-    let query = supabase
-        .from("candidates")
-        .select(`
-            *,
-            creator:created_by (full_name),
-            updater:last_updated_by (full_name),
-            documents (
-                document_type,
-                is_received,
-                expiration_date
-            )
-        `);
-
-    // Apply filters
-    if (filters.search) {
-        const search = `%${filters.search}%`;
-        query = query.or(`first_name.ilike.${search},last_name.ilike.${search},national_id.ilike.${search},passport_number.ilike.${search}`);
+    let data;
+    try {
+        data = await getCandidatesForExport(filters);
+    } catch (error: any) {
+        console.error("Export failed:", error);
+        toast.error(error.message || "Failed to export candidates");
+        return;
     }
 
-    if (filters.status && filters.status.length > 0) {
-        query = query.in("recruitment_status", filters.status);
+    if (!data || data.length === 0) {
+        toast.warning("No candidates found to export");
+        return;
     }
-
-    if (filters.industry && filters.industry.length > 0) {
-        query = query.in("primary_industry", filters.industry);
-    }
-
-    if (filters.recruiter && filters.recruiter.length > 0) {
-        query = query.in("created_by", filters.recruiter);
-    }
-
-    if (filters.is_blacklisted !== undefined) {
-        query = query.eq("is_blacklisted", filters.is_blacklisted);
-    }
-
-    query = query.order("last_updated_at", { ascending: false });
-
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return;
 
     // 2. Format data for CSV
     const csvRows = [

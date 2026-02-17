@@ -18,7 +18,8 @@ import {
     Calendar,
     Phone,
     MapPin,
-    Briefcase
+    Briefcase,
+    Info
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {

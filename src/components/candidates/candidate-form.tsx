@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { candidateFormSchema, CandidateFormValues } from "@/lib/validations/candidate-schema";
 import { useCreateCandidate, useUpdateCandidate } from "@/lib/hooks/use-candidates";
+import { Tables } from "@/lib/supabase/types";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +34,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { differenceInYears, parseISO } from "date-fns";
 
 interface CandidateFormProps {
-    initialData?: any; // We'll type this properly with the DB type later
+    initialData?: Tables<"candidates">;
     isEditMode?: boolean;
 }
 
@@ -44,7 +45,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
     const [age, setAge] = useState<number | null>(null);
 
     const form = useForm<CandidateFormValues>({
-        resolver: zodResolver(candidateFormSchema),
+        resolver: zodResolver(candidateFormSchema) as any,
         defaultValues: {
             first_name: initialData?.first_name || "",
             last_name: initialData?.last_name || "",
@@ -126,105 +127,105 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                         <CardTitle>Personal Information</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-6 md:grid-cols-2">
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="first_name"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>First Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="John" {...field} />
+                                        <Input placeholder="John" {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="last_name"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Last Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Doe" {...field} />
+                                        <Input placeholder="Doe" {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="national_id"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>National ID</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="ID123456789" {...field} />
+                                        <Input placeholder="123456789" {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="passport_number"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Passport Number</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="A1234567" {...field} />
+                                        <Input placeholder="A1234567" {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="date_of_birth"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Date of Birth {age !== null && <span className="text-muted-foreground ml-2">(Age: {age})</span>}</FormLabel>
                                     <FormControl>
-                                        <Input type="date" {...field} />
+                                        <Input type="date" {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="primary_phone"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Primary Phone</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="+972..." {...field} />
+                                        <Input placeholder="+972..." {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="emergency_phone"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Emergency Phone</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="+972..." {...field} />
+                                        <Input placeholder="+972..." {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Email (Optional)</FormLabel>
                                     <FormControl>
-                                        <Input type="email" placeholder="john@example.com" value={field.value || ""} onChange={field.onChange} />
+                                        <Input type="email" placeholder="john@example.com" {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -239,13 +240,13 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                         <CardTitle>Professional Details</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-6 md:grid-cols-2">
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="primary_industry"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Industry</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} defaultValue={(field.value as any) || undefined}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select industry" />
@@ -263,7 +264,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="profession"
                             render={({ field }) => (
@@ -271,7 +272,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                     <FormLabel>Profession</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
-                                        defaultValue={field.value}
+                                        defaultValue={(field.value as any) || undefined}
                                         disabled={!watchedIndustry}
                                     >
                                         <FormControl>
@@ -294,13 +295,13 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="english_level"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>English Level</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} defaultValue={(field.value as any) || undefined}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select level" />
@@ -327,66 +328,66 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                         <CardTitle>Physical & Additional Details</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-6 md:grid-cols-3">
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="height"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Height (cm)</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} value={field.value || ""} onChange={field.onChange} />
+                                        <Input type="number" {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="weight"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Weight (kg)</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} value={field.value || ""} onChange={field.onChange} />
+                                        <Input type="number" {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="shoe_size"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Shoe Size</FormLabel>
                                     <FormControl>
-                                        <Input {...field} value={field.value || ""} />
+                                        <Input {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="pants_size"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Pants Size</FormLabel>
                                     <FormControl>
-                                        <Input {...field} value={field.value || ""} />
+                                        <Input {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="allergies"
                             render={({ field }) => (
                                 <FormItem className="col-span-2">
                                     <FormLabel>Allergies / Medical Notes</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Any allergies or medical conditions..." {...field} value={field.value || ""} />
+                                        <Textarea placeholder="Any allergies or medical conditions..." {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -401,14 +402,14 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                         <CardTitle>Background Check</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField
+                        <FormField<CandidateFormValues>
                             control={form.control}
                             name="has_visited_other"
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                                     <FormControl>
                                         <Checkbox
-                                            checked={field.value}
+                                            checked={field.value as boolean}
                                             onCheckedChange={field.onChange}
                                         />
                                     </FormControl>
@@ -437,7 +438,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                     or better: We can use the 'command' component if we had more time.
                                     Let's stick to simple text input that parses into array for now to ensure robustness.
                                  */}
-                                <FormField
+                                <FormField<CandidateFormValues>
                                     control={form.control}
                                     name="countries_visited"
                                     render={({ field }) => (
@@ -447,7 +448,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                                 {/* Temporary: handling array as comma joined string for the input */}
                                                 <Input
                                                     placeholder="Dubai, Qatar, USA..."
-                                                    defaultValue={field.value?.join(", ")}
+                                                    value={(field.value as string[])?.join(", ") || ""}
                                                     onChange={(e) => {
                                                         const val = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
                                                         field.onChange(val);

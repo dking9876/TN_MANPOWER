@@ -6,6 +6,18 @@ export async function updateSession(request: NextRequest) {
         request,
     });
 
+    // Add security headers
+    const securityHeaders = {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+    };
+
+    Object.entries(securityHeaders).forEach(([key, value]) => {
+        supabaseResponse.headers.set(key, value);
+    });
+
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

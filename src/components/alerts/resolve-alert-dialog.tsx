@@ -12,22 +12,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alertResolutionSchema, AlertResolutionValues } from "@/lib/validations/alert-schema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Tables } from "@/lib/supabase/types";
 
 interface ResolveAlertDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    alert: any;
+    alert: Tables<"alerts"> & { candidate?: { first_name: string; last_name: string } | null };
 }
 
 export function ResolveAlertDialog({ open, onOpenChange, alert }: ResolveAlertDialogProps) {
     const resolveMutation = useResolveAlert();
     const form = useForm<AlertResolutionValues>({
-        resolver: zodResolver(alertResolutionSchema),
+        resolver: zodResolver(alertResolutionSchema) as any,
         defaultValues: {
             resolution_notes: "",
             update_last_updated_at: true,
@@ -42,6 +42,7 @@ export function ResolveAlertDialog({ open, onOpenChange, alert }: ResolveAlertDi
                 updateTimestamp: values.update_last_updated_at,
             });
             onOpenChange(false);
+            form.reset();
         } catch (error) {
             // Handled by mutation
         }
@@ -63,28 +64,28 @@ export function ResolveAlertDialog({ open, onOpenChange, alert }: ResolveAlertDi
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
+                        <FormField<AlertResolutionValues>
                             control={form.control}
                             name="resolution_notes"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Resolution Notes</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Contacted candidate, updated status..." {...field} />
+                                        <Textarea placeholder="Contacted candidate, updated status..." {...field} value={(field.value as string) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        <FormField
+                        <FormField<AlertResolutionValues>
                             control={form.control}
                             name="update_last_updated_at"
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                                     <FormControl>
                                         <Checkbox
-                                            checked={field.value}
+                                            checked={field.value as boolean}
                                             onCheckedChange={field.onChange}
                                         />
                                     </FormControl>
