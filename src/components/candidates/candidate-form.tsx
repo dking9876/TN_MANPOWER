@@ -62,10 +62,10 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
             allergies: initialData?.allergies || "",
             primary_industry: initialData?.primary_industry || "",
             profession: initialData?.profession || "",
-            english_level: initialData?.english_level || ENGLISH_LEVELS.NONE,
+            english_level: initialData?.english_level || "NONE",
             has_visited_other: initialData?.has_visited_other || false,
             countries_visited: initialData?.countries_visited || [],
-            recruitment_status: initialData?.recruitment_status || RECRUITMENT_STATUS.POTENTIAL_CANDIDATE,
+            recruitment_status: initialData?.recruitment_status || "POTENTIAL_CANDIDATE",
             is_blacklisted: initialData?.is_blacklisted || false,
         },
     });

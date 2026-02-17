@@ -34,7 +34,8 @@ test.describe('Candidate Management', () => {
         await page.click('role=option[name="Nurse"]');
 
         // Select level
-        await page.click('button:has-text("Select level")');
+        // English level defaults to "NONE", so we locate by index (3rd combobox)
+        await page.locator('button[role="combobox"]').nth(2).click();
         await page.click('role=option[name="Good"]');
 
         await page.click('button:has-text("Create Candidate")');
@@ -50,6 +51,7 @@ test.describe('Candidate Management', () => {
         await page.getByText(nationalId).first().click();
 
         // Verify documents
+        await page.click('button[role="tab"]:has-text("Documents")');
         await expect(page.getByText('Passport')).toBeVisible();
         await expect(page.getByText('Police Clearance')).toBeVisible();
         await expect(page.getByText('Health Declaration')).toBeVisible();
