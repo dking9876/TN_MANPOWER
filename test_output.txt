@@ -1,0 +1,53 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] [chromium] › e2e\debug-candidates.spec.ts:10:10 › Debug Candidate › should fill form and submit
+[1A[2K[chromium] › e2e\debug-candidates.spec.ts:10:10 › Debug Candidate › should fill form and submit
+Starting debug test...
+
+[1A[2KBROWSER: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+
+[1A[2KBROWSER: [HMR] connected
+
+[1A[2KFilling selects...
+
+[1A[2KClicking submit...
+
+[1A[2KWaiting for success...
+
+[1A[2KUsage failed. Checking errors.
+
+[1A[2KErrors: []
+
+[1A[2KURL: http://localhost:3000/candidates/new
+
+[1A[2K  1) [chromium] › e2e\debug-candidates.spec.ts:10:10 › Debug Candidate › should fill form and submit 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/created successfully/i)
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText(/created successfully/i)[22m
+
+
+      50 |         console.log('Waiting for success...');
+      51 |         try {
+    > 52 |             await expect(page.getByText(/created successfully/i)).toBeVisible({ timeout: 10000 });
+         |                                                                   ^
+      53 |             console.log('Success!');
+      54 |         } catch (e) {
+      55 |             console.log('Usage failed. Checking errors.');
+        at C:\Users\Daniel\Code_projects\TN_MANPOWER\e2e\debug-candidates.spec.ts:52:67
+
+    Error Context: test-results\debug-candidates-Debug-Candidate-should-fill-form-and-submit-chromium\error-context.md
+
+
+[1A[2K  1 failed
+    [chromium] › e2e\debug-candidates.spec.ts:10:10 › Debug Candidate › should fill form and submit 
+
+[36m  Serving HTML report at http://localhost:58503. Press Ctrl+C to quit.[39m

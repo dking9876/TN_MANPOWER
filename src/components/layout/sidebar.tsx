@@ -40,11 +40,6 @@ const NAV_ITEMS = [
         icon: Users,
     },
     {
-        label: "Documents",
-        href: "/documents",
-        icon: FileText,
-    },
-    {
         label: "Alerts",
         href: "/alerts",
         icon: Bell,

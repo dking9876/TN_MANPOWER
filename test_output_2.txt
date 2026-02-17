@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+Terminate batch job (Y/N)? Terminate batch job (Y/N)? [1A[2K[1/1] [chromium] › e2e\debug-candidates.spec.ts:10:10 › Debug Candidate › should fill form and submit
+[1A[2K  1 did not run
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m
