@@ -1,20 +1,18 @@
-export default function AlertsPage() {
-    return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Alerts</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        View and manage system alerts
-                    </p>
-                </div>
-            </div>
+import { createClient } from "@/lib/supabase/server";
+import { AlertListClient } from "@/components/alerts/alert-list-client";
+import { redirect } from "next/navigation";
 
-            <div className="border rounded-md p-8 text-center text-muted-foreground">
-                <p className="text-sm">
-                    Alert management will be built in Phase 4 (Conversation 2)
-                </p>
-            </div>
+export default async function AlertsPage() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
+    return (
+        <div className="max-w-5xl mx-auto py-8">
+            <AlertListClient />
         </div>
     );
 }

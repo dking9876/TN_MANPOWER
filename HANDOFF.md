@@ -51,17 +51,27 @@
 
 ## Conversation 2 → Conversation 3
 
-> Status: Not yet started
+> Status: ✅ Completed
 
 ### What Was Completed
-_(will be filled when Conv 2 ends)_
+- **Phase 3**: Candidate CRUD (List, Create, Edit, Delete, Detail). All 9 business rules enforced (Age 18+, Blacklist check, Unique ID, Auto-create docs, Audit logs, etc.).
+- **Phase 4**: Document management (List, Status updates, Expiration tracking) and Alert System (Edge Function `generate-alerts`, Alert List UI, Resolution flow).
+- **Edge Function**: Deployed `generate-alerts` to Supabase for checking data staleness and document expiration.
+- **UI**: Added `select`, `dialog`, `table`, `textarea`, `checkbox`, `tabs`, `skeleton`, `popover`, `calendar`, `command`, `tooltip`, `pagination`, `alert-dialog`.
+- **Validation**: Zod schemas for Candidates, Documents, and Alerts.
 
 ### What's Next
-- Phase 5: Dashboard, user management, settings, reports
-- Phase 6: Polish, security audit, final deploy
+- **Phase 5**: Dashboard with metrics/charts, User management, System settings, Reports & analytics.
+- **Phase 6**: Final Polish, Security audit, Deployment.
 
 ### Known Issues
-_(will be filled when Conv 2 ends)_
+- None blocking. Browser testing environment was limited, but build and logic verification passed.
 
 ### Key Files to Know
-_(will be filled when Conv 2 ends)_
+- `src/app/(app)/candidates/page.tsx` — Candidate list
+- `src/components/candidates/candidate-form.tsx` — Complex multi-step form
+- `src/components/candidates/candidate-detail.tsx` — Detail view with tabs
+- `src/lib/hooks/use-candidates.ts` — TanStack Query hooks
+- `supabase/functions/generate-alerts/index.ts` — Alert generation logic
+- `src/components/documents/document-list.tsx` — Document management
+- `src/app/(app)/alerts/page.tsx` — Alerts management

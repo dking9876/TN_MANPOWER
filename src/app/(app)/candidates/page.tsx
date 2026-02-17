@@ -1,20 +1,24 @@
-export default function CandidatesPage() {
-    return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Candidates</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Manage and track recruitment candidates
-                    </p>
-                </div>
-            </div>
+import { createClient } from "@/lib/supabase/server";
+import { CandidateListClient } from "@/components/candidates/candidate-list-client";
+import { redirect } from "next/navigation";
 
-            <div className="border rounded-md p-8 text-center text-muted-foreground">
-                <p className="text-sm">
-                    Candidate list and CRUD will be built in Phase 3 (Conversation 2)
-                </p>
-            </div>
-        </div>
-    );
+export default async function CandidateListPage() {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
+    // Check role for admin features
+    const { data: userData } = await supabase
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+    const isAdmin = userData?.role === "ADMIN";
+
+    return <CandidateListClient isAdmin={isAdmin} />;
 }
