@@ -1,8 +1,8 @@
 # TN MANPOWER — Project Status
 
 > **Last updated:** 2026-02-18
-> **Current conversation:** 2 of 3 (completed)
-> **Current phase:** Phase 3-4 — Candidates, Documents, Alerts ✅ DONE
+> **Current conversation:** 3 of 3 (completed)
+> **Current phase:** Phase 5 — Dashboard & Admin ✅ DONE
 
 ---
 
@@ -12,7 +12,7 @@
 |---|-------|--------|--------|
 | **1** | Foundation + Auth + Layout | 1-2 | ✅ Completed |
 | **2** | Candidates + Docs + Alerts | 3-4 | ✅ Completed |
-| **3** | Admin + Dashboard + Polish + Deploy | 5-6 | ⬜ Not Started |
+| **3** | Admin + Dashboard + Polish + Deploy | 5-6 | ✅ Phase 5 Done |
 
 ---
 
@@ -60,11 +60,12 @@
 - [x] Nav badge for unresolved alerts
 - [x] Removed standalone documents page (consolidated into candidate detail)
 
-### Phase 5: Dashboard & Admin (Conv 3)
-- [ ] Dashboard with metrics/charts (recharts)
-- [ ] User management (CRUD for admin/recruiter accounts)
-- [ ] System settings (configurable thresholds, etc.)
-- [ ] Reports & analytics
+### Phase 5: Dashboard & Admin ✅
+- [x] Dashboard with metrics/charts (recharts)
+- [x] User management (CRUD for admin/recruiter accounts)
+- [x] System settings (configurable thresholds, countries, professions)
+- [x] Admin server actions with service role key
+- [x] Reports & analytics on dashboard
 
 ### Phase 6: Polish & Deploy (Conv 3)
 - [ ] Error/loading/empty states polish

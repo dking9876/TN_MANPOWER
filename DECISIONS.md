@@ -14,6 +14,8 @@
 | D4 | 2026-02-16 | **3 conversations** to complete project | Too large for single conversation |
 | D5 | 2026-02-16 | **Seed sample candidates** | For development/testing convenience |
 | D6 | 2026-02-16 | **Git repo** | Set up after scaffold |
+| D7 | 2026-02-18 | **Admin Password Update** | Manual password set in UI for admin creation |
+| D8 | 2026-02-18 | **Settings Keys matching DB** | Thresholds use `staleness_threshold_days`, etc. |
 
 ## Architecture Decisions
 
@@ -28,6 +30,8 @@
 | A7 | 2026-02-16 | **DB audit trigger** on candidates table | Guaranteed logging without app code |
 | A8 | 2026-02-16 | **Next.js route groups** | `(auth)` for login, `(app)` for authenticated pages |
 | A9 | 2026-02-16 | **Supabase RLS** for access control | Row-level security enforced at DB layer |
+| A10 | 2026-02-18 | **Supabase Admin Client** | Uses Service Role Key for secure user management |
+| A11 | 2026-02-18 | **Server Actions for Auth** | Moves password reset/deletion to server-side |
 
 ## Business Logic Decisions
 
