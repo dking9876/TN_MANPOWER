@@ -35,8 +35,8 @@
 - **Deployment**: All changes pushed to Git and deployed to Vercel.
 
 ### What's Next (Conversation 3)
-- **Phase 5**: Dashboard with metrics/charts, User management, System settings
-- **Phase 6**: Final Polish, Security audit, Production deployment
+- [DONE] Phase 5: Dashboard with metrics/charts, User management, System settings
+- [NEXT] Phase 6: Final Polish, Security audit, Production deployment
 
 ### Known Issues
 - None blocking. `tsc --noEmit` passes with zero errors. Build is clean. Deployment is live.
@@ -62,12 +62,12 @@
 | Route | Status | Description |
 |-------|--------|-------------|
 | `/login` | ✅ Working | Email/password login |
-| `/dashboard` | ⬜ Placeholder | Needs metrics/charts |
+| `/dashboard` | ✅ Working | Metrics/charts dashboard |
 | `/candidates` | ✅ Working | List, Create, Edit, Delete, Detail |
 | `/candidates/[id]` | ✅ Working | Detail view with Documents tab |
 | `/alerts` | ✅ Working | Alert list with resolve flow |
-| `/admin/users` | ⬜ Placeholder | Needs user management UI |
-| `/admin/settings` | ⬜ Placeholder | Needs settings UI |
+| `/admin/users` | ✅ Working | User management UI |
+| `/admin/settings` | ✅ Working | System settings UI |
 
 ### Users in DB
 | Email | Password | Role |
