@@ -14,6 +14,7 @@ import {
     LogOut,
     ChevronLeft,
     Menu,
+    UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -75,6 +76,7 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
     }
 
     const isAdmin = user.role === "ADMIN";
+    const isReferrer = user.role === "REFERRER";
 
     return (
         <>
@@ -116,7 +118,7 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto py-2 px-2">
                     <div className="space-y-0.5">
-                        {NAV_ITEMS.map((item) => {
+                        {!isReferrer && NAV_ITEMS.map((item) => {
                             const isActive = pathname.startsWith(item.href);
                             return (
                                 <Link
@@ -152,6 +154,23 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                                 </Link>
                             );
                         })}
+                        {isReferrer && (
+                            <Link
+                                href="/candidates/new"
+                                className={cn(
+                                    "group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200",
+                                    pathname.startsWith("/candidates/new")
+                                        ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary shadow-sm"
+                                        : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 border-l-2 border-transparent",
+                                    collapsed && "justify-center px-0 border-l-0"
+                                )}
+                                title={collapsed ? "Add Candidate" : undefined}
+                                onClick={() => setMobileOpen(false)}
+                            >
+                                <UserPlus className="h-4 w-4 shrink-0" />
+                                {!collapsed && <span className="truncate">Add Candidate</span>}
+                            </Link>
+                        )}
                     </div>
 
                     {/* Admin section */}

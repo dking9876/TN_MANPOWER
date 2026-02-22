@@ -24,7 +24,7 @@ export async function createUserAction(data: {
     fullName: string;
     email: string;
     password: string;
-    role: "ADMIN" | "RECRUITER";
+    role: "ADMIN" | "RECRUITER" | "REFERRER";
 }) {
     await assertAdmin();
     const admin = createAdminClient();
@@ -59,7 +59,7 @@ export async function createUserAction(data: {
 
 export async function updateUserAction(
     userId: string,
-    data: { fullName: string; role: "ADMIN" | "RECRUITER" }
+    data: { fullName: string; role: "ADMIN" | "RECRUITER" | "REFERRER" }
 ) {
     await assertAdmin();
     const admin = createAdminClient();

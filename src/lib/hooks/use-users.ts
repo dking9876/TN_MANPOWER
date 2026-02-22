@@ -41,7 +41,7 @@ export function useCreateUser() {
             fullName: string;
             email: string;
             password: string;
-            role: "ADMIN" | "RECRUITER";
+            role: "ADMIN" | "RECRUITER" | "REFERRER";
         }) => {
             return await createUserAction(data);
         },
@@ -64,7 +64,7 @@ export function useUpdateUser() {
             data,
         }: {
             userId: string;
-            data: { fullName: string; role: "ADMIN" | "RECRUITER" };
+            data: { fullName: string; role: "ADMIN" | "RECRUITER" | "REFERRER" };
         }) => {
             return await updateUserAction(userId, data);
         },

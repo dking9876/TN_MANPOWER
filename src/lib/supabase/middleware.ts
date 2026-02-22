@@ -46,56 +46,70 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // Unauthenticated users trying to access app routes
-    if (
-        !user &&
-        !request.nextUrl.pathname.startsWith("/login") &&
-        request.nextUrl.pathname !== "/"
-    ) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/login";
-        return NextResponse.redirect(url);
-    }
+    const isLoginRoute = request.nextUrl.pathname.startsWith("/login");
+    const isRootRoute = request.nextUrl.pathname === "/";
 
-    // Authenticated users on login page → redirect to dashboard
-    if (user && request.nextUrl.pathname === "/login") {
-        const url = request.nextUrl.clone();
-        url.pathname = "/dashboard";
-        return NextResponse.redirect(url);
-    }
-
-    // Root path → redirect appropriately
-    if (request.nextUrl.pathname === "/") {
-        const url = request.nextUrl.clone();
-        url.pathname = user ? "/dashboard" : "/login";
-        return NextResponse.redirect(url);
-    }
-
-    // Admin-only routes protection
-    const adminOnlyRoutes = ["/admin"];
-    const isAdminRoute = adminOnlyRoutes.some((route) =>
-        request.nextUrl.pathname.startsWith(route)
-    );
-
-    if (user && isAdminRoute) {
-        // Check role from user metadata or DB
-        const { data: userData } = await supabase
-            .from("users")
-            .select("role, is_active")
-            .eq("id", user.id)
-            .single();
-
-        if (!userData || !userData.is_active) {
+    // Unauthenticated users
+    if (!user) {
+        if (!isLoginRoute && !isRootRoute) {
             const url = request.nextUrl.clone();
             url.pathname = "/login";
             return NextResponse.redirect(url);
         }
+        return supabaseResponse;
+    }
 
-        if (userData.role !== "ADMIN") {
+    // Authenticated users
+    // Fast path: if not a protected route directly (like /api/auth/callback), just proceed
+    if (request.nextUrl.pathname.startsWith("/auth/")) {
+        return supabaseResponse;
+    }
+
+    // Fetch role from DB
+    const { data: userData } = await supabase
+        .from("users")
+        .select("role, is_active")
+        .eq("id", user.id)
+        .single();
+
+    if (!userData || !userData.is_active) {
+        if (!isLoginRoute) {
             const url = request.nextUrl.clone();
-            url.pathname = "/dashboard";
+            url.pathname = "/login";
             return NextResponse.redirect(url);
         }
+        return supabaseResponse;
+    }
+
+    const { role } = userData;
+    const landingPage = role === "REFERRER" ? "/candidates/new" : "/dashboard";
+
+    // Redirect from login or root to their specific landing page
+    if (isLoginRoute || isRootRoute) {
+        const url = request.nextUrl.clone();
+        url.pathname = landingPage;
+        return NextResponse.redirect(url);
+    }
+
+    const currentPath = request.nextUrl.pathname;
+
+    // REFERRER protection
+    if (role === "REFERRER") {
+        const allowedReferrerRoutes = ["/candidates/new"];
+        const isAllowed = allowedReferrerRoutes.some(r => currentPath === r || currentPath.startsWith(`${r}/`));
+        if (!isAllowed && !currentPath.startsWith("/api/")) {
+            const url = request.nextUrl.clone();
+            url.pathname = landingPage;
+            return NextResponse.redirect(url);
+        }
+    }
+
+    // ADMIN protection
+    const isAdminRoute = currentPath.startsWith("/admin");
+    if (isAdminRoute && role !== "ADMIN") {
+        const url = request.nextUrl.clone();
+        url.pathname = landingPage;
+        return NextResponse.redirect(url);
     }
 
     return supabaseResponse;

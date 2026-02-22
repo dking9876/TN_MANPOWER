@@ -11,6 +11,7 @@ export const settingsKeys = {
     config: () => [...settingsKeys.all, "config"] as const,
     countries: () => [...settingsKeys.all, "countries"] as const,
     professions: () => [...settingsKeys.all, "professions"] as const,
+    companies: () => [...settingsKeys.all, "companies"] as const,
 };
 
 // --- System Config ---
@@ -174,6 +175,66 @@ export function useDeleteProfession() {
         },
         onError: (error: Error) => {
             toast.error(error.message || "Failed to remove profession");
+        },
+    });
+}
+
+// --- Companies ---
+
+export function useCompanies() {
+    return useQuery({
+        queryKey: settingsKeys.companies(),
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from("companies")
+                .select("*")
+                .order("name");
+
+            if (error) throw error;
+            return data;
+        },
+    });
+}
+
+export function useAddCompany() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ name }: { name: string }) => {
+            const { error } = await supabase
+                .from("companies")
+                .insert({ name });
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            toast.success("Company added successfully");
+            queryClient.invalidateQueries({ queryKey: settingsKeys.companies() });
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to add company");
+        },
+    });
+}
+
+export function useDeleteCompany() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await supabase
+                .from("companies")
+                .delete()
+                .eq("id", id);
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            toast.success("Company deleted successfully");
+            queryClient.invalidateQueries({ queryKey: settingsKeys.companies() });
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to delete company");
         },
     });
 }

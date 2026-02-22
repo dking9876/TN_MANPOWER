@@ -171,6 +171,10 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                                     <span>{candidate.profession}</span>
                                 </div>
                                 <div className="grid grid-cols-2">
+                                    <span className="text-muted-foreground">Company:</span>
+                                    <span>{candidate.companies?.name || <span className="text-muted-foreground italic">Unassigned</span>}</span>
+                                </div>
+                                <div className="grid grid-cols-2">
                                     <span className="text-muted-foreground">English Level:</span>
                                     <span>{ENGLISH_LEVELS[candidate.english_level as keyof typeof ENGLISH_LEVELS] || candidate.english_level}</span>
                                 </div>

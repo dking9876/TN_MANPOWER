@@ -30,7 +30,7 @@ const createSchema = z
         email: z.string().email("Invalid email address"),
         password: z.string().min(8, "Password must be at least 8 characters"),
         confirmPassword: z.string(),
-        role: z.enum(["ADMIN", "RECRUITER"]),
+        role: z.enum(["ADMIN", "RECRUITER", "REFERRER"]),
     })
     .refine((d) => d.password === d.confirmPassword, {
         message: "Passwords do not match",
@@ -39,7 +39,7 @@ const createSchema = z
 
 const editSchema = z.object({
     fullName: z.string().min(2, "Name must be at least 2 characters"),
-    role: z.enum(["ADMIN", "RECRUITER"]),
+    role: z.enum(["ADMIN", "RECRUITER", "REFERRER"]),
 });
 
 type CreateFormData = z.infer<typeof createSchema>;
@@ -79,7 +79,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
             reset({
                 fullName: user.full_name,
                 email: user.email,
-                role: user.role as "ADMIN" | "RECRUITER",
+                role: user.role as "ADMIN" | "RECRUITER" | "REFERRER",
                 password: "",
                 confirmPassword: "",
             });
@@ -190,7 +190,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
                         <Label>Role</Label>
                         <Select
                             value={selectedRole}
-                            onValueChange={(v) => setValue("role", v as "ADMIN" | "RECRUITER")}
+                            onValueChange={(v) => setValue("role", v as "ADMIN" | "RECRUITER" | "REFERRER")}
                         >
                             <SelectTrigger>
                                 <SelectValue />
@@ -198,6 +198,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
                             <SelectContent>
                                 <SelectItem value="ADMIN">Admin</SelectItem>
                                 <SelectItem value="RECRUITER">Recruiter</SelectItem>
+                                <SelectItem value="REFERRER">Referrer</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

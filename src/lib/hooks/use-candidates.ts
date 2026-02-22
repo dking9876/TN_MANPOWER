@@ -19,6 +19,7 @@ export type CandidateFilters = {
     status?: string[];
     industry?: string[];
     recruiter?: string[];
+    company_id?: string[];
     is_blacklisted?: boolean;
     page: number;
     sortBy?: string;
@@ -33,7 +34,7 @@ export function useCandidates(filters: CandidateFilters) {
         queryFn: async () => {
             let query = supabase
                 .from("candidates")
-                .select("*", { count: "exact" });
+                .select("*, companies(id, name)", { count: "exact" });
 
             // Apply filters
             if (filters.search) {
@@ -52,6 +53,10 @@ export function useCandidates(filters: CandidateFilters) {
 
             if (filters.recruiter && filters.recruiter.length > 0) {
                 query = query.in("created_by", filters.recruiter);
+            }
+
+            if (filters.company_id && filters.company_id.length > 0) {
+                query = query.in("company_id", filters.company_id);
             }
 
             if (filters.is_blacklisted !== undefined) {
@@ -88,7 +93,8 @@ export function useCandidate(id: string) {
                 .select(`
                     *,
                     creator:created_by (full_name),
-                    updater:last_updated_by (full_name)
+                    updater:last_updated_by (full_name),
+                    companies(id, name)
                 `)
                 .eq("id", id)
                 .single();

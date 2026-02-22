@@ -22,7 +22,8 @@ import {
     INDUSTRIES,
     RECRUITMENT_STATUS,
 } from "@/lib/constants";
-import { Check, Filter, Plus, X } from "lucide-react";
+import { Check, Filter, Plus, X, Building2 } from "lucide-react";
+import { useCompanies } from "@/lib/hooks/use-settings";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/lib/hooks/use-debounce"; // We need to create this hook or use external lib. 
@@ -36,6 +37,7 @@ interface CandidateFiltersProps {
 
 export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFiltersProps) {
     const [searchValue, setSearchValue] = useState(filters.search || "");
+    const { data: companies } = useCompanies();
 
     // Simple debounce
     useEffect(() => {
@@ -70,6 +72,14 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
         setFilters((prev: any) => ({ ...prev, industry: next, page: 1 }));
     };
 
+    const toggleCompany = (companyId: string) => {
+        const current = filters.company_id || [];
+        const next = current.includes(companyId)
+            ? current.filter((id: string) => id !== companyId)
+            : [...current, companyId];
+        setFilters((prev: any) => ({ ...prev, company_id: next, page: 1 }));
+    };
+
     const clearFilters = () => {
         setFilters({ page: 1 });
         setSearchValue("");
@@ -78,6 +88,7 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
     const activeFilterCount =
         (filters.status?.length || 0) +
         (filters.industry?.length || 0) +
+        (filters.company_id?.length || 0) +
         (filters.is_blacklisted ? 1 : 0);
 
     return (
@@ -241,6 +252,89 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
                                             <CommandGroup>
                                                 <CommandItem
                                                     onSelect={() => setFilters((prev: any) => ({ ...prev, industry: [], page: 1 }))}
+                                                    className="justify-center text-center"
+                                                >
+                                                    Clear filters
+                                                </CommandItem>
+                                            </CommandGroup>
+                                        </>
+                                    )}
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+
+                    {/* Company Filter */}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-9 border-dashed">
+                                <Plus className="mr-2 h-4 w-4" />
+                                <Building2 className="mr-2 h-4 w-4 hidden md:block" />
+                                Company
+                                {filters.company_id?.length > 0 && (
+                                    <>
+                                        <Separator orientation="vertical" className="mx-2 h-4" />
+                                        <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
+                                            {filters.company_id.length}
+                                        </Badge>
+                                        <div className="hidden space-x-1 lg:flex">
+                                            {filters.company_id.length > 2 ? (
+                                                <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                                                    {filters.company_id.length} selected
+                                                </Badge>
+                                            ) : (
+                                                filters.company_id.map((compId: string) => {
+                                                    const comp = companies?.find(c => c.id === compId);
+                                                    return (
+                                                        <Badge
+                                                            variant="secondary"
+                                                            key={compId}
+                                                            className="rounded-sm px-1 font-normal"
+                                                        >
+                                                            {comp ? comp.name : "Unknown"}
+                                                        </Badge>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0" align="start">
+                            <Command>
+                                <CommandInput placeholder="Company" />
+                                <CommandList>
+                                    <CommandEmpty>No results found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {companies?.map((company) => {
+                                            const isSelected = filters.company_id?.includes(company.id);
+                                            return (
+                                                <CommandItem
+                                                    key={company.id}
+                                                    onSelect={() => toggleCompany(company.id)}
+                                                >
+                                                    <div
+                                                        className={cn(
+                                                            "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                                            isSelected
+                                                                ? "bg-primary text-primary-foreground"
+                                                                : "opacity-50 [&_svg]:invisible"
+                                                        )}
+                                                    >
+                                                        <Check className={cn("h-4 w-4")} />
+                                                    </div>
+                                                    <span>{company.name}</span>
+                                                </CommandItem>
+                                            );
+                                        })}
+                                    </CommandGroup>
+                                    {filters.company_id?.length > 0 && (
+                                        <>
+                                            <CommandSeparator />
+                                            <CommandGroup>
+                                                <CommandItem
+                                                    onSelect={() => setFilters((prev: any) => ({ ...prev, company_id: [], page: 1 }))}
                                                     className="justify-center text-center"
                                                 >
                                                     Clear filters

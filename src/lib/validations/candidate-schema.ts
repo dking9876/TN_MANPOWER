@@ -46,6 +46,9 @@ export const candidateFormSchema = z.object({
     // Status (only for edit mode usually, but good to have in schema)
     recruitment_status: RecruitmentStatusEnum.optional(),
     is_blacklisted: z.boolean().optional(),
+
+    // Optional Company
+    company_id: z.string().uuid("Invalid company ID").optional().nullable(),
 });
 
 export type CandidateFormValues = z.infer<typeof candidateFormSchema>;

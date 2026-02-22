@@ -1,10 +1,12 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs } from "@/components/ui/tabs";
 import { AlertThresholdsSection } from "@/components/settings/alert-thresholds-section";
 import { BlacklistedCountriesSection } from "@/components/settings/blacklisted-countries-section";
 import { ProfessionsSection } from "@/components/settings/professions-section";
-import { Settings, Globe, Briefcase } from "lucide-react";
+import { CompaniesSection } from "@/components/settings/companies-section";
+import { Settings, Globe, Briefcase, Building2 } from "lucide-react";
 
 export default function SettingsAdminPage() {
     return (
@@ -32,6 +34,10 @@ export default function SettingsAdminPage() {
                         <Briefcase className="h-3.5 w-3.5" />
                         Professions
                     </TabsTrigger>
+                    <TabsTrigger value="companies" className="gap-1.5">
+                        <Building2 className="h-3.5 w-3.5" />
+                        Companies
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="thresholds">
@@ -44,6 +50,10 @@ export default function SettingsAdminPage() {
 
                 <TabsContent value="professions">
                     <ProfessionsSection />
+                </TabsContent>
+
+                <TabsContent value="companies">
+                    <CompaniesSection />
                 </TabsContent>
             </Tabs>
         </div>

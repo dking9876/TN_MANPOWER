@@ -59,7 +59,9 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                         <TableHead>Age</TableHead>
                         <TableHead>Industry</TableHead>
                         <TableHead>Rank</TableHead>
+                        <TableHead>Company</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Last Updated</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -99,7 +101,13 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                             </TableCell>
                             <TableCell>{candidate.profession}</TableCell>
                             <TableCell>
+                                {candidate.companies?.name || <span className="text-muted-foreground">-</span>}
+                            </TableCell>
+                            <TableCell>
                                 <StatusBadge status={candidate.recruitment_status} />
+                            </TableCell>
+                            <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
+                                {candidate.last_updated_at ? format(new Date(candidate.last_updated_at), "dd MMM yyyy, HH:mm") : "-"}
                             </TableCell>
                             <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center justify-end gap-1">

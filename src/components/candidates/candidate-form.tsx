@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { candidateFormSchema, CandidateFormValues } from "@/lib/validations/candidate-schema";
 import { useCreateCandidate, useUpdateCandidate } from "@/lib/hooks/use-candidates";
+import { useCompanies } from "@/lib/hooks/use-settings";
 import { Tables } from "@/lib/supabase/types";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
     const router = useRouter();
     const createMutation = useCreateCandidate();
     const updateMutation = useUpdateCandidate();
+    const { data: companies, isLoading: companiesLoading } = useCompanies();
     const [age, setAge] = useState<number | null>(null);
 
     const form = useForm<CandidateFormValues>({
@@ -67,6 +69,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
             countries_visited: initialData?.countries_visited || [],
             recruitment_status: initialData?.recruitment_status || "POTENTIAL_CANDIDATE",
             is_blacklisted: initialData?.is_blacklisted || false,
+            company_id: initialData?.company_id || null,
         },
     });
 
@@ -315,6 +318,38 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
+                            name="company_id"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Company (Optional)</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={(field.value as string) || undefined}
+                                        disabled={companiesLoading}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select company" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            {companies?.map((company) => (
+                                                <SelectItem key={company.id} value={company.id}>
+                                                    {company.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        Assign the candidate to a specific company
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
