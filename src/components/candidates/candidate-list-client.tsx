@@ -34,11 +34,13 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="flex flex-col sm:flex-row md:items-end justify-between gap-4 py-2 border-b border-border/40 pb-6 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Candidates</h1>
-                    <p className="text-muted-foreground mt-1">
+                    <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+                        Candidates
+                    </h1>
+                    <p className="text-base text-muted-foreground mt-2 font-medium">
                         Manage recruitment candidates and track their status.
                     </p>
                 </div>
@@ -47,11 +49,12 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
                         variant="outline"
                         onClick={() => exportCandidatesToCSV(filters)}
                         disabled={isLoading || candidates.length === 0}
+                        className="shadow-sm hover:shadow"
                     >
                         <Download className="mr-2 h-4 w-4" />
                         Export CSV
                     </Button>
-                    <Button onClick={() => router.push("/candidates/new")}>
+                    <Button onClick={() => router.push("/candidates/new")} className="shadow-sm shadow-primary/20">
                         <Plus className="mr-2 h-4 w-4" />
                         Add Candidate
                     </Button>
@@ -67,9 +70,9 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
             />
 
             {totalCount > 25 && (
-                <div className="flex justify-center mt-6">
+                <div className="flex justify-center mt-8">
                     <Pagination>
-                        <PaginationContent>
+                        <PaginationContent className="bg-card/50 backdrop-blur-sm border border-border/40 rounded-full px-2 py-1 shadow-sm">
                             <PaginationItem>
                                 <PaginationPrevious
                                     href="#"
@@ -77,13 +80,13 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
                                         e.preventDefault();
                                         if (filters.page > 1) handlePageChange(filters.page - 1);
                                     }}
-                                    className={filters.page <= 1 ? "pointer-events-none opacity-50" : ""}
+                                    className={filters.page <= 1 ? "pointer-events-none opacity-50" : "hover:bg-muted/50 rounded-full"}
                                 />
                             </PaginationItem>
 
                             {/* Simple pagination: showing current page */}
                             <PaginationItem>
-                                <PaginationLink isActive>{filters.page}</PaginationLink>
+                                <PaginationLink isActive className="rounded-full shadow-sm">{filters.page}</PaginationLink>
                             </PaginationItem>
 
                             <PaginationItem>
@@ -93,7 +96,7 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
                                         e.preventDefault();
                                         if (filters.page < totalPages) handlePageChange(filters.page + 1);
                                     }}
-                                    className={filters.page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                                    className={filters.page >= totalPages ? "pointer-events-none opacity-50" : "hover:bg-muted/50 rounded-full"}
                                 />
                             </PaginationItem>
                         </PaginationContent>
@@ -101,8 +104,8 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
                 </div>
             )}
             {/* Quick stats footer */}
-            <div className="text-xs text-muted-foreground text-center">
-                Showing {candidates.length} of {totalCount} candidates
+            <div className="text-xs text-muted-foreground text-center font-medium mt-4">
+                Showing <span className="text-foreground">{candidates.length}</span> of <span className="text-foreground">{totalCount}</span> candidates
             </div>
         </div>
     );

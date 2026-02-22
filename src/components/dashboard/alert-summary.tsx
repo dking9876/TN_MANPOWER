@@ -11,8 +11,8 @@ export function AlertSummaryCard() {
 
     if (isLoading) {
         return (
-            <div className="border rounded-md p-4 bg-card">
-                <Skeleton className="h-5 w-32 mb-4" />
+            <div className="relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/50 backdrop-blur-sm">
+                <Skeleton className="h-5 w-32 mb-6" />
                 <Skeleton className="h-[150px] w-full" />
             </div>
         );
@@ -27,20 +27,20 @@ export function AlertSummaryCard() {
     ];
 
     return (
-        <div className="border rounded-md p-4 bg-card text-card-foreground">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold">Alert Summary</h3>
+        <div className="group relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/80 backdrop-blur-sm text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-base font-semibold tracking-tight">Alert Summary</h3>
                 <Link
                     href="/alerts"
-                    className="text-xs text-teal-600 hover:underline font-medium"
+                    className="text-xs text-primary hover:text-accent hover:underline font-medium transition-colors"
                 >
-                    View all →
+                    View all &rarr;
                 </Link>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
                 {/* Mini donut */}
-                <div className="w-[100px] h-[100px] shrink-0">
+                <div className="w-[120px] h-[120px] shrink-0">
                     {total > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -48,14 +48,15 @@ export function AlertSummaryCard() {
                                     data={chartData}
                                     cx="50%"
                                     cy="50%"
-                                    innerRadius={28}
-                                    outerRadius={45}
+                                    innerRadius={35}
+                                    outerRadius={55}
                                     paddingAngle={2}
                                     dataKey="value"
-                                    stroke="none"
+                                    stroke="var(--card)"
+                                    strokeWidth={2}
                                 >
-                                    <Cell fill="#f59e0b" />
-                                    <Cell fill="#10b981" />
+                                    <Cell fill="#E11D48" className="transition-opacity duration-300 hover:opacity-80 cursor-pointer outline-none" />
+                                    <Cell fill="#10B981" className="transition-opacity duration-300 hover:opacity-80 cursor-pointer outline-none" />
                                 </Pie>
                             </PieChart>
                         </ResponsiveContainer>
@@ -67,18 +68,18 @@ export function AlertSummaryCard() {
                 </div>
 
                 {/* Stats */}
-                <div className="space-y-2 flex-1">
+                <div className="space-y-3 flex-1">
                     <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-                        <span className="text-xs text-muted-foreground">Open</span>
-                        <span className="ml-auto text-lg font-bold text-amber-600">
+                        <AlertTriangle className="h-4 w-4 text-rose-500" />
+                        <span className="text-sm text-muted-foreground font-medium">Open</span>
+                        <span className="ml-auto text-xl font-bold text-rose-600 dark:text-rose-400">
                             {open}
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-                        <span className="text-xs text-muted-foreground">Resolved</span>
-                        <span className="ml-auto text-lg font-bold text-emerald-600">
+                        <CheckCircle className="h-4 w-4 text-emerald-500" />
+                        <span className="text-sm text-muted-foreground font-medium">Resolved</span>
+                        <span className="ml-auto text-xl font-bold text-emerald-600 dark:text-emerald-400">
                             {resolved}
                         </span>
                     </div>

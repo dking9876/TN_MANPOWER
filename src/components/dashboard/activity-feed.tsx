@@ -25,12 +25,12 @@ export function ActivityFeed() {
 
     if (isLoading) {
         return (
-            <div className="border rounded-md p-4 bg-card">
-                <Skeleton className="h-5 w-32 mb-4" />
+            <div className="relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/50 backdrop-blur-sm">
+                <Skeleton className="h-5 w-32 mb-6" />
                 {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="flex gap-3 py-3">
-                        <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-                        <div className="flex-1 space-y-1.5">
+                    <div key={i} className="flex gap-4 py-3">
+                        <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+                        <div className="flex-1 space-y-2 mt-1">
                             <Skeleton className="h-3 w-3/4" />
                             <Skeleton className="h-3 w-1/2" />
                         </div>
@@ -43,8 +43,8 @@ export function ActivityFeed() {
     const entries = data ?? [];
 
     return (
-        <div className="border rounded-md p-4 bg-card text-card-foreground">
-            <h3 className="text-sm font-semibold mb-4">Recent Activity</h3>
+        <div className="group relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/80 backdrop-blur-sm text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
+            <h3 className="text-base font-semibold tracking-tight mb-6">Recent Activity</h3>
 
             {entries.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-8">
@@ -58,21 +58,21 @@ export function ActivityFeed() {
                         return (
                             <div
                                 key={entry.id}
-                                className="flex gap-3 py-2.5 border-b last:border-b-0"
+                                className="group/item flex gap-4 py-3 border-b border-border/40 last:border-b-0 hover:bg-muted/30 transition-colors rounded-lg px-2 -mx-2"
                             >
                                 {/* Icon */}
                                 <div
-                                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${config.color}`}
+                                    className={`w-9 h-9 mt-0.5 rounded-full shadow-sm flex items-center justify-center shrink-0 ${config.color}`}
                                 >
-                                    <Icon className="h-3.5 w-3.5" />
+                                    <Icon className="h-4 w-4" />
                                 </div>
 
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs leading-relaxed">
-                                        <span className="font-semibold">{entry.userName}</span>
+                                    <p className="text-[13px] leading-relaxed">
+                                        <span className="font-semibold tracking-tight">{entry.userName}</span>
                                         {" "}
-                                        <span className="text-muted-foreground">
+                                        <span className="text-muted-foreground font-medium">
                                             {config.label.toLowerCase()}
                                         </span>
                                         {entry.candidateName && (

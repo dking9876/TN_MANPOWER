@@ -28,10 +28,10 @@ export function DocumentCompletion() {
 
     if (loadingCompletion || loadingExpiring) {
         return (
-            <div className="border rounded-md p-4 bg-card">
-                <Skeleton className="h-5 w-48 mb-4" />
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-3/4 mb-2" />
+            <div className="relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/50 backdrop-blur-sm">
+                <Skeleton className="h-5 w-48 mb-6" />
+                <Skeleton className="h-4 w-full mb-3" />
+                <Skeleton className="h-4 w-3/4 mb-3" />
                 <Skeleton className="h-4 w-1/2" />
             </div>
         );
@@ -49,11 +49,11 @@ export function DocumentCompletion() {
             : (completion ?? []).filter((d) => d.documentType === filter);
 
     return (
-        <div className="border rounded-md p-4 bg-card text-card-foreground">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold">Document Completion</h3>
+        <div className="group relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/80 backdrop-blur-sm text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-base font-semibold tracking-tight">Document Completion</h3>
                 <Select value={filter} onValueChange={setFilter}>
-                    <SelectTrigger className="w-[160px] h-8 text-xs">
+                    <SelectTrigger className="w-[180px] h-9 text-xs bg-sidebar hover:bg-sidebar-accent transition-colors">
                         <SelectValue placeholder="Filter by type" />
                     </SelectTrigger>
                     <SelectContent>

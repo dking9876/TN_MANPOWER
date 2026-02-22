@@ -11,7 +11,9 @@ export default async function AlertsPage() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto py-8">
+        <div className="max-w-7xl mx-auto">
+
+
             <AlertListClient />
         </div>
     );

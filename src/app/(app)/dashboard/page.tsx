@@ -12,11 +12,15 @@ export default function DashboardPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Overview of recruitment pipeline
-                </p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 py-2 border-b border-border/40 pb-6 mb-8">
+                <div>
+                    <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+                        Dashboard
+                    </h1>
+                    <p className="text-base text-muted-foreground mt-2 font-medium">
+                        Overview of recruitment pipeline and active metrics
+                    </p>
+                </div>
             </div>
 
             {/* Stat cards */}

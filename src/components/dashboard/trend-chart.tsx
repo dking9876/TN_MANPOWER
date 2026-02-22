@@ -17,16 +17,16 @@ export function TrendChart() {
 
     if (isLoading) {
         return (
-            <div className="border rounded-md p-4 bg-card">
-                <Skeleton className="h-5 w-48 mb-4" />
+            <div className="relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/50 backdrop-blur-sm">
+                <Skeleton className="h-5 w-48 mb-6" />
                 <Skeleton className="h-[250px] w-full" />
             </div>
         );
     }
 
     return (
-        <div className="border rounded-md p-4 bg-card text-card-foreground">
-            <h3 className="text-sm font-semibold mb-4">
+        <div className="group relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/80 backdrop-blur-sm text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
+            <h3 className="text-base font-semibold mb-6 tracking-tight">
                 Candidates Added (Last 6 Months)
             </h3>
             <div className="h-[250px]">
@@ -37,38 +37,49 @@ export function TrendChart() {
                     >
                         <defs>
                             <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
+                                <stop offset="5%" stopColor="#0369A1" stopOpacity={0.4} />
+                                <stop offset="95%" stopColor="#0369A1" stopOpacity={0} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} vertical={false} />
                         <XAxis
                             dataKey="month"
-                            fontSize={11}
+                            fontSize={12}
                             tickLine={false}
                             axisLine={false}
+                            stroke="currentColor"
+                            opacity={0.6}
+                            dy={10}
                         />
                         <YAxis
                             allowDecimals={false}
-                            fontSize={11}
+                            fontSize={12}
                             tickLine={false}
                             axisLine={false}
                             width={30}
+                            stroke="currentColor"
+                            opacity={0.6}
                         />
                         <Tooltip
                             contentStyle={{
-                                borderRadius: "6px",
-                                border: "1px solid #e2e8f0",
-                                fontSize: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid var(--border)",
+                                backgroundColor: "var(--card)",
+                                color: "var(--card-foreground)",
+                                fontSize: "13px",
+                                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
                             }}
+                            itemStyle={{ color: "var(--foreground)", fontWeight: 500 }}
+                            cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1, strokeDasharray: '3 3' }}
                         />
                         <Area
                             type="monotone"
                             dataKey="count"
-                            stroke="#14b8a6"
-                            strokeWidth={2}
+                            stroke="#0369A1"
+                            strokeWidth={3}
                             fill="url(#trendGradient)"
                             name="Candidates"
+                            activeDot={{ r: 6, strokeWidth: 0, fill: '#0EA5E9' }}
                         />
                     </AreaChart>
                 </ResponsiveContainer>

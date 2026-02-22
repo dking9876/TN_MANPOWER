@@ -7,8 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-heading), ui-serif, Georgia, serif;
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -17,6 +18,7 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -26,6 +28,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -38,7 +41,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /* Sharp edges for professional CRM — per @frontend-specialist: 0-2px for professional feel */
+
   --radius-sm: 0.125rem;
   --radius-md: 0.25rem;
   --radius-lg: var(--radius);
@@ -46,57 +49,140 @@
   --radius-2xl: calc(var(--radius) + 4px);
   --radius-3xl: calc(var(--radius) + 6px);
   --radius-4xl: calc(var(--radius) + 8px);
-  /* Custom brand color */
-  --color-brand: oklch(0.55 0.15 175);
-  --color-brand-light: oklch(0.92 0.05 175);
-  --color-brand-dark: oklch(0.35 0.12 175);
+
+  /* Glowing effects for premium dark mode */
+  --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 :root {
   --radius: 0.375rem;
-  --background: oklch(0.985 0.002 250);
-  --foreground: oklch(0.15 0.01 250);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.01 250);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.01 250);
-  /* Teal/Emerald primary — professional, trust-evoking (per frontend-design skill: Trust → Blue/Teal family) */
-  --primary: oklch(0.45 0.14 175);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.005 250);
-  --secondary-foreground: oklch(0.22 0.01 250);
-  --muted: oklch(0.96 0.005 250);
-  --muted-foreground: oklch(0.52 0.01 250);
-  --accent: oklch(0.93 0.03 175);
-  --accent-foreground: oklch(0.25 0.08 175);
-  --destructive: oklch(0.55 0.22 28);
-  --border: oklch(0.91 0.005 250);
-  --input: oklch(0.91 0.005 250);
-  --ring: oklch(0.45 0.14 175);
-  /* Charts: varied hues for data viz — avoiding purple per Purple Ban */
-  --chart-1: oklch(0.55 0.15 175);
-  --chart-2: oklch(0.65 0.18 45);
-  --chart-3: oklch(0.50 0.12 250);
-  --chart-4: oklch(0.70 0.15 140);
-  --chart-5: oklch(0.60 0.20 25);
-  /* Sidebar: Darker for visual hierarchy */
-  --sidebar: oklch(0.18 0.02 250);
-  --sidebar-foreground: oklch(0.92 0.005 250);
-  --sidebar-primary: oklch(0.55 0.15 175);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.25 0.02 250);
-  --sidebar-accent-foreground: oklch(0.92 0.005 250);
-  --sidebar-border: oklch(0.28 0.02 250);
-  --sidebar-ring: oklch(0.55 0.15 175);
+  /* professional subtle rounding */
+
+  /* TN Manpower Premium Light Theme */
+  --background: #F8FAFC;
+  /* Slate 50 */
+  --foreground: #020617;
+  /* Slate 950 */
+
+  --card: #FFFFFF;
+  --card-foreground: #020617;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #020617;
+
+  --primary: #0F172A;
+  /* Slate 900 */
+  --primary-foreground: #F8FAFC;
+
+  --secondary: #334155;
+  /* Slate 700 */
+  --secondary-foreground: #F8FAFC;
+
+  --muted: #E2E8F0;
+  --muted-foreground: #475569;
+  /* Slate 600 - minimum readable contrast */
+
+  --accent: #0369A1;
+  /* CTA */
+  --accent-foreground: #FFFFFF;
+
+  --destructive: #DC2626;
+  /* Red 600 */
+  --destructive-foreground: #FFFFFF;
+
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #0369A1;
+
+  --chart-1: #0369A1;
+  --chart-2: #0F172A;
+  --chart-3: #334155;
+  --chart-4: #64748B;
+  --chart-5: #0284C7;
+
+  --sidebar: #F8FAFC;
+  --sidebar-foreground: #020617;
+  --sidebar-primary: #0F172A;
+  --sidebar-primary-foreground: #F8FAFC;
+  --sidebar-accent: #E2E8F0;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #CBD5E1;
+  --sidebar-ring: #0369A1;
+}
+
+.dark {
+  /* TN Manpower Premium Dark (OLED-friendly) */
+  --background: #000000;
+  /* Deep absolute zero black */
+  --foreground: #F8FAFC;
+  /* Crisp white readable slate */
+
+  --card: #0F172A;
+  /* Embedded slate for contrast */
+  --card-foreground: #F8FAFC;
+
+  --popover: #0F172A;
+  --popover-foreground: #F8FAFC;
+
+  --primary: #0F172A;
+  --primary-foreground: #F8FAFC;
+
+  --secondary: #1E293B;
+  /* Slate 800 */
+  --secondary-foreground: #F8FAFC;
+
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  /* Slate 400 */
+
+  --accent: #0369A1;
+  /* CTA stands out beautifully on OLED black */
+  --accent-foreground: #FFFFFF;
+
+  --destructive: #991B1B;
+  /* Dark mode optimized red */
+  --destructive-foreground: #F8FAFC;
+
+  --border: #1E293B;
+  /* Subtle boundary */
+  --input: #1E293B;
+  --ring: #0369A1;
+
+  --chart-1: #0369A1;
+  --chart-2: #38BDF8;
+  --chart-3: #7DD3FC;
+  --chart-4: #94A3B8;
+  --chart-5: #CBD5E1;
+
+  --sidebar: #000000;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #0284C7;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #0F172A;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: #1E293B;
+  --sidebar-ring: #0369A1;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    /* Engage the Cormorant heading font */
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
   }
 }
 
@@ -106,14 +192,17 @@
     width: 6px;
     height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
-    background: oklch(0.75 0.01 250);
+    background: var(--border);
     border-radius: 3px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.60 0.01 250);
+    background: var(--sidebar-accent-foreground);
   }
 }

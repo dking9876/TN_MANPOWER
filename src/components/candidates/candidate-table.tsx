@@ -49,10 +49,10 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
     }
 
     return (
-        <div className="rounded-md border bg-card">
+        <div className="rounded-xl border border-border/40 bg-card/80 backdrop-blur-sm shadow-sm overflow-x-auto">
             <Table>
                 <TableHeader>
-                    <TableRow className="bg-muted/50">
+                    <TableRow className="bg-muted/30 hover:bg-muted/30 border-b-border/40">
                         <TableHead>Full Name</TableHead>
                         <TableHead>National ID</TableHead>
                         <TableHead>Passport</TableHead>
@@ -67,7 +67,7 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                     {candidates.map((candidate) => (
                         <TableRow
                             key={candidate.id}
-                            className="cursor-pointer hover:bg-muted/30 transition-colors"
+                            className="group cursor-pointer hover:bg-muted/40 transition-colors border-b-border/40"
                             onClick={() => router.push(`/candidates/${candidate.id}`)}
                         >
                             <TableCell className="font-medium">
@@ -106,7 +106,7 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                        className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                         onClick={() => router.push(`/candidates/${candidate.id}`)}
                                         title="View"
                                     >
@@ -115,13 +115,12 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                        className="h-8 w-8 text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
                                         onClick={() => router.push(`/candidates/${candidate.id}/edit`)}
                                         title="Edit"
                                     >
                                         <Pencil className="h-4 w-4" />
                                     </Button>
-                                    {/* Delete is handled in detail view usually, but good to have here too with confirm */}
                                 </div>
                             </TableCell>
                         </TableRow>

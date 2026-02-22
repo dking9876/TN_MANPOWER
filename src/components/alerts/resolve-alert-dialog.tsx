@@ -72,8 +72,8 @@ export function ResolveAlertDialog({ open, onOpenChange, alert }: ResolveAlertDi
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="text-sm bg-muted p-3 rounded-md">
-                    <span className="font-semibold">Alert:</span> {alert.alert_message}
+                <div className="text-sm bg-muted/50 p-3 rounded-lg border border-border/50">
+                    <span className="font-semibold text-foreground">Alert:</span> <span className="text-muted-foreground">{alert.alert_message}</span>
                 </div>
 
                 {/* Candidate File Status Section */}
@@ -102,7 +102,7 @@ export function ResolveAlertDialog({ open, onOpenChange, alert }: ResolveAlertDi
                                 }
 
                                 return (
-                                    <Alert key={doc.id} variant={isError ? "destructive" : "default"} className={!isError ? "border-amber-200 bg-amber-50 text-amber-800" : ""}>
+                                    <Alert key={doc.id} variant={isError ? "destructive" : "default"} className={!isError ? "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400" : ""}>
                                         <FileWarning className="h-4 w-4" />
                                         <AlertTitle className="text-xs font-semibold">{doc.document_type}</AlertTitle>
                                         <AlertDescription className="text-xs flex justify-between items-center">
@@ -115,13 +115,13 @@ export function ResolveAlertDialog({ open, onOpenChange, alert }: ResolveAlertDi
                                 );
                             })}
 
-                            <div className="text-sm font-medium text-amber-600 bg-amber-50 p-2 rounded border border-amber-200 mt-2 flex items-start gap-2">
+                            <div className="text-sm font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20 mt-3 flex items-start gap-2">
                                 <FileWarning className="w-4 h-4 mt-0.5 shrink-0" />
                                 <p><strong>Reminder:</strong> Please discuss these expiring/missing documents with the candidate!</p>
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+                        <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">
                             <CheckCircle2 className="h-4 w-4" />
                             <span>All required documents are received and valid.</span>
                         </div>
@@ -148,7 +148,7 @@ export function ResolveAlertDialog({ open, onOpenChange, alert }: ResolveAlertDi
                             control={form.control}
                             name="update_last_updated_at"
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-lg border border-border/50 bg-muted/20 p-4 transition-colors hover:bg-muted/40 cursor-pointer">
                                     <FormControl>
                                         <Checkbox
                                             checked={field.value as boolean}

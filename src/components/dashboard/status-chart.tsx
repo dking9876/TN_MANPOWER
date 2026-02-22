@@ -43,8 +43,8 @@ export function StatusChart() {
 
     if (isLoading) {
         return (
-            <div className="border rounded-md p-4 bg-card">
-                <Skeleton className="h-5 w-48 mb-4" />
+            <div className="relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/50 backdrop-blur-sm">
+                <Skeleton className="h-5 w-48 mb-6" />
                 <Skeleton className="h-[300px] w-full" />
             </div>
         );
@@ -56,8 +56,8 @@ export function StatusChart() {
     }));
 
     return (
-        <div className="border rounded-md p-4 bg-card text-card-foreground">
-            <h3 className="text-sm font-semibold mb-4">
+        <div className="group relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/80 backdrop-blur-sm text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
+            <h3 className="text-base font-semibold mb-6 tracking-tight">
                 Candidates by Status
             </h3>
             <div className="h-[300px]">
@@ -67,26 +67,33 @@ export function StatusChart() {
                         layout="vertical"
                         margin={{ left: 80, right: 20, top: 5, bottom: 5 }}
                     >
-                        <XAxis type="number" allowDecimals={false} fontSize={12} />
+                        <XAxis type="number" allowDecimals={false} fontSize={12} stroke="currentColor" opacity={0.5} />
                         <YAxis
                             type="category"
                             dataKey="label"
-                            width={80}
-                            fontSize={11}
+                            width={100}
+                            fontSize={12}
                             tickLine={false}
+                            stroke="currentColor"
+                            opacity={0.8}
                         />
                         <Tooltip
                             contentStyle={{
-                                borderRadius: "6px",
-                                border: "1px solid #e2e8f0",
-                                fontSize: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid var(--border)",
+                                backgroundColor: "var(--card)",
+                                color: "var(--card-foreground)",
+                                fontSize: "13px",
+                                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
                             }}
+                            cursor={{ fill: 'var(--muted)', opacity: 0.4 }}
                         />
-                        <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={24}>
+                        <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={28}>
                             {chartData.map((entry) => (
                                 <Cell
                                     key={entry.status}
-                                    fill={STATUS_COLORS[entry.status] ?? "#64748b"}
+                                    fill={STATUS_COLORS[entry.status] ?? "var(--border)"}
+                                    className="transition-opacity duration-300 hover:opacity-80 cursor-pointer"
                                 />
                             ))}
                         </Bar>

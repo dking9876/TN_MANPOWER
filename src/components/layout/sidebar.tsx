@@ -16,6 +16,7 @@ import {
     Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
@@ -65,6 +66,7 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
     const router = useRouter();
     const supabase = createClient();
     const [collapsed, setCollapsed] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     async function handleLogout() {
         await supabase.auth.signOut();
@@ -76,12 +78,12 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
 
     return (
         <>
-            {/* Mobile toggle */}
+            {/* Mobile toggle (positioned inside the mobile header space) */}
             <Button
                 variant="ghost"
                 size="icon"
-                className="fixed top-3 left-3 z-50 lg:hidden"
-                onClick={() => setCollapsed(!collapsed)}
+                className="fixed top-3 right-3 z-50 lg:hidden text-foreground bg-background/50 backdrop-blur-sm border shadow-sm"
+                onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label="Toggle menu"
             >
                 <Menu className="h-5 w-5" />
@@ -90,22 +92,22 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    "fixed left-0 top-0 z-40 h-dvh flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-200 ease-out",
-                    collapsed ? "w-[60px]" : "w-[240px]",
-                    "max-lg:translate-x-[-100%] lg:translate-x-0",
-                    !collapsed && "max-lg:translate-x-0"
+                    "fixed left-0 top-0 z-40 h-dvh flex flex-col bg-sidebar/95 backdrop-blur-xl text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-2xl lg:shadow-none",
+                    collapsed ? "w-[72px]" : "w-[260px]",
+                    /* Mobile: out of view by default unless mobileOpen is true */
+                    !mobileOpen ? "-translate-x-full lg:translate-x-0" : "translate-x-0"
                 )}
             >
                 {/* Brand */}
                 <div className={cn(
-                    "flex items-center h-14 px-4 border-b border-sidebar-border shrink-0",
-                    collapsed ? "justify-center" : "gap-3"
+                    "flex items-center h-16 px-5 border-b border-sidebar-border/50 shrink-0 gap-3",
+                    collapsed ? "justify-center px-0" : ""
                 )}>
-                    <div className="w-8 h-8 bg-sidebar-primary text-sidebar-primary-foreground flex items-center justify-center rounded-sm text-sm font-bold shrink-0">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary via-accent to-blue-900 text-primary-foreground flex items-center justify-center rounded-md text-sm font-bold shadow-sm shrink-0">
                         TN
                     </div>
                     {!collapsed && (
-                        <span className="font-semibold text-sm tracking-tight truncate">
+                        <span className="font-semibold text-base tracking-wide truncate">
                             T.N Manpower
                         </span>
                     )}
@@ -121,13 +123,14 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                                     key={item.href}
                                     href={item.href}
                                     className={cn(
-                                        "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-sm transition-colors",
+                                        "group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200",
                                         isActive
-                                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                            : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50",
-                                        collapsed && "justify-center px-0"
+                                            ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary shadow-sm"
+                                            : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 border-l-2 border-transparent",
+                                        collapsed && "justify-center px-0 border-l-0"
                                     )}
                                     title={collapsed ? item.label : undefined}
+                                    onClick={() => setMobileOpen(false)}
                                 >
                                     <item.icon className="h-4 w-4 shrink-0" />
                                     {!collapsed && (
@@ -169,13 +172,14 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                                             key={item.href}
                                             href={item.href}
                                             className={cn(
-                                                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-sm transition-colors",
+                                                "group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200",
                                                 isActive
-                                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                                    : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50",
-                                                collapsed && "justify-center px-0"
+                                                    ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary shadow-sm"
+                                                    : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 border-l-2 border-transparent",
+                                                collapsed && "justify-center px-0 border-l-0"
                                             )}
                                             title={collapsed ? item.label : undefined}
+                                            onClick={() => setMobileOpen(false)}
                                         >
                                             <item.icon className="h-4 w-4 shrink-0" />
                                             {!collapsed && <span className="truncate">{item.label}</span>}
@@ -206,7 +210,8 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                     </div>
 
                     {/* Actions */}
-                    <div className={cn("flex gap-1", collapsed ? "flex-col" : "")}>
+                    <div className={cn("flex items-center gap-1", collapsed ? "flex-col" : "")}>
+                        {!collapsed && <ThemeToggle />}
                         <Button
                             variant="ghost"
                             size="sm"
@@ -224,7 +229,7 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                             variant="ghost"
                             size="sm"
                             onClick={() => setCollapsed(!collapsed)}
-                            className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 h-8 max-lg:hidden"
+                            className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 h-8 max-lg:hidden shrink-0"
                             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                         >
                             <ChevronLeft className={cn("h-3.5 w-3.5 transition-transform", collapsed && "rotate-180")} />
@@ -234,10 +239,10 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
             </aside>
 
             {/* Mobile overlay */}
-            {!collapsed && (
+            {mobileOpen && (
                 <div
-                    className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-                    onClick={() => setCollapsed(true)}
+                    className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity animate-in fade-in duration-300"
+                    onClick={() => setMobileOpen(false)}
                 />
             )}
         </>
