@@ -52,8 +52,8 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
             national_id: initialData?.national_id || "",
             passport_number: initialData?.passport_number || "",
             date_of_birth: initialData?.date_of_birth || "",
-            primary_phone: initialData?.primary_phone || "",
-            emergency_phone: initialData?.emergency_phone || "",
+            primary_phone: initialData?.primary_phone || "+94",
+            emergency_phone: initialData?.emergency_phone || "+94",
             email: initialData?.email || "",
             height: initialData?.height || null,
             weight: initialData?.weight || null,
@@ -199,7 +199,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                 <FormItem>
                                     <FormLabel>Primary Phone</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="+972..." {...field} value={(field.value as any) ?? ""} />
+                                        <Input placeholder="+94..." {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -212,7 +212,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                 <FormItem>
                                     <FormLabel>Emergency Phone</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="+972..." {...field} value={(field.value as any) ?? ""} />
+                                        <Input placeholder="+94..." {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

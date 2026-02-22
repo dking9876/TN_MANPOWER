@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const supabase = createClient();
 
@@ -90,6 +91,7 @@ export function useAlertCount(userId: string, role: "ADMIN" | "RECRUITER") {
 
 export function useResolveAlert() {
     const queryClient = useQueryClient();
+    const router = useRouter();
 
     return useMutation({
         mutationFn: async ({ id, notes, updateTimestamp }: { id: string; notes: string; updateTimestamp: boolean }) => {
@@ -123,6 +125,7 @@ export function useResolveAlert() {
         onSuccess: () => {
             toast.success("Alert resolved");
             queryClient.invalidateQueries({ queryKey: alertKeys.all });
+            router.refresh();
         },
         onError: (error: any) => {
             toast.error(error.message || "Failed to resolve alert");
