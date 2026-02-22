@@ -13,7 +13,7 @@ export const alertKeys = {
 
 export type AlertFilters = {
     search?: string;
-    type?: string;     // STALENESS | DOCUMENT_EXPIRATION
+    type?: string;     // STALENESS
     status?: "unresolved" | "resolved" | "all";
     page: number;
 };

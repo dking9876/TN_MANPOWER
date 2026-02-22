@@ -83,14 +83,13 @@ describe('Phase 1: Constants Integrity', () => {
     });
 
     describe('ALERT_TYPES', () => {
-        it('should have exactly 2 alert types', () => {
-            expect(Object.keys(ALERT_TYPES)).toHaveLength(2);
+        it('should have exactly 1 alert type', () => {
+            expect(Object.keys(ALERT_TYPES)).toHaveLength(1);
         });
 
-        it('should contain STALENESS and DOCUMENT_EXPIRATION', () => {
+        it('should contain only STALENESS', () => {
             expect(ALERT_TYPES).toEqual({
                 STALENESS: 'Staleness',
-                DOCUMENT_EXPIRATION: 'Document Expiration',
             });
         });
     });

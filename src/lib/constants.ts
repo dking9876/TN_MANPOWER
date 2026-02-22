@@ -60,5 +60,4 @@ export const DOCUMENT_TYPES = {
 
 export const ALERT_TYPES = {
     STALENESS: "Staleness",
-    DOCUMENT_EXPIRATION: "Document Expiration",
 } as const;

@@ -82,10 +82,7 @@ export function AlertListClient() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Types</SelectItem>
-                            {Object.entries(ALERT_TYPES).map(([key, label]) => (
-                                <SelectItem key={key} value={label}>{label}</SelectItem> // Stored as label in DB currently based on schema check? Wait, let's check schema.
-                                // Actually schema says alert_type text. Constants likely match.
-                            ))}
+                            <SelectItem value="Staleness">Staleness</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
