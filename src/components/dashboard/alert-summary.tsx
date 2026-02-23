@@ -1,13 +1,17 @@
 "use client";
 
-import { useAlertSummary } from "@/lib/hooks/use-dashboard";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { useAlertSummary, DashboardFilters } from "@/lib/hooks/use-dashboard";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
-export function AlertSummaryCard() {
-    const { data, isLoading } = useAlertSummary();
+interface AlertSummaryCardProps {
+    filters?: DashboardFilters;
+}
+
+export function AlertSummaryCard({ filters }: AlertSummaryCardProps) {
+    const { data, isLoading } = useAlertSummary(filters);
 
     if (isLoading) {
         return (
@@ -58,6 +62,17 @@ export function AlertSummaryCard() {
                                     <Cell fill="#E11D48" className="transition-opacity duration-300 hover:opacity-80 cursor-pointer outline-none" />
                                     <Cell fill="#10B981" className="transition-opacity duration-300 hover:opacity-80 cursor-pointer outline-none" />
                                 </Pie>
+                                <Tooltip
+                                    contentStyle={{
+                                        borderRadius: "8px",
+                                        border: "1px solid var(--border)",
+                                        backgroundColor: "var(--card)",
+                                        color: "var(--card-foreground)",
+                                        fontSize: "13px",
+                                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                                    }}
+                                    itemStyle={{ color: "var(--foreground)" }}
+                                />
                             </PieChart>
                         </ResponsiveContainer>
                     ) : (

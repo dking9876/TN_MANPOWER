@@ -1,6 +1,5 @@
 "use client";
 
-import { useMonthlyTrend } from "@/lib/hooks/use-dashboard";
 import {
     AreaChart,
     Area,
@@ -10,10 +9,15 @@ import {
     ResponsiveContainer,
     CartesianGrid,
 } from "recharts";
+import { useMonthlyTrend, DashboardFilters } from "@/lib/hooks/use-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function TrendChart() {
-    const { data, isLoading } = useMonthlyTrend();
+interface TrendChartProps {
+    filters?: DashboardFilters;
+}
+
+export function TrendChart({ filters }: TrendChartProps) {
+    const { data, isLoading } = useMonthlyTrend(filters);
 
     if (isLoading) {
         return (

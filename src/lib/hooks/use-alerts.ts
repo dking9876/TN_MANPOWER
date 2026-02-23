@@ -31,7 +31,7 @@ export function useAlerts(filters: AlertFilters) {
                 .from("alerts")
                 .select(`
                     *,
-                    candidate:candidate_id(first_name, last_name),
+                    candidate:candidate_id(first_name, last_name, primary_phone, emergency_phone, email, recruitment_status),
                     company:company_id(name)
                 `, { count: "exact" });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useStatusBreakdown } from "@/lib/hooks/use-dashboard";
+import { useStatusBreakdown, DashboardFilters } from "@/lib/hooks/use-dashboard";
 import { useRecruitmentStatuses } from "@/lib/hooks/use-settings";
 import {
     BarChart,
@@ -43,8 +43,12 @@ function tailwindToHex(colorClass: string): string {
     return "#94a3b8"; // fallback gray
 }
 
-export function StatusChart() {
-    const { data, isLoading } = useStatusBreakdown();
+interface StatusChartProps {
+    filters?: DashboardFilters;
+}
+
+export function StatusChart({ filters }: StatusChartProps) {
+    const { data, isLoading } = useStatusBreakdown(filters);
     const { data: statuses } = useRecruitmentStatuses();
 
     if (isLoading) {
@@ -99,6 +103,7 @@ export function StatusChart() {
                                 fontSize: "13px",
                                 boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
                             }}
+                            itemStyle={{ color: "var(--foreground)" }}
                             cursor={{ fill: 'var(--muted)', opacity: 0.4 }}
                         />
                         <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={28}>

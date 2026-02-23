@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Clock, FileWarning, Search, BellOff, Gift } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ResolveAlertDialog } from "./resolve-alert-dialog";
+import { AlertCandidateSheet } from "./alert-candidate-sheet";
 import { ALERT_TYPES } from "@/lib/constants";
 import {
     Pagination,
@@ -46,7 +46,7 @@ export function AlertListClient() {
     const totalCount = data?.count || 0;
     const totalPages = Math.ceil(totalCount / 25);
 
-    const [selectedAlert, setSelectedAlert] = useState<any>(null);
+    const [sheetAlert, setSheetAlert] = useState<any>(null);
 
     const handlePageChange = (page: number) => {
         setFilters((prev) => ({ ...prev, page }));
@@ -119,13 +119,12 @@ export function AlertListClient() {
                                 <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12">Message</TableHead>
                                 <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12">Created At</TableHead>
                                 <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12">Status</TableHead>
-                                <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12 text-right">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
+                                    <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
                                         <div className="flex flex-col items-center justify-center gap-2">
                                             <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div>
                                             <p>Loading alerts...</p>
@@ -134,7 +133,7 @@ export function AlertListClient() {
                                 </TableRow>
                             ) : alerts.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-64 text-center">
+                                    <TableCell colSpan={5} className="h-64 text-center">
                                         <div className="flex flex-col items-center justify-center text-muted-foreground max-w-sm mx-auto">
                                             <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
                                                 <BellOff className="h-6 w-6 text-muted-foreground/50" />
@@ -146,7 +145,11 @@ export function AlertListClient() {
                                 </TableRow>
                             ) : (
                                 alerts.map((alert: any) => (
-                                    <TableRow key={alert.id} className="group hover:bg-muted/20 transition-colors border-b border-border/30">
+                                    <TableRow
+                                        key={alert.id}
+                                        className="group hover:bg-muted/20 transition-colors border-b border-border/30 cursor-pointer"
+                                        onClick={() => setSheetAlert(alert)}
+                                    >
                                         <TableCell className="py-4">
                                             <div className="flex items-center gap-2.5">
                                                 {alert.alert_type === "STALENESS" ? (
@@ -170,7 +173,10 @@ export function AlertListClient() {
                                         <TableCell className="py-4">
                                             <div
                                                 className="font-medium text-foreground hover:text-primary transition-colors cursor-pointer inline-flex items-center group-hover:underline underline-offset-4"
-                                                onClick={() => router.push(`/candidates/${alert.candidate_id}`)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    router.push(`/candidates/${alert.candidate_id}`);
+                                                }}
                                             >
                                                 {alert.candidate?.first_name} {alert.candidate?.last_name}
                                             </div>
@@ -190,23 +196,6 @@ export function AlertListClient() {
                                                 <Badge variant="outline" className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 shadow-none font-medium">
                                                     Unresolved
                                                 </Badge>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="py-4 text-right">
-                                            {!alert.is_resolved && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    className="shadow-sm hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-colors"
-                                                    onClick={() => setSelectedAlert(alert)}
-                                                >
-                                                    Resolve
-                                                </Button>
-                                            )}
-                                            {alert.is_resolved && (
-                                                <span className="text-xs text-muted-foreground mr-2">
-                                                    {alert.company?.name}
-                                                </span>
                                             )}
                                         </TableCell>
                                     </TableRow>
@@ -255,13 +244,11 @@ export function AlertListClient() {
                 </div>
             </div>
 
-            {selectedAlert && (
-                <ResolveAlertDialog
-                    open={!!selectedAlert}
-                    onOpenChange={(open) => !open && setSelectedAlert(null)}
-                    alert={selectedAlert}
-                />
-            )}
+            <AlertCandidateSheet
+                alert={sheetAlert}
+                open={!!sheetAlert}
+                onOpenChange={(open) => !open && setSheetAlert(null)}
+            />
         </div>
     );
 }

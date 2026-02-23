@@ -1,6 +1,6 @@
 "use client";
 
-import { useRecentActivity } from "@/lib/hooks/use-dashboard";
+import { useRecentActivity, DashboardFilters } from "@/lib/hooks/use-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
@@ -20,8 +20,8 @@ const ACTION_CONFIG: Record<
     },
 };
 
-export function ActivityFeed() {
-    const { data, isLoading } = useRecentActivity();
+export function ActivityFeed({ filters }: { filters?: DashboardFilters }) {
+    const { data, isLoading } = useRecentActivity(filters);
 
     if (isLoading) {
         return (

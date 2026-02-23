@@ -1,6 +1,6 @@
 "use client";
 
-import { useIndustryBreakdown } from "@/lib/hooks/use-dashboard";
+import { useIndustryBreakdown, DashboardFilters } from "@/lib/hooks/use-dashboard";
 import {
     PieChart,
     Pie,
@@ -31,8 +31,12 @@ const INDUSTRY_LABELS: Record<string, string> = {
     SERVICES: "Services",
 };
 
-export function IndustryChart() {
-    const { data, isLoading } = useIndustryBreakdown();
+interface IndustryChartProps {
+    filters?: DashboardFilters;
+}
+
+export function IndustryChart({ filters }: IndustryChartProps) {
+    const { data, isLoading } = useIndustryBreakdown(filters);
 
     if (isLoading) {
         return (

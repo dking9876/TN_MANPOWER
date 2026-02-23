@@ -1,6 +1,6 @@
 "use client";
 
-import { useDashboardStats } from "@/lib/hooks/use-dashboard";
+import { useDashboardStats, DashboardFilters } from "@/lib/hooks/use-dashboard";
 import { Users, TrendingUp, AlertTriangle, Plane } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -35,8 +35,13 @@ const CARDS = [
     },
 ];
 
-export function StatCards() {
-    const { data, isLoading } = useDashboardStats();
+interface StatCardsProps {
+    filters?: DashboardFilters;
+}
+
+export function StatCards({ filters }: StatCardsProps) {
+    const { data, isLoading } = useDashboardStats(filters);
+
 
     if (isLoading) {
         return (

@@ -7,8 +7,13 @@ import { TrendChart } from "@/components/dashboard/trend-chart";
 import { DocumentCompletion } from "@/components/dashboard/document-completion";
 import { AlertSummaryCard } from "@/components/dashboard/alert-summary";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { DashboardFilters } from "@/components/dashboard/dashboard-filters";
+import { useState } from "react";
+import { DashboardFilters as FilterType } from "@/lib/hooks/use-dashboard";
 
 export default function DashboardPage() {
+    const [filters, setFilters] = useState<FilterType>({});
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -23,26 +28,30 @@ export default function DashboardPage() {
                 </div>
             </div>
 
+            {/* Filters */}
+            <DashboardFilters filters={filters} setFilters={setFilters} />
+
             {/* Stat cards */}
-            <StatCards />
+            <StatCards filters={filters} />
 
             {/* Charts row: Status + Industry */}
             <div className="grid gap-4 lg:grid-cols-2">
-                <StatusChart />
-                <IndustryChart />
+                <StatusChart filters={filters} />
+                <IndustryChart filters={filters} />
             </div>
 
             {/* Trend chart */}
-            <TrendChart />
+            <TrendChart filters={filters} />
 
             {/* Documents + Alerts row */}
             <div className="grid gap-4 lg:grid-cols-2">
-                <DocumentCompletion />
-                <AlertSummaryCard />
+                <DocumentCompletion filters={filters} />
+                <AlertSummaryCard filters={filters} />
             </div>
 
             {/* Activity feed */}
-            <ActivityFeed />
+            <ActivityFeed filters={filters} />
         </div>
     );
 }
+

@@ -59,46 +59,76 @@ export type ExpiringDocument = {
 
 const TERMINAL_STATUSES = ["ARRIVED_IN_ISRAEL", "CANDIDATE_REJECTED"];
 
-export const dashboardKeys = {
-    all: ["dashboard"] as const,
-    stats: () => [...dashboardKeys.all, "stats"] as const,
-    statusChart: () => [...dashboardKeys.all, "statusChart"] as const,
-    industryChart: () => [...dashboardKeys.all, "industryChart"] as const,
-    trendChart: () => [...dashboardKeys.all, "trendChart"] as const,
-    documents: () => [...dashboardKeys.all, "documents"] as const,
-    alerts: () => [...dashboardKeys.all, "alerts"] as const,
-    activity: () => [...dashboardKeys.all, "activity"] as const,
-    expiring: () => [...dashboardKeys.all, "expiring"] as const,
+export type DashboardFilters = {
+    company_id?: string[];
+    referrer?: string[];
 };
 
-export function useDashboardStats() {
+export const dashboardKeys = {
+    all: ["dashboard"] as const,
+    stats: (filters?: DashboardFilters) => [...dashboardKeys.all, "stats", filters] as const,
+    statusChart: (filters?: DashboardFilters) => [...dashboardKeys.all, "statusChart", filters] as const,
+    industryChart: (filters?: DashboardFilters) => [...dashboardKeys.all, "industryChart", filters] as const,
+    trendChart: (filters?: DashboardFilters) => [...dashboardKeys.all, "trendChart", filters] as const,
+    documents: (filters?: DashboardFilters) => [...dashboardKeys.all, "documents", filters] as const,
+    alerts: (filters?: DashboardFilters) => [...dashboardKeys.all, "alerts", filters] as const,
+    activity: (filters?: DashboardFilters) => [...dashboardKeys.all, "activity", filters] as const,
+    expiring: (filters?: DashboardFilters) => [...dashboardKeys.all, "expiring", filters] as const,
+};
+
+function applyCandidateFilters(query: any, filters?: DashboardFilters) {
+    if (!filters) return query;
+    if (filters.company_id && filters.company_id.length > 0) {
+        query = query.in("company_id", filters.company_id);
+    }
+    if (filters.referrer && filters.referrer.length > 0) {
+        query = query.in("referrer_id", filters.referrer);
+    }
+    return query;
+}
+
+export function useDashboardStats(filters?: DashboardFilters) {
     return useQuery({
-        queryKey: dashboardKeys.stats(),
+        queryKey: dashboardKeys.stats(filters),
         queryFn: async (): Promise<DashboardStats> => {
             // Total candidates
-            const { count: totalCandidates } = await supabase
+            let totalQuery = supabase
                 .from("candidates")
                 .select("*", { count: "exact", head: true });
+            totalQuery = applyCandidateFilters(totalQuery, filters);
+            const { count: totalCandidates } = await totalQuery;
 
             // In progress (not terminal)
-            const { count: inProgress } = await supabase
+            let inProgressQuery = supabase
                 .from("candidates")
                 .select("*", { count: "exact", head: true })
                 .not("recruitment_status", "in", `(${TERMINAL_STATUSES.join(",")})`);
+            inProgressQuery = applyCandidateFilters(inProgressQuery, filters);
+            const { count: inProgress } = await inProgressQuery;
 
             // Open alerts
-            const { count: openAlerts } = await supabase
+            let alertsQuery = supabase
                 .from("alerts")
-                .select("*", { count: "exact", head: true })
+                .select("*, candidate:candidate_id!inner(company_id, referrer_id)", { count: "exact", head: true })
                 .eq("is_resolved", false);
+
+            if (filters?.company_id && filters.company_id.length > 0) {
+                alertsQuery = alertsQuery.in("candidate.company_id", filters.company_id);
+            }
+            if (filters?.referrer && filters.referrer.length > 0) {
+                alertsQuery = alertsQuery.in("candidate.referrer_id", filters.referrer);
+            }
+            const { count: openAlerts } = await alertsQuery;
 
             // Arrived this month
             const monthStart = startOfMonth(new Date()).toISOString();
-            const { count: arrivedThisMonth } = await supabase
+            let arrivedQuery = supabase
                 .from("candidates")
                 .select("*", { count: "exact", head: true })
                 .eq("recruitment_status", "ARRIVED_IN_ISRAEL")
                 .gte("last_updated_at", monthStart);
+            arrivedQuery = applyCandidateFilters(arrivedQuery, filters);
+            const { count: arrivedThisMonth } = await arrivedQuery;
 
             return {
                 totalCandidates: totalCandidates ?? 0,
@@ -111,13 +141,15 @@ export function useDashboardStats() {
     });
 }
 
-export function useStatusBreakdown() {
+export function useStatusBreakdown(filters?: DashboardFilters) {
     return useQuery({
-        queryKey: dashboardKeys.statusChart(),
+        queryKey: dashboardKeys.statusChart(filters),
         queryFn: async (): Promise<StatusBreakdown[]> => {
-            const { data } = await supabase
+            let query = supabase
                 .from("candidates")
                 .select("recruitment_status");
+            query = applyCandidateFilters(query, filters);
+            const { data } = await query;
 
             if (!data) return [];
 
@@ -135,13 +167,15 @@ export function useStatusBreakdown() {
     });
 }
 
-export function useIndustryBreakdown() {
+export function useIndustryBreakdown(filters?: DashboardFilters) {
     return useQuery({
-        queryKey: dashboardKeys.industryChart(),
+        queryKey: dashboardKeys.industryChart(filters),
         queryFn: async (): Promise<IndustryBreakdown[]> => {
-            const { data } = await supabase
+            let query = supabase
                 .from("candidates")
                 .select("primary_industry");
+            query = applyCandidateFilters(query, filters);
+            const { data } = await query;
 
             if (!data) return [];
 
@@ -159,15 +193,17 @@ export function useIndustryBreakdown() {
     });
 }
 
-export function useMonthlyTrend() {
+export function useMonthlyTrend(filters?: DashboardFilters) {
     return useQuery({
-        queryKey: dashboardKeys.trendChart(),
+        queryKey: dashboardKeys.trendChart(filters),
         queryFn: async (): Promise<MonthlyTrend[]> => {
             const sixMonthsAgo = subMonths(new Date(), 6).toISOString();
-            const { data } = await supabase
+            let query = supabase
                 .from("candidates")
                 .select("created_at")
                 .gte("created_at", sixMonthsAgo);
+            query = applyCandidateFilters(query, filters);
+            const { data } = await query;
 
             if (!data) return [];
 
@@ -194,13 +230,22 @@ export function useMonthlyTrend() {
     });
 }
 
-export function useDocumentCompletion() {
+export function useDocumentCompletion(filters?: DashboardFilters) {
     return useQuery({
-        queryKey: dashboardKeys.documents(),
+        queryKey: dashboardKeys.documents(filters),
         queryFn: async (): Promise<DocumentCompletion[]> => {
-            const { data } = await supabase
+            let query = supabase
                 .from("documents")
-                .select("document_type, is_received");
+                .select("document_type, is_received, candidate:candidate_id!inner(company_id, referrer_id)");
+
+            if (filters?.company_id && filters.company_id.length > 0) {
+                query = query.in("candidate.company_id", filters.company_id);
+            }
+            if (filters?.referrer && filters.referrer.length > 0) {
+                query = query.in("candidate.referrer_id", filters.referrer);
+            }
+
+            const { data } = await query;
 
             if (!data) return [];
 
@@ -224,23 +269,32 @@ export function useDocumentCompletion() {
     });
 }
 
-export function useExpiringDocuments() {
+export function useExpiringDocuments(filters?: DashboardFilters) {
     return useQuery({
-        queryKey: dashboardKeys.expiring(),
+        queryKey: dashboardKeys.expiring(filters),
         queryFn: async (): Promise<ExpiringDocument[]> => {
             const now = new Date().toISOString();
             const thirtyDays = new Date(
                 Date.now() + 30 * 24 * 60 * 60 * 1000
             ).toISOString();
 
-            const { data } = await supabase
+            let query = supabase
                 .from("documents")
                 .select(
-                    "id, document_type, expiration_date, candidate_id, candidate:candidate_id(first_name, last_name)"
+                    "id, document_type, expiration_date, candidate_id, candidate:candidate_id!inner(first_name, last_name, company_id, referrer_id)"
                 )
                 .eq("is_received", true)
                 .gt("expiration_date", now)
-                .lt("expiration_date", thirtyDays)
+                .lt("expiration_date", thirtyDays);
+
+            if (filters?.company_id && filters.company_id.length > 0) {
+                query = query.in("candidate.company_id", filters.company_id);
+            }
+            if (filters?.referrer && filters.referrer.length > 0) {
+                query = query.in("candidate.referrer_id", filters.referrer);
+            }
+
+            const { data } = await query
                 .order("expiration_date", { ascending: true })
                 .limit(10);
 
@@ -260,19 +314,35 @@ export function useExpiringDocuments() {
     });
 }
 
-export function useAlertSummary() {
+export function useAlertSummary(filters?: DashboardFilters) {
     return useQuery({
-        queryKey: dashboardKeys.alerts(),
+        queryKey: dashboardKeys.alerts(filters),
         queryFn: async (): Promise<AlertSummary> => {
-            const { count: open } = await supabase
+            let openQuery = supabase
                 .from("alerts")
-                .select("*", { count: "exact", head: true })
+                .select("*, candidate:candidate_id!inner(company_id, referrer_id)", { count: "exact", head: true })
                 .eq("is_resolved", false);
 
-            const { count: resolved } = await supabase
+            if (filters?.company_id && filters.company_id.length > 0) {
+                openQuery = openQuery.in("candidate.company_id", filters.company_id);
+            }
+            if (filters?.referrer && filters.referrer.length > 0) {
+                openQuery = openQuery.in("candidate.referrer_id", filters.referrer);
+            }
+            const { count: open } = await openQuery;
+
+            let resolvedQuery = supabase
                 .from("alerts")
-                .select("*", { count: "exact", head: true })
+                .select("*, candidate:candidate_id!inner(company_id, referrer_id)", { count: "exact", head: true })
                 .eq("is_resolved", true);
+
+            if (filters?.company_id && filters.company_id.length > 0) {
+                resolvedQuery = resolvedQuery.in("candidate.company_id", filters.company_id);
+            }
+            if (filters?.referrer && filters.referrer.length > 0) {
+                resolvedQuery = resolvedQuery.in("candidate.referrer_id", filters.referrer);
+            }
+            const { count: resolved } = await resolvedQuery;
 
             return {
                 open: open ?? 0,
@@ -283,15 +353,24 @@ export function useAlertSummary() {
     });
 }
 
-export function useRecentActivity() {
+export function useRecentActivity(filters?: DashboardFilters) {
     return useQuery({
-        queryKey: dashboardKeys.activity(),
+        queryKey: dashboardKeys.activity(filters),
         queryFn: async (): Promise<ActivityEntry[]> => {
-            const { data } = await supabase
+            let query = supabase
                 .from("audit_logs")
                 .select(
-                    "id, action, timestamp, changed_fields, user:user_id(full_name), candidate:candidate_id(first_name, last_name)"
-                )
+                    "id, action, timestamp, changed_fields, user:user_id(full_name), candidate:candidate_id!inner(first_name, last_name, company_id, referrer_id)"
+                );
+
+            if (filters?.company_id && filters.company_id.length > 0) {
+                query = query.in("candidate.company_id", filters.company_id);
+            }
+            if (filters?.referrer && filters.referrer.length > 0) {
+                query = query.in("candidate.referrer_id", filters.referrer);
+            }
+
+            const { data } = await query
                 .order("timestamp", { ascending: false })
                 .limit(15);
 
@@ -311,3 +390,4 @@ export function useRecentActivity() {
         staleTime: 15_000,
     });
 }
+

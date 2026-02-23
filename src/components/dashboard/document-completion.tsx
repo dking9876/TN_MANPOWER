@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useDocumentCompletion, useExpiringDocuments } from "@/lib/hooks/use-dashboard";
+import { useDocumentCompletion, useExpiringDocuments, DashboardFilters } from "@/lib/hooks/use-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -21,9 +21,13 @@ const DOC_LABELS: Record<string, string> = {
     VISA: "Visa",
 };
 
-export function DocumentCompletion() {
-    const { data: completion, isLoading: loadingCompletion } = useDocumentCompletion();
-    const { data: expiring, isLoading: loadingExpiring } = useExpiringDocuments();
+interface DocumentCompletionProps {
+    filters?: DashboardFilters;
+}
+
+export function DocumentCompletion({ filters }: DocumentCompletionProps) {
+    const { data: completion, isLoading: loadingCompletion } = useDocumentCompletion(filters);
+    const { data: expiring, isLoading: loadingExpiring } = useExpiringDocuments(filters);
     const [filter, setFilter] = useState<string>("all");
 
     if (loadingCompletion || loadingExpiring) {
