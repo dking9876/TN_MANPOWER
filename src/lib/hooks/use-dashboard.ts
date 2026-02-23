@@ -235,8 +235,8 @@ export function useDocumentCompletion(filters?: DashboardFilters) {
         queryKey: dashboardKeys.documents(filters),
         queryFn: async (): Promise<DocumentCompletion[]> => {
             let query = supabase
-                .from("documents")
-                .select("document_type, is_received, candidate:candidate_id!inner(company_id, referrer_id)");
+                .from("candidate_documents")
+                .select("type, status, candidate:candidate_id!inner(company_id, referrer_id)");
 
             if (filters?.company_id && filters.company_id.length > 0) {
                 query = query.in("candidate.company_id", filters.company_id);
@@ -251,11 +251,11 @@ export function useDocumentCompletion(filters?: DashboardFilters) {
 
             const stats: Record<string, { total: number; received: number }> = {};
             data.forEach((d) => {
-                if (!stats[d.document_type]) {
-                    stats[d.document_type] = { total: 0, received: 0 };
+                if (!stats[d.type]) {
+                    stats[d.type] = { total: 0, received: 0 };
                 }
-                stats[d.document_type].total++;
-                if (d.is_received) stats[d.document_type].received++;
+                stats[d.type].total++;
+                if (d.status === 'SUBMITTED') stats[d.type].received++;
             });
 
             return Object.entries(stats).map(([documentType, s]) => ({
@@ -279,11 +279,11 @@ export function useExpiringDocuments(filters?: DashboardFilters) {
             ).toISOString();
 
             let query = supabase
-                .from("documents")
+                .from("candidate_documents")
                 .select(
-                    "id, document_type, expiration_date, candidate_id, candidate:candidate_id!inner(first_name, last_name, company_id, referrer_id)"
+                    "id, type, expiration_date, candidate_id, candidate:candidate_id!inner(first_name, last_name, company_id, referrer_id)"
                 )
-                .eq("is_received", true)
+                .eq("status", "SUBMITTED")
                 .gt("expiration_date", now)
                 .lt("expiration_date", thirtyDays);
 
@@ -302,11 +302,9 @@ export function useExpiringDocuments(filters?: DashboardFilters) {
 
             return data.map((d: any) => ({
                 id: d.id,
-                documentType: d.document_type,
-                expirationDate: d.expiration_date,
-                candidateName: d.candidate
-                    ? `${d.candidate.first_name} ${d.candidate.last_name}`
-                    : "Unknown",
+                documentType: d.type,
+                expirationDate: d.expiration_date!,
+                candidateName: `${d.candidate.first_name} ${d.candidate.last_name}`,
                 candidateId: d.candidate_id,
             }));
         },

@@ -55,11 +55,13 @@ Deno.serve(async (req) => {
 
         for (const candidate of staleCandidates || []) {
             if (!existingStaleIds.has(candidate.id)) {
+                const daysSinceUpdate = Math.floor((now.getTime() - new Date(candidate.last_updated_at).getTime()) / (86400000));
+                const statusLabel = (candidate.recruitment_status || "UNKNOWN").replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase());
                 newAlerts.push({
                     candidate_id: candidate.id,
                     company_id: candidate.company_id,
                     alert_type: "STALENESS",
-                    alert_message: `Candidate has not been updated in over ${stalenessDays} days. Status: ${candidate.recruitment_status}`,
+                    alert_message: `${candidate.first_name} ${candidate.last_name} — no updates for ${daysSinceUpdate} days (${statusLabel}). Please review and take action.`,
                 });
             }
         }

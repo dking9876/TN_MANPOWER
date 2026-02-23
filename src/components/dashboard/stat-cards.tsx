@@ -61,6 +61,7 @@ export function StatCards({ filters }: StatCardsProps) {
             {CARDS.map((card) => (
                 <div
                     key={card.key}
+                    id={`export-stat-${card.key}`}
                     className="group relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/80 backdrop-blur-sm text-card-foreground shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 >
                     <div className="flex items-center justify-between mb-4">

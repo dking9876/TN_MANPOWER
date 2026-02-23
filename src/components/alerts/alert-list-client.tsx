@@ -66,10 +66,10 @@ export function AlertListClient() {
                 </div>
             </div>
 
-            {/* Unified Table Container */}
-            <div className="bg-card/40 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm overflow-hidden">
-                {/* Filters Header built into the table card */}
-                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between p-5 border-b border-border/40 bg-card/20">
+            {/* Brutalist Ledger Container */}
+            <div className="space-y-6">
+                {/* Filters Header - Stark and separated */}
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between py-4 border-b-2 border-foreground">
                     <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                         <div className="relative w-full sm:w-[300px]">
                             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -111,14 +111,14 @@ export function AlertListClient() {
 
                 {/* Table */}
                 <div className="overflow-x-auto">
-                    <Table>
+                    <Table className="border-collapse">
                         <TableHeader>
-                            <TableRow className="border-b border-border/40 hover:bg-transparent">
-                                <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12">Type</TableHead>
-                                <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12">Candidate</TableHead>
-                                <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12">Message</TableHead>
-                                <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12">Created At</TableHead>
-                                <TableHead className="text-xs uppercase tracking-wider font-semibold text-muted-foreground h-12">Status</TableHead>
+                            <TableRow className="border-b-4 border-foreground hover:bg-transparent">
+                                <TableHead className="text-sm font-medium text-foreground h-14">Type</TableHead>
+                                <TableHead className="text-sm font-medium text-foreground h-14">Candidate</TableHead>
+                                <TableHead className="text-sm font-medium text-foreground h-14">Message</TableHead>
+                                <TableHead className="text-sm font-medium text-foreground h-14">Created At</TableHead>
+                                <TableHead className="text-sm font-medium text-foreground h-14">Status</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -135,44 +135,45 @@ export function AlertListClient() {
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-64 text-center">
                                         <div className="flex flex-col items-center justify-center text-muted-foreground max-w-sm mx-auto">
-                                            <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-                                                <BellOff className="h-6 w-6 text-muted-foreground/50" />
+                                            <div className="h-12 w-12 rounded-sm bg-muted flex items-center justify-center mb-4">
+                                                <BellOff className="h-6 w-6 text-foreground" />
                                             </div>
-                                            <h3 className="text-lg font-medium text-foreground mb-1">No alerts found</h3>
-                                            <p className="text-sm">We couldn't find any alerts matching your current filters. You're all caught up!</p>
+                                            <h3 className="text-xl font-bold text-foreground mb-1 uppercase tracking-tight">No alerts found</h3>
+                                            <p className="text-sm font-medium">We couldn't find any alerts matching your current filters. You're all caught up!</p>
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                alerts.map((alert: any) => (
+                                alerts.map((alert: any, index: number) => (
                                     <TableRow
                                         key={alert.id}
-                                        className="group hover:bg-muted/20 transition-colors border-b border-border/30 cursor-pointer"
+                                        className="group transition-all duration-300 border-b-2 border-border/50 hover:border-foreground hover:bg-muted/10 cursor-pointer relative z-0 hover:z-10 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)]"
+                                        style={{ animationDelay: `${Math.min(index * 50, 500)}ms` }}
                                         onClick={() => setSheetAlert(alert)}
                                     >
-                                        <TableCell className="py-4">
+                                        <TableCell className="py-5">
                                             <div className="flex items-center gap-2.5">
                                                 {alert.alert_type === "STALENESS" ? (
-                                                    <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-500">
+                                                    <div className="p-2 rounded-none bg-amber-500 text-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] group-hover:-rotate-3 transition-transform">
                                                         <Clock className="h-4 w-4" />
                                                     </div>
                                                 ) : alert.alert_type === "REFERRER_BONUS" ? (
-                                                    <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-500">
+                                                    <div className="p-2 rounded-none bg-emerald-500 text-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] group-hover:-rotate-3 transition-transform">
                                                         <Gift className="h-4 w-4" />
                                                     </div>
                                                 ) : (
-                                                    <div className="p-1.5 rounded-md bg-red-500/10 text-red-500">
+                                                    <div className="p-2 rounded-none bg-red-600 text-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] group-hover:-rotate-3 transition-transform">
                                                         <FileWarning className="h-4 w-4" />
                                                     </div>
                                                 )}
-                                                <span className="font-medium text-foreground text-sm">
+                                                <span className="font-medium text-foreground text-sm pl-2">
                                                     {alert.alert_type === "REFERRER_BONUS" ? "Referrer Bonus" : alert.alert_type}
                                                 </span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="py-4">
+                                        <TableCell className="py-5">
                                             <div
-                                                className="font-medium text-foreground hover:text-primary transition-colors cursor-pointer inline-flex items-center group-hover:underline underline-offset-4"
+                                                className="font-medium text-sm text-foreground transition-colors cursor-pointer inline-flex items-center group-hover:underline decoration-2 underline-offset-4"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     router.push(`/candidates/${alert.candidate_id}`);
@@ -181,19 +182,19 @@ export function AlertListClient() {
                                                 {alert.candidate?.first_name} {alert.candidate?.last_name}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="py-4 max-w-[300px] truncate text-muted-foreground text-sm" title={alert.alert_message}>
+                                        <TableCell className="py-5 max-w-[300px] truncate font-medium text-foreground text-sm" title={alert.alert_message}>
                                             {alert.alert_message}
                                         </TableCell>
-                                        <TableCell className="py-4 text-sm text-foreground/80">
+                                        <TableCell className="py-5 text-sm font-medium text-foreground">
                                             {format(new Date(alert.created_at), "MMM d, HH:mm")}
                                         </TableCell>
-                                        <TableCell className="py-4">
+                                        <TableCell className="py-5">
                                             {alert.is_resolved ? (
-                                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-none font-medium">
+                                                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-none border-0 font-medium text-sm py-1 shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.3)]">
                                                     Resolved
                                                 </Badge>
                                             ) : (
-                                                <Badge variant="outline" className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 shadow-none font-medium">
+                                                <Badge className="bg-red-600 hover:bg-red-700 text-white rounded-none border-0 font-medium text-sm py-1 shadow-[2px_2px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.3)]">
                                                     Unresolved
                                                 </Badge>
                                             )}

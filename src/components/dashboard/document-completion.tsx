@@ -15,10 +15,21 @@ import {
 } from "@/components/ui/select";
 
 const DOC_LABELS: Record<string, string> = {
-    PASSPORT: "Passport",
-    POLICE_CLEARANCE: "Police Clearance",
-    HEALTH_DECLARATION: "Health Declaration",
-    VISA: "Visa",
+    PASSPORT_COPIES: "Passport Copies",
+    IMMIGRATION_LETTER_COPIES: "Immigration Letter Copies",
+    ORIGINAL_IMMIGRATION_LETTER: "Original Immigration Letter",
+    RED_RIBBON_DOCUMENT: "Red Ribbon Document",
+    VISA_APPLICATION_FORM: "Visa Application Form",
+    MEDICAL_REPORT: "Medical Report",
+    POLICE_REPORT: "Police Report",
+    BIRTH_CERTIFICATE: "Birth Certificate",
+    GS_CERTIFICATE: "GS Certificate",
+    PERSONAL_AFFIDAVIT: "Personal Affidavit",
+    NIC_COPY_APPLICANT_AND_SPOUSE: "NIC Copy (Applicant & Spouse)",
+    ENGLISH_AGREEMENT: "English Agreement",
+    LETTER_FROM_TRANSLATOR: "Letter From Translator",
+    SINHALA_AGREEMENT: "Sinhala Agreement",
+    NIC_APPLICANT_AND_CANDIDATE: "NIC Applicant & Candidate",
 };
 
 interface DocumentCompletionProps {

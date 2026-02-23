@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { exportCandidatesToCSV } from "@/lib/csv-export";
+import { CandidatePDFExportDialog } from "./candidate-pdf-export-dialog";
 import {
     Pagination,
     PaginationContent,
@@ -45,6 +46,10 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <CandidatePDFExportDialog
+                        filters={filters}
+                        disabled={isLoading || candidates.length === 0}
+                    />
                     <Button
                         variant="outline"
                         onClick={() => exportCandidatesToCSV(filters)}

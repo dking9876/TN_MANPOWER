@@ -116,7 +116,7 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                                 <StatusBadge status={candidate.recruitment_status} />
                             </SelectValue>
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent position="popper" className="max-h-80">
                             {statuses?.map((s) => (
                                 <SelectItem key={s.name} value={s.name}>
                                     <div className="flex items-center gap-2">

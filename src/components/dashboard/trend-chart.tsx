@@ -8,6 +8,7 @@ import {
     Tooltip,
     ResponsiveContainer,
     CartesianGrid,
+    LabelList,
 } from "recharts";
 import { useMonthlyTrend, DashboardFilters } from "@/lib/hooks/use-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,7 +85,9 @@ export function TrendChart({ filters }: TrendChartProps) {
                             fill="url(#trendGradient)"
                             name="Candidates"
                             activeDot={{ r: 6, strokeWidth: 0, fill: '#0EA5E9' }}
-                        />
+                        >
+                            <LabelList dataKey="count" position="top" offset={10} fill="currentColor" fontSize={12} fontWeight={600} />
+                        </Area>
                     </AreaChart>
                 </ResponsiveContainer>
             </div>

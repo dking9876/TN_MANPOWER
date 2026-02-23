@@ -10,6 +10,7 @@ import {
     Tooltip,
     ResponsiveContainer,
     Cell,
+    LabelList,
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -107,6 +108,7 @@ export function StatusChart({ filters }: StatusChartProps) {
                             cursor={{ fill: 'var(--muted)', opacity: 0.4 }}
                         />
                         <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={28}>
+                            <LabelList dataKey="count" position="right" fill="currentColor" fontSize={12} fontWeight={600} />
                             {chartData.map((entry) => (
                                 <Cell
                                     key={entry.status}

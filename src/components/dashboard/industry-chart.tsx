@@ -12,13 +12,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 const INDUSTRY_COLORS = [
-    "#0F172A", // slate 900
-    "#0369A1", // light sky
-    "#38BDF8", // light blue
-    "#0284C7", // primary cta
-    "#94A3B8", // slate 400
-    "#1E293B", // slate 800
-    "#E2E8F0", // slate 200
+    "#0EA5E9", // sky-500
+    "#10B981", // emerald-500
+    "#F59E0B", // amber-500
+    "#8B5CF6", // violet-500
+    "#F43F5E", // rose-500
+    "#06B6D4", // cyan-500
+    "#94A3B8", // slate-400 (neutral fallback)
 ];
 
 const INDUSTRY_LABELS: Record<string, string> = {
@@ -71,6 +71,8 @@ export function IndustryChart({ filters }: IndustryChartProps) {
                             nameKey="label"
                             stroke="none"
                             className="transition-opacity duration-300 hover:opacity-90 cursor-pointer outline-none"
+                            label={({ name, value }) => `${name}: ${value}`}
+                            labelLine={{ stroke: 'currentColor', strokeWidth: 1, opacity: 0.5 }}
                         >
                             {chartData.map((_, index) => (
                                 <Cell

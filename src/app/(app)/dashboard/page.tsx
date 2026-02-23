@@ -8,6 +8,7 @@ import { DocumentCompletion } from "@/components/dashboard/document-completion";
 import { AlertSummaryCard } from "@/components/dashboard/alert-summary";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { DashboardFilters } from "@/components/dashboard/dashboard-filters";
+import { DashboardPDFExportDialog } from "@/components/dashboard/dashboard-pdf-export-dialog";
 import { useState } from "react";
 import { DashboardFilters as FilterType } from "@/lib/hooks/use-dashboard";
 
@@ -26,6 +27,9 @@ export default function DashboardPage() {
                         Overview of recruitment pipeline and active metrics
                     </p>
                 </div>
+                <div className="flex items-center gap-2">
+                    <DashboardPDFExportDialog />
+                </div>
             </div>
 
             {/* Filters */}
@@ -36,17 +40,27 @@ export default function DashboardPage() {
 
             {/* Charts row: Status + Industry */}
             <div className="grid gap-4 lg:grid-cols-2">
-                <StatusChart filters={filters} />
-                <IndustryChart filters={filters} />
+                <div id="export-status-chart">
+                    <StatusChart filters={filters} />
+                </div>
+                <div id="export-industry-chart">
+                    <IndustryChart filters={filters} />
+                </div>
             </div>
 
             {/* Trend chart */}
-            <TrendChart filters={filters} />
+            <div id="export-trend-chart">
+                <TrendChart filters={filters} />
+            </div>
 
             {/* Documents + Alerts row */}
             <div className="grid gap-4 lg:grid-cols-2">
-                <DocumentCompletion filters={filters} />
-                <AlertSummaryCard filters={filters} />
+                <div id="export-document-completion">
+                    <DocumentCompletion filters={filters} />
+                </div>
+                <div id="export-alert-summary">
+                    <AlertSummaryCard filters={filters} />
+                </div>
             </div>
 
             {/* Activity feed */}

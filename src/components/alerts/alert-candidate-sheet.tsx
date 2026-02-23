@@ -34,6 +34,8 @@ import {
     Clock,
     ExternalLink,
     Loader2,
+    Gift,
+    FileWarning,
 } from "lucide-react";
 import { format, isBefore, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -214,6 +216,9 @@ export function AlertCandidateSheet({ alert, open, onOpenChange }: AlertCandidat
             >
                 {isLoading ? (
                     <div className="flex items-center justify-center h-full">
+                        <SheetHeader className="sr-only">
+                            <SheetTitle>Loading Candidate</SheetTitle>
+                        </SheetHeader>
                         <div className="flex flex-col items-center gap-3 text-muted-foreground">
                             <Loader2 className="h-6 w-6 animate-spin" />
                             <span className="text-sm">Loading candidate details...</span>
@@ -221,6 +226,9 @@ export function AlertCandidateSheet({ alert, open, onOpenChange }: AlertCandidat
                     </div>
                 ) : !candidate ? (
                     <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <SheetHeader className="sr-only">
+                            <SheetTitle>Candidate Not Found</SheetTitle>
+                        </SheetHeader>
                         Candidate not found
                     </div>
                 ) : (
@@ -239,7 +247,6 @@ export function AlertCandidateSheet({ alert, open, onOpenChange }: AlertCandidat
                         </SheetHeader>
 
                         <div className="flex-1 space-y-5 px-4 pb-6 overflow-y-auto">
-                            {/* ─── 0. Alert Context & Resolution ─── */}
                             <section className="bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-800/30 p-4 relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
                                 <div className="flex items-start justify-between gap-4">
@@ -258,21 +265,10 @@ export function AlertCandidateSheet({ alert, open, onOpenChange }: AlertCandidat
                                             {alert.alert_message}
                                         </p>
                                     </div>
-                                </div>
-
-                                <div className="mt-4 flex items-center gap-3">
-                                    {alert.is_resolved ? (
-                                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-none font-medium text-xs">
-                                            Resolved Alert
+                                    {alert.is_resolved && (
+                                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-none font-medium text-xs shrink-0">
+                                            Resolved
                                         </Badge>
-                                    ) : (
-                                        <Button
-                                            size="sm"
-                                            className="w-full sm:w-auto shadow-sm"
-                                            onClick={() => setIsResolveDialogOpen(true)}
-                                        >
-                                            Resolve Alert
-                                        </Button>
                                     )}
                                 </div>
                             </section>
@@ -494,20 +490,29 @@ export function AlertCandidateSheet({ alert, open, onOpenChange }: AlertCandidat
                                 )}
                             </section>
 
-                            <Separator className="bg-border/40" />
-
-                            {/* View full profile link */}
-                            <Button
-                                variant="outline"
-                                className="w-full gap-2"
-                                onClick={() => {
-                                    onOpenChange(false);
-                                    router.push(`/candidates/${candidateId}`);
-                                }}
-                            >
-                                <ExternalLink className="h-4 w-4" />
-                                View Full Profile
-                            </Button>
+                            {/* Bottom action buttons */}
+                            <div className="space-y-2">
+                                {!alert.is_resolved && (
+                                    <Button
+                                        className="w-full gap-2 shadow-sm"
+                                        onClick={() => setIsResolveDialogOpen(true)}
+                                    >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        Resolve Alert
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="outline"
+                                    className="w-full gap-2"
+                                    onClick={() => {
+                                        onOpenChange(false);
+                                        router.push(`/candidates/${candidateId}`);
+                                    }}
+                                >
+                                    <ExternalLink className="h-4 w-4" />
+                                    View Full Profile
+                                </Button>
+                            </div>
                         </div>
                     </>
                 )}

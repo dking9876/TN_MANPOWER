@@ -49,30 +49,31 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
     }
 
     return (
-        <div className="rounded-xl border border-border/40 bg-card/80 backdrop-blur-sm shadow-sm overflow-x-auto">
-            <Table>
+        <div className="overflow-x-auto pb-6">
+            <Table className="border-collapse w-full min-w-[1000px]">
                 <TableHeader>
-                    <TableRow className="bg-muted/30 hover:bg-muted/30 border-b-border/40">
-                        <TableHead>Full Name</TableHead>
-                        <TableHead>National ID</TableHead>
-                        <TableHead>Passport</TableHead>
-                        <TableHead>Age</TableHead>
-                        <TableHead>Industry</TableHead>
-                        <TableHead>Rank</TableHead>
-                        <TableHead>Company</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Last Updated</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                    <TableRow className="border-b-4 border-foreground hover:bg-transparent">
+                        <TableHead className="text-sm font-medium text-foreground h-14">Full Name</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">National ID</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">Passport</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">Age</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">Industry</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">Profession</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">Company</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">Status</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">Last Updated</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14 text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
-                <TableBody>
-                    {candidates.map((candidate) => (
+                <TableBody className="animate-in fade-in duration-500">
+                    {candidates.map((candidate, index) => (
                         <TableRow
                             key={candidate.id}
-                            className="group cursor-pointer hover:bg-muted/40 transition-colors border-b-border/40"
+                            className="group transition-all duration-300 border-b-2 border-border/50 hover:border-foreground hover:bg-muted/10 cursor-pointer relative z-0 hover:z-10 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)]"
+                            style={{ animationDelay: `${Math.min(index * 50, 500)}ms` }}
                             onClick={() => router.push(`/candidates/${candidate.id}`)}
                         >
-                            <TableCell className="font-medium">
+                            <TableCell className="py-5 font-medium text-foreground text-sm group-hover:underline decoration-2 underline-offset-4">
                                 <div className="flex items-center gap-2">
                                     {candidate.is_blacklisted && (
                                         <TooltipProvider>
@@ -89,32 +90,32 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                                     {candidate.first_name} {candidate.last_name}
                                 </div>
                             </TableCell>
-                            <TableCell>{candidate.national_id}</TableCell>
-                            <TableCell>{candidate.passport_number}</TableCell>
-                            <TableCell>
+                            <TableCell className="py-5 font-medium text-foreground text-sm">{candidate.national_id}</TableCell>
+                            <TableCell className="py-5 font-medium text-foreground text-sm">{candidate.passport_number}</TableCell>
+                            <TableCell className="py-5 font-medium text-foreground text-sm">
                                 {candidate.date_of_birth
                                     ? new Date().getFullYear() - new Date(candidate.date_of_birth).getFullYear()
                                     : "-"}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-5 font-medium text-foreground text-sm">
                                 {INDUSTRIES[candidate.primary_industry as keyof typeof INDUSTRIES] || candidate.primary_industry}
                             </TableCell>
-                            <TableCell>{candidate.profession}</TableCell>
-                            <TableCell>
-                                {candidate.companies?.name || <span className="text-muted-foreground">-</span>}
+                            <TableCell className="py-5 font-medium text-foreground text-sm">{candidate.profession}</TableCell>
+                            <TableCell className="py-5 font-medium text-foreground text-sm">
+                                {candidate.companies?.name || <span>-</span>}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-5">
                                 <StatusBadge status={candidate.recruitment_status} />
                             </TableCell>
-                            <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
-                                {candidate.last_updated_at ? format(new Date(candidate.last_updated_at), "dd MMM yyyy, HH:mm") : "-"}
+                            <TableCell className="py-5 text-foreground font-medium text-sm whitespace-nowrap">
+                                {candidate.last_updated_at ? format(new Date(candidate.last_updated_at), "dd MMM yy, HH:mm") : "-"}
                             </TableCell>
-                            <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                                <div className="flex items-center justify-end gap-1">
+                            <TableCell className="py-5 text-right" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center justify-end gap-1 transition-opacity">
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                                        className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
                                         onClick={() => router.push(`/candidates/${candidate.id}`)}
                                         title="View"
                                     >
@@ -123,7 +124,7 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
+                                        className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
                                         onClick={() => router.push(`/candidates/${candidate.id}/edit`)}
                                         title="Edit"
                                     >

@@ -22,7 +22,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
         <Badge
             variant="outline"
             className={cn(
-                "font-medium border px-2 py-0.5 whitespace-nowrap",
+                "font-medium border px-2 py-0.5 whitespace-nowrap text-sm",
                 colorClass,
                 className
             )}
