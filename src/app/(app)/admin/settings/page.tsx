@@ -24,7 +24,7 @@ export default function SettingsAdminPage() {
             </div>
 
             <Tabs defaultValue="thresholds" className="space-y-4">
-                <TabsList>
+                <TabsList className="w-full justify-start overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                     <TabsTrigger value="thresholds" className="gap-1.5">
                         <Settings className="h-3.5 w-3.5" />
                         Alert Thresholds
