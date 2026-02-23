@@ -22,6 +22,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useCreateUser, useUpdateUser } from "@/lib/hooks/use-users";
+import { useCompanies } from "@/lib/hooks/use-settings";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Tables } from "@/lib/supabase/types";
 
 const createSchema = z
@@ -31,6 +33,7 @@ const createSchema = z
         password: z.string().min(8, "Password must be at least 8 characters"),
         confirmPassword: z.string(),
         role: z.enum(["ADMIN", "RECRUITER", "REFERRER"]),
+        companyIds: z.array(z.string()).optional(),
     })
     .refine((d) => d.password === d.confirmPassword, {
         message: "Passwords do not match",
@@ -40,6 +43,7 @@ const createSchema = z
 const editSchema = z.object({
     fullName: z.string().min(2, "Name must be at least 2 characters"),
     role: z.enum(["ADMIN", "RECRUITER", "REFERRER"]),
+    companyIds: z.array(z.string()).optional(),
 });
 
 type CreateFormData = z.infer<typeof createSchema>;
@@ -48,13 +52,14 @@ type EditFormData = z.infer<typeof editSchema>;
 interface UserFormDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    user?: Tables<"users"> | null;
+    user?: (Tables<"users"> & { recruiter_companies?: { company_id: string }[] }) | null;
 }
 
 export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps) {
     const isEdit = !!user;
     const createUser = useCreateUser();
     const updateUser = useUpdateUser();
+    const { data: companies } = useCompanies();
 
     const {
         register,
@@ -82,6 +87,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
                 role: user.role as "ADMIN" | "RECRUITER" | "REFERRER",
                 password: "",
                 confirmPassword: "",
+                companyIds: user.recruiter_companies?.map(rc => rc.company_id) || [],
             });
         } else {
             reset({
@@ -90,18 +96,28 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
                 password: "",
                 confirmPassword: "",
                 role: "RECRUITER",
+                companyIds: [],
             });
         }
     }, [user, reset]);
 
     const selectedRole = watch("role");
+    const selectedCompanies = watch("companyIds") || [];
+
+    const handleCompanyChange = (companyId: string, checked: boolean) => {
+        if (checked) {
+            setValue("companyIds", [...selectedCompanies, companyId], { shouldDirty: true });
+        } else {
+            setValue("companyIds", selectedCompanies.filter(id => id !== companyId), { shouldDirty: true });
+        }
+    };
 
     async function onSubmit(data: CreateFormData) {
         try {
             if (isEdit && user) {
                 await updateUser.mutateAsync({
                     userId: user.id,
-                    data: { fullName: data.fullName, role: data.role },
+                    data: { fullName: data.fullName, role: data.role, companyIds: data.companyIds },
                 });
             } else {
                 await createUser.mutateAsync({
@@ -109,6 +125,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
                     email: data.email,
                     password: data.password,
                     role: data.role,
+                    companyIds: data.companyIds,
                 });
             }
             onOpenChange(false);
@@ -202,6 +219,29 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
                             </SelectContent>
                         </Select>
                     </div>
+
+                    {selectedRole === "RECRUITER" && companies && companies.length > 0 && (
+                        <div className="space-y-3 pt-2">
+                            <Label>Linked Companies</Label>
+                            <div className="grid grid-cols-2 gap-3 p-3 border rounded-md max-h-48 overflow-y-auto">
+                                {companies.map((company) => (
+                                    <div key={company.id} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`company-${company.id}`}
+                                            checked={selectedCompanies.includes(company.id)}
+                                            onCheckedChange={(checked) => handleCompanyChange(company.id, checked as boolean)}
+                                        />
+                                        <label
+                                            htmlFor={`company-${company.id}`}
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            {company.name}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <DialogFooter>
                         <Button
