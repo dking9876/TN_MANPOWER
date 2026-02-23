@@ -25,6 +25,7 @@ export async function createUserAction(data: {
     email: string;
     password: string;
     role: "ADMIN" | "RECRUITER" | "REFERRER";
+    companyIds?: string[];
 }) {
     await assertAdmin();
     const admin = createAdminClient();
@@ -54,12 +55,27 @@ export async function createUserAction(data: {
         throw new Error(profileError.message);
     }
 
+    if (data.role === "RECRUITER" && data.companyIds && data.companyIds.length > 0) {
+        const companyLinks = data.companyIds.map(companyId => ({
+            recruiter_id: authUser.user.id,
+            company_id: companyId
+        }));
+        const { error: companiesError } = await admin
+            .from("recruiter_companies")
+            .insert(companyLinks);
+
+        if (companiesError) {
+            console.error("Failed to link companies to recruiter:", companiesError);
+            // Optionally rollback or just log the error depending on strictness
+        }
+    }
+
     return { success: true, userId: authUser.user.id };
 }
 
 export async function updateUserAction(
     userId: string,
-    data: { fullName: string; role: "ADMIN" | "RECRUITER" | "REFERRER" }
+    data: { fullName: string; role: "ADMIN" | "RECRUITER" | "REFERRER"; companyIds?: string[] }
 ) {
     await assertAdmin();
     const admin = createAdminClient();
@@ -70,6 +86,36 @@ export async function updateUserAction(
         .eq("id", userId);
 
     if (error) throw new Error(error.message);
+
+    // Update companies if the user is a recruiter (or being changed to one)
+    // We'll clear the existing associations and re-insert them cleanly
+    if (data.role === "RECRUITER" && data.companyIds !== undefined) {
+        await admin
+            .from("recruiter_companies")
+            .delete()
+            .eq("recruiter_id", userId);
+
+        if (data.companyIds.length > 0) {
+            const companyLinks = data.companyIds.map(companyId => ({
+                recruiter_id: userId,
+                company_id: companyId
+            }));
+            const { error: insertError } = await admin
+                .from("recruiter_companies")
+                .insert(companyLinks);
+
+            if (insertError) {
+                console.error("Failed to update recruiter companies:", insertError);
+            }
+        }
+    } else if (data.role !== "RECRUITER") {
+        // Automatically cleanup if role is changed away from recruiter
+        await admin
+            .from("recruiter_companies")
+            .delete()
+            .eq("recruiter_id", userId);
+    }
+
     return { success: true };
 }
 

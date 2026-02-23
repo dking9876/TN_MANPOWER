@@ -7,3 +7,67 @@ export async function loginAsAdmin(page: Page) {
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*dashboard/, { timeout: 15000 });
 }
+
+export async function loginAsReferrer(page: Page) {
+    await page.goto('/login');
+    await page.fill('#email', 'referrer@tnmanpower.com');
+    await page.fill('#password', 'Referrer123!');
+    await page.click('button[type="submit"]');
+    // Referrer is redirected by middleware from /dashboard to /candidates/new
+    await expect(page).toHaveURL(/.*candidates\/new/, { timeout: 20000 });
+}
+
+/**
+ * Creates a referrer test user via the Admin UI.
+ * Logs in as admin, navigates to User Management, creates the user, then signs out.
+ */
+export async function createReferrerUser(page: Page) {
+    await loginAsAdmin(page);
+
+    await page.goto('/admin/users');
+    await page.waitForLoadState('networkidle');
+
+    // Wait for the user list to render
+    await expect(page.getByText('admin@tnmanpower.com')).toBeVisible({ timeout: 15000 });
+
+    // Check if referrer user already exists
+    const referrerExists = await page.getByText('referrer@tnmanpower.com').isVisible().catch(() => false);
+    if (referrerExists) {
+        // Sign out so the next test can log in fresh
+        await signOut(page);
+        return;
+    }
+
+    // Click "Add User" button
+    await page.getByRole('button', { name: /Add User/i }).click();
+
+    // Wait for dialog to open
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
+
+    // Fill the form
+    await page.fill('#fullName', 'Test Referrer');
+    await page.fill('#email', 'referrer@tnmanpower.com');
+    await page.fill('#password', 'Referrer123!');
+    await page.fill('#confirmPassword', 'Referrer123!');
+
+    // Select REFERRER role: click the combobox, then choose "Referrer"
+    const roleCombobox = page.getByRole('dialog').locator('button[role="combobox"]');
+    await roleCombobox.click();
+    await page.getByRole('option', { name: 'Referrer' }).click();
+
+    // Submit the form
+    await page.getByRole('dialog').getByRole('button', { name: /Create User/i }).click();
+
+    // Wait for user to appear in the list (confirms successful creation)
+    await expect(page.getByText('referrer@tnmanpower.com')).toBeVisible({ timeout: 15000 });
+
+    // Sign out so the next test can log in fresh
+    await signOut(page);
+}
+
+async function signOut(page: Page) {
+    // Click sign out
+    const signOutBtn = page.getByText('Sign out').or(page.locator('button[title="Sign out"]')).first();
+    await signOutBtn.click();
+    await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
+}

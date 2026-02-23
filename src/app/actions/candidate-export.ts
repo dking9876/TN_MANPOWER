@@ -35,6 +35,7 @@ export async function getCandidatesForExport(filters: any) {
             *,
             creator:created_by (full_name),
             updater:last_updated_by (full_name),
+            referrer:referrer_id (full_name),
             documents (
                 document_type,
                 is_received,

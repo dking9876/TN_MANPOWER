@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { parseISO, differenceInYears } from "date-fns";
-import { INDUSTRIES, ENGLISH_LEVELS, RECRUITMENT_STATUS } from "@/lib/constants";
+import { INDUSTRIES, ENGLISH_LEVELS } from "@/lib/constants";
 
 // Helper to validate age >= 18
 const isAdult = (dateStr: string) => {
@@ -11,7 +11,6 @@ const isAdult = (dateStr: string) => {
 // Enums from constants keys for Zod
 const IndustryEnum = z.enum(Object.keys(INDUSTRIES) as [string, ...string[]]);
 const EnglishLevelEnum = z.enum(Object.keys(ENGLISH_LEVELS) as [string, ...string[]]);
-const RecruitmentStatusEnum = z.enum(Object.keys(RECRUITMENT_STATUS) as [string, ...string[]]);
 
 export const candidateFormSchema = z.object({
     // Personal Info
@@ -44,11 +43,27 @@ export const candidateFormSchema = z.object({
     countries_visited: z.array(z.string()).optional(),
 
     // Status (only for edit mode usually, but good to have in schema)
-    recruitment_status: RecruitmentStatusEnum.optional(),
+    recruitment_status: z.string().optional(),
     is_blacklisted: z.boolean().optional(),
 
-    // Optional Company
+    // Status Metadata
+    interview_date: z.string().optional().nullable(),
+    visa_number: z.string().optional().nullable(),
+    visa_expiry_date: z.string().optional().nullable(),
+    insurance_purchased: z.boolean().optional().nullable(),
+    insurance_purchase_date: z.string().optional().nullable(),
+    flight_date: z.string().optional().nullable(),
+    flight_hour: z.string().optional().nullable(),
+    flight_number: z.string().optional().nullable(),
+    connection_flight_date: z.string().optional().nullable(),
+    connection_flight_hour: z.string().optional().nullable(),
+    connection_flight_number: z.string().optional().nullable(),
+    arrival_date: z.string().optional().nullable(),
+    referrer_got_paid: z.boolean().optional().nullable(),
+
+    // Optional Company / Referrer
     company_id: z.string().uuid("Invalid company ID").optional().nullable(),
+    referrer_id: z.string().uuid("Invalid referrer ID").optional().nullable(),
 });
 
 export type CandidateFormValues = z.infer<typeof candidateFormSchema>;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCandidate, useDeleteCandidate, useLogActivity } from "@/lib/hooks/use-candidates";
+import { useCandidate, useDeleteCandidate, useLogActivity, useChangeStatus, useStatusHistory } from "@/lib/hooks/use-candidates";
+import { useRecruitmentStatuses } from "@/lib/hooks/use-settings";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { StatusBadge } from "./status-badge";
 import { DocumentList } from "../documents/document-list";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import {
     Pencil,
     Trash2,
@@ -19,7 +27,9 @@ import {
     Phone,
     MapPin,
     Briefcase,
-    Info
+    Info,
+    Clock,
+    ArrowRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -45,6 +55,9 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
     const { data: candidate, isLoading, error } = useCandidate(id);
     const deleteMutation = useDeleteCandidate();
     const logActivityMutation = useLogActivity();
+    const changeStatusMutation = useChangeStatus();
+    const { data: statuses } = useRecruitmentStatuses();
+    const { data: statusHistory } = useStatusHistory(id);
 
     if (isLoading) return <div className="p-8 text-center text-muted-foreground">Loading candidate details...</div>;
     if (error || !candidate) return <div className="p-8 text-center text-destructive">Error loading candidate.</div>;
@@ -56,6 +69,15 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
 
     const handleLogActivity = () => {
         logActivityMutation.mutate(id);
+    };
+
+    const handleStatusChange = (newStatus: string) => {
+        if (newStatus === candidate.recruitment_status) return;
+        changeStatusMutation.mutate({
+            candidateId: id,
+            oldStatus: candidate.recruitment_status,
+            newStatus,
+        });
     };
 
     return (
@@ -83,7 +105,27 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <StatusBadge status={candidate.recruitment_status} className="h-9 px-3 text-sm" />
+                    {/* Status dropdown */}
+                    <Select
+                        value={candidate.recruitment_status}
+                        onValueChange={handleStatusChange}
+                        disabled={changeStatusMutation.isPending}
+                    >
+                        <SelectTrigger className="w-[220px] h-9">
+                            <SelectValue>
+                                <StatusBadge status={candidate.recruitment_status} />
+                            </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                            {statuses?.map((s) => (
+                                <SelectItem key={s.name} value={s.name}>
+                                    <div className="flex items-center gap-2">
+                                        <StatusBadge status={s.name} className="text-xs" />
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                     <Button onClick={() => router.push(`/candidates/${id}/edit`)}>
                         <Pencil className="mr-2 h-4 w-4" /> Edit
                     </Button>
@@ -121,7 +163,7 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                 <TabsList className="grid w-full grid-cols-3 max-w-[400px]">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="documents">Documents</TabsTrigger>
-                    {/* <TabsTrigger value="history">History</TabsTrigger> */}
+                    <TabsTrigger value="history">History</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6 mt-6">
@@ -189,6 +231,11 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                                         <span className="font-semibold">Countries:</span> {candidate.countries_visited.join(", ")}
                                     </div>
                                 )}
+                                <Separator className="col-span-2 my-2" />
+                                <div className="grid grid-cols-2">
+                                    <span className="text-muted-foreground">Referrer:</span>
+                                    <span>{candidate.referrer?.full_name || <span className="text-muted-foreground italic">None</span>}</span>
+                                </div>
                             </CardContent>
                         </Card>
 
@@ -224,6 +271,81 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                             </CardContent>
                         </Card>
 
+                        {/* Status Details */}
+                        {(candidate.interview_date || candidate.visa_number || candidate.visa_expiry_date ||
+                            candidate.insurance_purchased || candidate.insurance_purchase_date ||
+                            candidate.flight_date || candidate.flight_number ||
+                            candidate.arrival_date || candidate.referrer_got_paid) && (
+                                <Card>
+                                    <CardHeader className="flex flex-row items-center gap-2 pb-2">
+                                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                                        <CardTitle className="text-lg">Status Details</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="grid gap-4 text-sm">
+                                        {candidate.interview_date && (
+                                            <div className="grid grid-cols-2">
+                                                <span className="text-muted-foreground">Interview Date:</span>
+                                                <span>{format(new Date(candidate.interview_date), "PP")}</span>
+                                            </div>
+                                        )}
+                                        {candidate.visa_number && (
+                                            <div className="grid grid-cols-2">
+                                                <span className="text-muted-foreground">Visa Number:</span>
+                                                <span className="font-mono">{candidate.visa_number}</span>
+                                            </div>
+                                        )}
+                                        {candidate.visa_expiry_date && (
+                                            <div className="grid grid-cols-2">
+                                                <span className="text-muted-foreground">Visa Expiry:</span>
+                                                <span>{format(new Date(candidate.visa_expiry_date), "PP")}</span>
+                                            </div>
+                                        )}
+                                        {candidate.insurance_purchased && (
+                                            <div className="grid grid-cols-2">
+                                                <span className="text-muted-foreground">Insurance:</span>
+                                                <span className="text-green-600 font-medium">Purchased{candidate.insurance_purchase_date ? ` (${format(new Date(candidate.insurance_purchase_date), "PP")})` : ""}</span>
+                                            </div>
+                                        )}
+                                        {candidate.flight_date && (
+                                            <>
+                                                <div className="grid grid-cols-2">
+                                                    <span className="text-muted-foreground">Flight:</span>
+                                                    <span>
+                                                        {format(new Date(candidate.flight_date), "PP")}
+                                                        {candidate.flight_hour ? ` at ${candidate.flight_hour}` : ""}
+                                                        {candidate.flight_number ? ` — ${candidate.flight_number}` : ""}
+                                                    </span>
+                                                </div>
+                                                {candidate.connection_flight_date && (
+                                                    <div className="grid grid-cols-2">
+                                                        <span className="text-muted-foreground">Connection:</span>
+                                                        <span>
+                                                            {format(new Date(candidate.connection_flight_date), "PP")}
+                                                            {candidate.connection_flight_hour ? ` at ${candidate.connection_flight_hour}` : ""}
+                                                            {candidate.connection_flight_number ? ` — ${candidate.connection_flight_number}` : ""}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                        {candidate.arrival_date && (
+                                            <div className="grid grid-cols-2">
+                                                <span className="text-muted-foreground">Arrival Date:</span>
+                                                <span className="text-green-600 font-medium">{format(new Date(candidate.arrival_date), "PP")}</span>
+                                            </div>
+                                        )}
+                                        {candidate.referrer_got_paid !== null && candidate.referrer_got_paid !== undefined && (
+                                            <div className="grid grid-cols-2">
+                                                <span className="text-muted-foreground">Referrer Paid:</span>
+                                                <span className={candidate.referrer_got_paid ? "text-green-600 font-medium" : "text-amber-600"}>
+                                                    {candidate.referrer_got_paid ? "Yes" : "No"}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            )}
+
                         {/* System Info */}
                         <Card>
                             <CardHeader className="flex flex-row items-center gap-2 pb-2">
@@ -257,9 +379,57 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                     <DocumentList candidateId={id} />
                 </TabsContent>
 
-                {/* <TabsContent value="history">
-                    <div className="text-center text-muted-foreground p-8">Audit history coming soon...</div>
-                </TabsContent> */}
+                <TabsContent value="history" className="mt-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <Clock className="h-5 w-5 text-muted-foreground" />
+                                Status Change History
+                            </CardTitle>
+                            <CardDescription>
+                                Timeline of all recruitment status changes for this candidate
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {!statusHistory || statusHistory.length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-8">
+                                    No status changes recorded yet. Changes will appear here when the status is updated.
+                                </p>
+                            ) : (
+                                <div className="relative space-y-0">
+                                    {/* Timeline line */}
+                                    <div className="absolute left-[19px] top-2 bottom-2 w-px bg-border" />
+                                    {statusHistory.map((entry: any, i: number) => (
+                                        <div key={entry.id} className="relative flex items-start gap-4 py-3">
+                                            {/* Timeline dot */}
+                                            <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border bg-background">
+                                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    {entry.old_status && (
+                                                        <>
+                                                            <StatusBadge status={entry.old_status} className="text-xs" />
+                                                            <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                                                        </>
+                                                    )}
+                                                    <StatusBadge status={entry.new_status} className="text-xs" />
+                                                </div>
+                                                <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                                    <span>
+                                                        by <span className="font-medium text-foreground">{entry.changer?.full_name || "System"}</span>
+                                                    </span>
+                                                    <span>•</span>
+                                                    <span>{format(new Date(entry.changed_at), "PPP p")}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
             </Tabs>
         </div>
     );

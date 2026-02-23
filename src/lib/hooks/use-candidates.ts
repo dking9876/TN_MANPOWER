@@ -94,6 +94,7 @@ export function useCandidate(id: string) {
                     *,
                     creator:created_by (full_name),
                     updater:last_updated_by (full_name),
+                    referrer:referrer_id (full_name),
                     companies(id, name)
                 `)
                 .eq("id", id)
@@ -238,3 +239,76 @@ export function useLogActivity() {
         },
     });
 }
+
+// --- Status Change ---
+
+export function useChangeStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            candidateId,
+            oldStatus,
+            newStatus,
+        }: {
+            candidateId: string;
+            oldStatus: string;
+            newStatus: string;
+        }) => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Not authenticated");
+
+            // Update candidate status
+            const { error: updateError } = await supabase
+                .from("candidates")
+                .update({
+                    recruitment_status: newStatus,
+                    last_updated_by: user.id,
+                })
+                .eq("id", candidateId);
+
+            if (updateError) throw updateError;
+
+            // Record status change history
+            const { error: historyError } = await supabase
+                .from("candidate_status_history")
+                .insert({
+                    candidate_id: candidateId,
+                    old_status: oldStatus,
+                    new_status: newStatus,
+                    changed_by: user.id,
+                });
+
+            if (historyError) throw historyError;
+        },
+        onSuccess: (_, variables) => {
+            toast.success("Status updated");
+            queryClient.invalidateQueries({ queryKey: candidateKeys.detail(variables.candidateId) });
+            queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: ["status_history", variables.candidateId] });
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to update status");
+        },
+    });
+}
+
+export function useStatusHistory(candidateId: string) {
+    return useQuery({
+        queryKey: ["status_history", candidateId],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from("candidate_status_history")
+                .select(`
+                    *,
+                    changer:changed_by (full_name)
+                `)
+                .eq("candidate_id", candidateId)
+                .order("changed_at", { ascending: false });
+
+            if (error) throw error;
+            return data;
+        },
+    });
+}
+

@@ -24,7 +24,12 @@ export function useUsers() {
         queryFn: async () => {
             const { data, error } = await supabase
                 .from("users")
-                .select("*")
+                .select(`
+                    *,
+                    recruiter_companies (
+                        company_id
+                    )
+                `)
                 .order("created_at", { ascending: true });
 
             if (error) throw error;
@@ -42,6 +47,7 @@ export function useCreateUser() {
             email: string;
             password: string;
             role: "ADMIN" | "RECRUITER" | "REFERRER";
+            companyIds?: string[];
         }) => {
             return await createUserAction(data);
         },
@@ -64,7 +70,7 @@ export function useUpdateUser() {
             data,
         }: {
             userId: string;
-            data: { fullName: string; role: "ADMIN" | "RECRUITER" | "REFERRER" };
+            data: { fullName: string; role: "ADMIN" | "RECRUITER" | "REFERRER"; companyIds?: string[] };
         }) => {
             return await updateUserAction(userId, data);
         },

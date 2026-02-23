@@ -6,7 +6,8 @@ import { AlertThresholdsSection } from "@/components/settings/alert-thresholds-s
 import { BlacklistedCountriesSection } from "@/components/settings/blacklisted-countries-section";
 import { ProfessionsSection } from "@/components/settings/professions-section";
 import { CompaniesSection } from "@/components/settings/companies-section";
-import { Settings, Globe, Briefcase, Building2 } from "lucide-react";
+import { StatusesSection } from "@/components/settings/statuses-section";
+import { Settings, Globe, Briefcase, Building2, ListChecks } from "lucide-react";
 
 export default function SettingsAdminPage() {
     return (
@@ -16,7 +17,7 @@ export default function SettingsAdminPage() {
                     System Settings
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                    Configure alert thresholds, manage countries and professions
+                    Configure alert thresholds, manage countries, professions, and statuses
                 </p>
             </div>
 
@@ -38,6 +39,10 @@ export default function SettingsAdminPage() {
                         <Building2 className="h-3.5 w-3.5" />
                         Companies
                     </TabsTrigger>
+                    <TabsTrigger value="statuses" className="gap-1.5">
+                        <ListChecks className="h-3.5 w-3.5" />
+                        Statuses
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="thresholds">
@@ -55,7 +60,12 @@ export default function SettingsAdminPage() {
                 <TabsContent value="companies">
                     <CompaniesSection />
                 </TabsContent>
+
+                <TabsContent value="statuses">
+                    <StatusesSection />
+                </TabsContent>
             </Tabs>
         </div>
     );
 }
+

@@ -25,7 +25,8 @@ export const ENGLISH_LEVELS = {
     EXCELLENT: "Excellent",
 } as const;
 
-export const RECRUITMENT_STATUS = {
+// Fallback labels for statuses - dynamic statuses come from DB via useRecruitmentStatuses()
+export const RECRUITMENT_STATUS: Record<string, string> = {
     POTENTIAL_CANDIDATE: "Potential Candidate",
     RECRUITMENT_STARTED: "Recruitment Started",
     DOCUMENTS_RECEIVED: "Documents Received",
@@ -36,9 +37,10 @@ export const RECRUITMENT_STATUS = {
     FLIGHT_TICKET_PURCHASED: "Flight Ticket Purchased",
     ARRIVED_IN_ISRAEL: "Arrived in Israel",
     CANDIDATE_REJECTED: "Candidate Rejected",
-} as const;
+};
 
-export const STATUS_COLORS: Record<keyof typeof RECRUITMENT_STATUS, string> = {
+// Fallback colors for statuses - dynamic colors come from DB
+export const STATUS_COLORS: Record<string, string> = {
     POTENTIAL_CANDIDATE: "bg-slate-100 text-slate-700 border-slate-200",
     RECRUITMENT_STARTED: "bg-blue-100 text-blue-700 border-blue-200",
     DOCUMENTS_RECEIVED: "bg-indigo-100 text-indigo-700 border-indigo-200",

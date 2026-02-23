@@ -35,7 +35,9 @@ import {
 import { format } from "date-fns";
 import type { Tables } from "@/lib/supabase/types";
 
-type UserRow = Tables<"users">;
+type UserRow = Tables<"users"> & {
+    recruiter_companies?: { company_id: string }[];
+};
 
 export function UserList() {
     const { data: users, isLoading } = useUsers();

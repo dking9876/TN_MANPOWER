@@ -51,8 +51,8 @@ describe('Phase 1: Constants Integrity', () => {
     });
 
     describe('RECRUITMENT_STATUS', () => {
-        it('should have 10 status options', () => {
-            expect(Object.keys(RECRUITMENT_STATUS)).toHaveLength(10);
+        it('should have at least 10 fallback status options', () => {
+            expect(Object.keys(RECRUITMENT_STATUS).length).toBeGreaterThanOrEqual(10);
         });
 
         it('should include terminal statuses', () => {
@@ -62,10 +62,10 @@ describe('Phase 1: Constants Integrity', () => {
     });
 
     describe('STATUS_COLORS', () => {
-        it('should have a color class for every recruitment status', () => {
+        it('should have a color class for every fallback recruitment status', () => {
             Object.keys(RECRUITMENT_STATUS).forEach((status) => {
-                expect(STATUS_COLORS[status as keyof typeof RECRUITMENT_STATUS]).toBeDefined();
-                expect(STATUS_COLORS[status as keyof typeof RECRUITMENT_STATUS]).toContain('bg-');
+                expect(STATUS_COLORS[status]).toBeDefined();
+                expect(STATUS_COLORS[status]).toContain('bg-');
             });
         });
     });

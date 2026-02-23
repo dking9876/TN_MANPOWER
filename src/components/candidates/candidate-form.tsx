@@ -4,7 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { candidateFormSchema, CandidateFormValues } from "@/lib/validations/candidate-schema";
 import { useCreateCandidate, useUpdateCandidate } from "@/lib/hooks/use-candidates";
-import { useCompanies } from "@/lib/hooks/use-settings";
+import { useCompanies, useRecruitmentStatuses } from "@/lib/hooks/use-settings";
+import { useUsers } from "@/lib/hooks/use-users";
 import { Tables } from "@/lib/supabase/types";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { INDUSTRIES, INDUSTRY_PROFESSIONS, ENGLISH_LEVELS, RECRUITMENT_STATUS } from "@/lib/constants";
+import { INDUSTRIES, INDUSTRY_PROFESSIONS, ENGLISH_LEVELS } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -44,7 +45,12 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
     const createMutation = useCreateCandidate();
     const updateMutation = useUpdateCandidate();
     const { data: companies, isLoading: companiesLoading } = useCompanies();
+    const { data: users, isLoading: usersLoading } = useUsers();
+    const { data: recruitmentStatuses } = useRecruitmentStatuses();
     const [age, setAge] = useState<number | null>(null);
+
+    // Find the default status from DB
+    const defaultStatusName = recruitmentStatuses?.find((s) => s.is_default)?.name || "POTENTIAL_CANDIDATE";
 
     const form = useForm<CandidateFormValues>({
         resolver: zodResolver(candidateFormSchema) as any,
@@ -67,15 +73,31 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
             english_level: initialData?.english_level || "NONE",
             has_visited_other: initialData?.has_visited_other || false,
             countries_visited: initialData?.countries_visited || [],
-            recruitment_status: initialData?.recruitment_status || "POTENTIAL_CANDIDATE",
+            recruitment_status: initialData?.recruitment_status || defaultStatusName,
             is_blacklisted: initialData?.is_blacklisted || false,
             company_id: initialData?.company_id || null,
+            referrer_id: initialData?.referrer_id || null,
+            // Status metadata
+            interview_date: initialData?.interview_date || null,
+            visa_number: initialData?.visa_number || "",
+            visa_expiry_date: initialData?.visa_expiry_date || null,
+            insurance_purchased: initialData?.insurance_purchased || false,
+            insurance_purchase_date: initialData?.insurance_purchase_date || null,
+            flight_date: initialData?.flight_date || null,
+            flight_hour: initialData?.flight_hour || "",
+            flight_number: initialData?.flight_number || "",
+            connection_flight_date: initialData?.connection_flight_date || null,
+            connection_flight_hour: initialData?.connection_flight_hour || "",
+            connection_flight_number: initialData?.connection_flight_number || "",
+            arrival_date: initialData?.arrival_date || null,
+            referrer_got_paid: initialData?.referrer_got_paid || false,
         },
     });
 
     const watchedIndustry = form.watch("primary_industry");
     const watchedDob = form.watch("date_of_birth");
     const watchedHasVisited = form.watch("has_visited_other");
+    const watchedStatus = form.watch("recruitment_status");
 
     // Calculate age on DOB change
     useEffect(() => {
@@ -354,6 +376,38 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                 </FormItem>
                             )}
                         />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
+                            name="referrer_id"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Referrer (Optional)</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={(field.value as string) || undefined}
+                                        disabled={usersLoading}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select referrer" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            {users?.filter(u => ["ADMIN", "RECRUITER", "REFERRER"].includes(u.role)).map((user) => (
+                                                <SelectItem key={user.id} value={user.id}>
+                                                    {user.full_name} ({user.role.toLowerCase()})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        The person who referred this candidate
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </CardContent>
                 </Card>
 
@@ -499,6 +553,231 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Status Details (conditional, edit mode only) */}
+                {isEditMode && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Status Details</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid gap-6 md:grid-cols-2">
+                            {/* Awaiting Interview */}
+                            {watchedStatus === "AWAITING_INTERVIEW" && (
+                                <FormField<CandidateFormValues>
+                                    control={form.control}
+                                    name="interview_date"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Interview Date</FormLabel>
+                                            <FormControl>
+                                                <Input type="date" {...field} value={(field.value as any) ?? ""} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+
+                            {/* Visa Approved */}
+                            {watchedStatus === "VISA_APPROVED" && (
+                                <>
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="visa_number"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Visa Number</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="Visa number" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="visa_expiry_date"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Visa Expiry Date</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </>
+                            )}
+
+                            {/* Health Insurance */}
+                            {watchedStatus === "HEALTH_INSURANCE_PURCHASED" && (
+                                <>
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="insurance_purchased"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                                <FormControl>
+                                                    <Checkbox
+                                                        checked={field.value as boolean}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                                <div className="leading-none">
+                                                    <FormLabel>Insurance Purchased</FormLabel>
+                                                </div>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="insurance_purchase_date"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Purchase Date</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </>
+                            )}
+
+                            {/* Flight Ticket */}
+                            {watchedStatus === "FLIGHT_TICKET_PURCHASED" && (
+                                <>
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="flight_date"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Flight Date</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="flight_hour"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Flight Hour</FormLabel>
+                                                <FormControl>
+                                                    <Input type="time" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="flight_number"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Flight Number</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g. TK 788" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <div className="col-span-2">
+                                        <h4 className="text-sm font-medium text-muted-foreground mb-3">Connection Flight (Optional)</h4>
+                                    </div>
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="connection_flight_date"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Connection Date</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="connection_flight_hour"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Connection Hour</FormLabel>
+                                                <FormControl>
+                                                    <Input type="time" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="connection_flight_number"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Connection Flight No.</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g. LY 315" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </>
+                            )}
+
+                            {/* Arrived in Israel */}
+                            {watchedStatus === "ARRIVED_IN_ISRAEL" && (
+                                <>
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="arrival_date"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Arrival Date</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...field} value={(field.value as any) ?? ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField<CandidateFormValues>
+                                        control={form.control}
+                                        name="referrer_got_paid"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                                <FormControl>
+                                                    <Checkbox
+                                                        checked={field.value as boolean}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                                <div className="leading-none">
+                                                    <FormLabel>Referrer Got Paid</FormLabel>
+                                                </div>
+                                            </FormItem>
+                                        )}
+                                    />
+                                </>
+                            )}
+
+                            {/* No special fields for this status */}
+                            {!["AWAITING_INTERVIEW", "VISA_APPROVED", "HEALTH_INSURANCE_PURCHASED", "FLIGHT_TICKET_PURCHASED", "ARRIVED_IN_ISRAEL"].includes(watchedStatus || "") && (
+                                <p className="text-sm text-muted-foreground col-span-2">
+                                    No additional details required for the current status.
+                                </p>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
 
                 <div className="flex justify-end gap-4">
                     <Button variant="outline" type="button" onClick={() => router.back()}>

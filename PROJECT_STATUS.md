@@ -50,6 +50,7 @@
 - [x] Unique constraints (Rule 4)
 - [x] Audit logging (Rule 5)
 - [x] Last updated timestamp (Rule 6)
+- [x] Referrer selection & tracking
 - [x] CSV export
 
 ### Phase 4: Documents & Alerts ✅

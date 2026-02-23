@@ -1,15 +1,22 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { RECRUITMENT_STATUS, STATUS_COLORS } from "@/lib/constants";
+import { STATUS_COLORS, RECRUITMENT_STATUS } from "@/lib/constants";
+import { useRecruitmentStatuses } from "@/lib/hooks/use-settings";
 
 interface StatusBadgeProps {
-    status: keyof typeof RECRUITMENT_STATUS;
+    status: string;
     className?: string;
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-    const label = RECRUITMENT_STATUS[status] || status;
-    const colorClass = STATUS_COLORS[status] || "bg-gray-100 text-gray-800";
+    const { data: statuses } = useRecruitmentStatuses();
+
+    // Try to find the label and color from DB first, then fallback to constants
+    const dbStatus = statuses?.find((s) => s.name === status);
+    const label = dbStatus?.label || RECRUITMENT_STATUS[status] || status;
+    const colorClass = dbStatus?.color || STATUS_COLORS[status] || "bg-gray-100 text-gray-800";
 
     return (
         <Badge

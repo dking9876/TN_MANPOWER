@@ -20,10 +20,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import {
     INDUSTRIES,
-    RECRUITMENT_STATUS,
 } from "@/lib/constants";
 import { Check, Filter, Plus, X, Building2 } from "lucide-react";
-import { useCompanies } from "@/lib/hooks/use-settings";
+import { useCompanies, useRecruitmentStatuses } from "@/lib/hooks/use-settings";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/lib/hooks/use-debounce"; // We need to create this hook or use external lib. 
@@ -38,6 +37,7 @@ interface CandidateFiltersProps {
 export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFiltersProps) {
     const [searchValue, setSearchValue] = useState(filters.search || "");
     const { data: companies } = useCompanies();
+    const { data: recruitmentStatuses } = useRecruitmentStatuses();
 
     // Simple debounce
     useEffect(() => {
@@ -130,7 +130,7 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
                                                         key={status}
                                                         className="rounded-sm px-1 font-normal"
                                                     >
-                                                        {RECRUITMENT_STATUS[status as keyof typeof RECRUITMENT_STATUS]}
+                                                        {recruitmentStatuses?.find(s => s.name === status)?.label || status}
                                                     </Badge>
                                                 ))
                                             )}
@@ -145,12 +145,12 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
                                 <CommandList>
                                     <CommandEmpty>No results found.</CommandEmpty>
                                     <CommandGroup>
-                                        {Object.entries(RECRUITMENT_STATUS).map(([key, label]) => {
-                                            const isSelected = filters.status?.includes(key);
+                                        {recruitmentStatuses?.map((s) => {
+                                            const isSelected = filters.status?.includes(s.name);
                                             return (
                                                 <CommandItem
-                                                    key={key}
-                                                    onSelect={() => toggleStatus(key)}
+                                                    key={s.name}
+                                                    onSelect={() => toggleStatus(s.name)}
                                                 >
                                                     <div
                                                         className={cn(
@@ -162,7 +162,7 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
                                                     >
                                                         <Check className={cn("h-4 w-4")} />
                                                     </div>
-                                                    <span>{label}</span>
+                                                    <span>{s.label}</span>
                                                 </CommandItem>
                                             );
                                         })}

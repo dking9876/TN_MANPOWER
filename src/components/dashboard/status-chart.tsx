@@ -1,6 +1,7 @@
 "use client";
 
 import { useStatusBreakdown } from "@/lib/hooks/use-dashboard";
+import { useRecruitmentStatuses } from "@/lib/hooks/use-settings";
 import {
     BarChart,
     Bar,
@@ -12,34 +13,39 @@ import {
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const STATUS_LABELS: Record<string, string> = {
-    POTENTIAL_CANDIDATE: "Potential",
-    RECRUITMENT_STARTED: "Recruiting",
-    DOCUMENTS_RECEIVED: "Docs Received",
-    SENT_TO_IVS: "Sent to IVS",
-    AWAITING_INTERVIEW: "Interview",
-    VISA_APPROVED: "Visa Approved",
-    HEALTH_INSURANCE_PURCHASED: "Health Ins.",
-    FLIGHT_TICKET_PURCHASED: "Flight Ticket",
-    ARRIVED_IN_ISRAEL: "Arrived",
-    CANDIDATE_REJECTED: "Rejected",
-};
-
-const STATUS_COLORS: Record<string, string> = {
+// Fallback hex colors for chart (DB stores Tailwind classes, so we need hex for recharts)
+const CHART_COLORS: Record<string, string> = {
     POTENTIAL_CANDIDATE: "#94a3b8",
     RECRUITMENT_STARTED: "#38bdf8",
-    DOCUMENTS_RECEIVED: "#2dd4bf",
-    SENT_TO_IVS: "#34d399",
-    AWAITING_INTERVIEW: "#a78bfa",
-    VISA_APPROVED: "#22d3ee",
-    HEALTH_INSURANCE_PURCHASED: "#4ade80",
-    FLIGHT_TICKET_PURCHASED: "#facc15",
+    DOCUMENTS_RECEIVED: "#818cf8",
+    SENT_TO_IVS: "#a78bfa",
+    AWAITING_INTERVIEW: "#f59e0b",
+    VISA_APPROVED: "#2dd4bf",
+    HEALTH_INSURANCE_PURCHASED: "#22d3ee",
+    FLIGHT_TICKET_PURCHASED: "#38bdf8",
     ARRIVED_IN_ISRAEL: "#10b981",
     CANDIDATE_REJECTED: "#f87171",
 };
 
+// Map common Tailwind color classes to hex for the chart
+function tailwindToHex(colorClass: string): string {
+    if (colorClass.includes("slate")) return "#94a3b8";
+    if (colorClass.includes("blue")) return "#38bdf8";
+    if (colorClass.includes("indigo")) return "#818cf8";
+    if (colorClass.includes("purple")) return "#a78bfa";
+    if (colorClass.includes("amber")) return "#f59e0b";
+    if (colorClass.includes("teal")) return "#2dd4bf";
+    if (colorClass.includes("cyan")) return "#22d3ee";
+    if (colorClass.includes("sky")) return "#38bdf8";
+    if (colorClass.includes("green") || colorClass.includes("emerald")) return "#10b981";
+    if (colorClass.includes("rose") || colorClass.includes("destructive") || colorClass.includes("red")) return "#f87171";
+    if (colorClass.includes("orange")) return "#fb923c";
+    return "#94a3b8"; // fallback gray
+}
+
 export function StatusChart() {
     const { data, isLoading } = useStatusBreakdown();
+    const { data: statuses } = useRecruitmentStatuses();
 
     if (isLoading) {
         return (
@@ -50,10 +56,17 @@ export function StatusChart() {
         );
     }
 
-    const chartData = (data ?? []).map((d) => ({
-        ...d,
-        label: STATUS_LABELS[d.status] ?? d.status,
-    }));
+    // Build label/color maps from DB statuses
+    const statusMap = new Map(statuses?.map((s) => [s.name, s]) ?? []);
+
+    const chartData = (data ?? []).map((d) => {
+        const dbStatus = statusMap.get(d.status);
+        return {
+            ...d,
+            label: dbStatus?.label ?? d.status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+            color: dbStatus ? tailwindToHex(dbStatus.color) : CHART_COLORS[d.status] ?? "#94a3b8",
+        };
+    });
 
     return (
         <div className="group relative overflow-hidden border border-border/40 rounded-xl p-6 bg-card/80 backdrop-blur-sm text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
@@ -92,7 +105,7 @@ export function StatusChart() {
                             {chartData.map((entry) => (
                                 <Cell
                                     key={entry.status}
-                                    fill={STATUS_COLORS[entry.status] ?? "var(--border)"}
+                                    fill={entry.color}
                                     className="transition-opacity duration-300 hover:opacity-80 cursor-pointer"
                                 />
                             ))}

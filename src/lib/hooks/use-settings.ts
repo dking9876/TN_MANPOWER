@@ -12,6 +12,7 @@ export const settingsKeys = {
     countries: () => [...settingsKeys.all, "countries"] as const,
     professions: () => [...settingsKeys.all, "professions"] as const,
     companies: () => [...settingsKeys.all, "companies"] as const,
+    statuses: () => [...settingsKeys.all, "statuses"] as const,
 };
 
 // --- System Config ---
@@ -238,3 +239,106 @@ export function useDeleteCompany() {
         },
     });
 }
+
+// --- Recruitment Statuses ---
+
+export function useRecruitmentStatuses() {
+    return useQuery({
+        queryKey: settingsKeys.statuses(),
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from("recruitment_statuses")
+                .select("*")
+                .order("display_order");
+
+            if (error) throw error;
+            return data;
+        },
+    });
+}
+
+export function useAddStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            name,
+            label,
+            color,
+            display_order,
+        }: {
+            name: string;
+            label: string;
+            color: string;
+            display_order: number;
+        }) => {
+            const { error } = await supabase
+                .from("recruitment_statuses")
+                .insert({ name, label, color, display_order });
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            toast.success("Status added successfully");
+            queryClient.invalidateQueries({ queryKey: settingsKeys.statuses() });
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to add status");
+        },
+    });
+}
+
+export function useUpdateStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            id,
+            updates,
+        }: {
+            id: string;
+            updates: { label?: string; color?: string; display_order?: number; is_default?: boolean };
+        }) => {
+            const { error } = await supabase
+                .from("recruitment_statuses")
+                .update(updates)
+                .eq("id", id);
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            toast.success("Status updated");
+            queryClient.invalidateQueries({ queryKey: settingsKeys.statuses() });
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to update status");
+        },
+    });
+}
+
+export function useDeleteStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await supabase
+                .from("recruitment_statuses")
+                .delete()
+                .eq("id", id);
+
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            toast.success("Status deleted successfully");
+            queryClient.invalidateQueries({ queryKey: settingsKeys.statuses() });
+        },
+        onError: (error: Error) => {
+            if (error.message?.includes("foreign key")) {
+                toast.error("Cannot delete: this status is currently assigned to candidates");
+            } else {
+                toast.error(error.message || "Failed to delete status");
+            }
+        },
+    });
+}
+
