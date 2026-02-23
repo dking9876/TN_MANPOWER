@@ -7,7 +7,8 @@ import { BlacklistedCountriesSection } from "@/components/settings/blacklisted-c
 import { ProfessionsSection } from "@/components/settings/professions-section";
 import { CompaniesSection } from "@/components/settings/companies-section";
 import { StatusesSection } from "@/components/settings/statuses-section";
-import { Settings, Globe, Briefcase, Building2, ListChecks } from "lucide-react";
+import { DocumentThresholdsSection } from "@/components/settings/document-thresholds-section";
+import { Settings, Globe, Briefcase, Building2, ListChecks, FileWarning } from "lucide-react";
 
 export default function SettingsAdminPage() {
     return (
@@ -26,6 +27,10 @@ export default function SettingsAdminPage() {
                     <TabsTrigger value="thresholds" className="gap-1.5">
                         <Settings className="h-3.5 w-3.5" />
                         Alert Thresholds
+                    </TabsTrigger>
+                    <TabsTrigger value="document-alerts" className="gap-1.5">
+                        <FileWarning className="h-3.5 w-3.5" />
+                        Document Alerts
                     </TabsTrigger>
                     <TabsTrigger value="countries" className="gap-1.5">
                         <Globe className="h-3.5 w-3.5" />
@@ -47,6 +52,10 @@ export default function SettingsAdminPage() {
 
                 <TabsContent value="thresholds">
                     <AlertThresholdsSection />
+                </TabsContent>
+
+                <TabsContent value="document-alerts">
+                    <DocumentThresholdsSection />
                 </TabsContent>
 
                 <TabsContent value="countries">

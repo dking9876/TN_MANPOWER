@@ -28,7 +28,7 @@ export function useAlerts(filters: AlertFilters) {
                 .select(`
                     *,
                     candidate:candidate_id(first_name, last_name),
-                    assignee:assigned_to(full_name)
+                    company:company_id(name)
                 `, { count: "exact" });
 
             // Apply filters
@@ -72,20 +72,36 @@ export function useAlertCount(userId: string, role: "ADMIN" | "RECRUITER") {
     return useQuery({
         queryKey: alertKeys.count(),
         queryFn: async () => {
-            let query = supabase
-                .from("alerts")
-                .select("*", { count: "exact", head: true })
-                .eq("is_resolved", false);
-
-            if (role !== "ADMIN") {
-                query = query.eq("assigned_to", userId);
+            if (role === "ADMIN") {
+                const { count, error } = await supabase
+                    .from("alerts")
+                    .select("*", { count: "exact", head: true })
+                    .eq("is_resolved", false);
+                if (error) throw error;
+                return count || 0;
             }
 
-            const { count, error } = await query;
+            // For recruiters: get their linked company IDs, then count alerts
+            const { data: linkedCompanies, error: rcError } = await supabase
+                .from("recruiter_companies")
+                .select("company_id")
+                .eq("recruiter_id", userId);
+
+            if (rcError) throw rcError;
+
+            const companyIds = linkedCompanies?.map(rc => rc.company_id) || [];
+            if (companyIds.length === 0) return 0;
+
+            const { count, error } = await supabase
+                .from("alerts")
+                .select("*", { count: "exact", head: true })
+                .eq("is_resolved", false)
+                .in("company_id", companyIds);
+
             if (error) throw error;
             return count || 0;
         },
-        refetchInterval: 30000, // Refresh every 30s
+        refetchInterval: 30000,
     });
 }
 

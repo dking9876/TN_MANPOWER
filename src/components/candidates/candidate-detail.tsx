@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { StatusBadge } from "./status-badge";
-import { DocumentList } from "../documents/document-list";
+import { CandidateDocumentsTab } from "./candidate-documents-tab";
 import {
     Select,
     SelectContent,
@@ -376,7 +376,7 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                 </TabsContent>
 
                 <TabsContent value="documents" className="mt-6">
-                    <DocumentList candidateId={id} />
+                    <CandidateDocumentsTab candidateId={id} />
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-6">

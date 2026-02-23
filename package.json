@@ -9,6 +9,8 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
+    "test:recruiter-alerts": "playwright test e2e/recruiter-alerts.spec.ts e2e/candidates.spec.ts",
+    "test:setup-recruiter-alerts": "npx tsx e2e/setup-recruiter-alerts.ts",
     "lint": "next lint"
   },
   "dependencies": {

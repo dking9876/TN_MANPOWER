@@ -39,13 +39,22 @@ export default async function AppLayout({
             .select("*", { count: "exact", head: true })
             .eq("is_resolved", false);
         alertCount = count || 0;
-    } else {
-        const { count } = await supabase
-            .from("alerts")
-            .select("*", { count: "exact", head: true })
-            .eq("assigned_to", user.id)
-            .eq("is_resolved", false);
-        alertCount = count || 0;
+    } else if (profile.role === "RECRUITER") {
+        // Get company IDs linked to this recruiter
+        const { data: linkedCompanies } = await supabase
+            .from("recruiter_companies")
+            .select("company_id")
+            .eq("recruiter_id", user.id);
+
+        const companyIds = linkedCompanies?.map(rc => rc.company_id) || [];
+        if (companyIds.length > 0) {
+            const { count } = await supabase
+                .from("alerts")
+                .select("*", { count: "exact", head: true })
+                .eq("is_resolved", false)
+                .in("company_id", companyIds);
+            alertCount = count || 0;
+        }
     }
 
     return (

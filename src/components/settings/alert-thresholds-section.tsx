@@ -15,35 +15,7 @@ const THRESHOLD_FIELDS = [
         description:
             "Generate an alert if a candidate hasn't been updated in this many days",
         defaultValue: "7",
-    },
-    {
-        key: "passport_expiration_warning_days",
-        label: "Passport Expiration Warning (days)",
-        description:
-            "Generate an alert when a passport is expiring within this many days",
-        defaultValue: "90",
-    },
-    {
-        key: "visa_expiration_warning_days",
-        label: "Visa Expiration Warning (days)",
-        description:
-            "Generate an alert when a visa is expiring within this many days",
-        defaultValue: "30",
-    },
-    {
-        key: "police_clearance_expiration_warning_days",
-        label: "Police Clearance Expiration Warning (days)",
-        description:
-            "Generate an alert when police clearance is expiring within this many days",
-        defaultValue: "60",
-    },
-    {
-        key: "health_declaration_expiration_warning_days",
-        label: "Health Declaration Expiration Warning (days)",
-        description:
-            "Generate an alert when a health declaration is expiring within this many days",
-        defaultValue: "60",
-    },
+    }
 ];
 
 export function AlertThresholdsSection() {

@@ -198,7 +198,7 @@ export function AlertListClient() {
                                             )}
                                             {alert.is_resolved && (
                                                 <span className="text-xs text-muted-foreground mr-2">
-                                                    by {alert.assignee?.full_name}
+                                                    {alert.company?.name}
                                                 </span>
                                             )}
                                         </TableCell>

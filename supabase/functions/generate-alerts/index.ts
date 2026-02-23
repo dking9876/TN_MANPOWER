@@ -34,18 +34,17 @@ Deno.serve(async (req) => {
         const newAlerts = [];
 
         // 2. STALENESS ALERTS
-        // Logic: Last updated < threshold AND status not arrived/reject AND no unresolved staleness alert
+        // Logic: Last updated < threshold AND status not arrived/reject AND has company AND no unresolved staleness alert
         const { data: staleCandidates, error: staleError } = await supabase
             .from("candidates")
-            .select("id, first_name, last_name, recruitment_status, last_updated_at, created_by")
+            .select("id, first_name, last_name, recruitment_status, last_updated_at, company_id")
             .lt("last_updated_at", stalenessDate.toISOString())
-            .not("recruitment_status", "in", `("ARRIVED_IN_ISRAEL","CANDIDATE_REJECTED")`);
+            .not("recruitment_status", "in", `("ARRIVED_IN_ISRAEL","CANDIDATE_REJECTED")`)
+            .not("company_id", "is", null);
 
         if (staleError) throw staleError;
 
         // Check for existing unresolved alerts to avoid duplicates
-        // Fetch all unresolved staleness alerts separately or one-by-one? 
-        // Optimization: Fetch IDs of candidates with unresolved staleness alerts
         const { data: existingStaleAlerts } = await supabase
             .from("alerts")
             .select("candidate_id")
@@ -58,7 +57,7 @@ Deno.serve(async (req) => {
             if (!existingStaleIds.has(candidate.id)) {
                 newAlerts.push({
                     candidate_id: candidate.id,
-                    assigned_to: candidate.created_by,
+                    company_id: candidate.company_id,
                     alert_type: "STALENESS",
                     alert_message: `Candidate has not been updated in over ${stalenessDays} days. Status: ${candidate.recruitment_status}`,
                 });

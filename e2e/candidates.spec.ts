@@ -52,10 +52,46 @@ test.describe('Candidate Management', () => {
 
         // Verify documents
         await page.click('button[role="tab"]:has-text("Documents")');
-        await expect(page.getByText('Passport')).toBeVisible();
-        await expect(page.getByText('Police Clearance')).toBeVisible();
-        await expect(page.getByText('Health Declaration')).toBeVisible();
-        await expect(page.getByText('Visa')).toBeVisible();
+        await expect(page.getByText('Passport Copies')).toBeVisible();
+        await expect(page.getByText('Police Report (Home)')).toBeVisible();
+        await expect(page.getByText('Medical Report')).toBeVisible();
+        await expect(page.getByText('Visa Application Form')).toBeVisible();
+    });
+
+    test('should show dynamic police reports for visited countries', async ({ page }) => {
+        await page.goto('/candidates');
+        await page.click('text=Add Candidate');
+
+        const nationalId = `V${Math.floor(Math.random() * 1000000)}`;
+        await page.fill('input[name="first_name"]', 'Visa');
+        await page.fill('input[name="last_name"]', 'Traveller');
+        await page.fill('input[name="national_id"]', nationalId);
+        await page.fill('input[name="passport_number"]', `PV${Math.floor(Math.random() * 1000000)}`);
+        await page.fill('input[name="date_of_birth"]', '1995-01-01');
+        await page.fill('input[name="primary_phone"]', '12341234');
+        await page.fill('input[name="emergency_phone"]', '43214321');
+
+        // Select industry/profession
+        await page.click('button:has-text("Select industry")');
+        await page.click('role=option[name="Nursing"]');
+        await page.waitForTimeout(500);
+        await page.click('button:has-text("Select profession")');
+        await page.click('role=option[name="Nurse"]');
+
+        // Fill countries visited
+        await page.getByLabel('Has visited other countries?').click();
+        await page.getByPlaceholder('Dubai, Qatar, USA...').fill('Poland, Germany');
+
+        await page.click('button:has-text("Create Candidate")');
+        await expect(page.getByText('Candidate created successfully')).toBeVisible({ timeout: 15000 });
+
+        // Navigate to details and verify dynamic docs
+        await page.goto('/candidates');
+        await page.getByText(nationalId).first().click();
+        await page.click('button[role="tab"]:has-text("Documents")');
+
+        await expect(page.getByText('Police Report (Poland)')).toBeVisible();
+        await expect(page.getByText('Police Report (Germany)')).toBeVisible();
     });
 
     test('should auto-reject candidate from blacklisted country', async ({ page }) => {
