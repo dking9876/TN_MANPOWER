@@ -43,14 +43,23 @@ async function main() {
         }
 
         // Find Recruiter to delete linkages
-        const { data: existingUser } = await supabase.from('users').select('id').eq('email', RECRUITER_EMAIL).maybeSingle();
-        if (existingUser) {
-            console.log('Cleaning up existing recruiter links and profile...');
-            await supabase.from('recruiter_companies').delete().eq('recruiter_id', existingUser.id);
-            // Also cleanup any candidates created by this recruiter if they weren't caught
-            await supabase.from('candidates').delete().eq('created_by', existingUser.id);
-            await supabase.from('users').delete().eq('id', existingUser.id);
-            await supabase.auth.admin.deleteUser(existingUser.id);
+        const { data: usersList } = await supabase.auth.admin.listUsers();
+        const existingAuthUser = usersList?.users.find(u => u.email === RECRUITER_EMAIL);
+
+        if (existingAuthUser) {
+            console.log('Cleaning up existing recruiter links and auth user...');
+            await supabase.from('recruiter_companies').delete().eq('recruiter_id', existingAuthUser.id);
+            await supabase.from('candidates').delete().eq('created_by', existingAuthUser.id);
+            await supabase.from('users').delete().eq('id', existingAuthUser.id);
+            await supabase.auth.admin.deleteUser(existingAuthUser.id);
+        } else {
+            // Check public.users just in case record exists but auth is gone
+            const { data: publicUser } = await supabase.from('users').select('id').eq('email', RECRUITER_EMAIL).maybeSingle();
+            if (publicUser) {
+                console.log('Cleaning up orphaned recruiter profile...');
+                await supabase.from('recruiter_companies').delete().eq('recruiter_id', publicUser.id);
+                await supabase.from('users').delete().eq('id', publicUser.id);
+            }
         }
 
         await supabase.from('companies').delete().in('name', [COMPANY_A_NAME, COMPANY_B_NAME]);

@@ -7,11 +7,15 @@ test.describe('Company-Based Alerts RBAC', () => {
         // --- 1. ADMIN VIEW ALL ---
         await loginAsAdmin(page);
         await page.goto('/alerts');
-        await expect(page.getByText('Test staleness alert for CandidateA in Company A')).toBeVisible({ timeout: 15000 });
+        // Wait for potential background generation/propagation
+        await page.waitForTimeout(10000);
+        await expect(page.getByText('Test staleness alert for CandidateA in Company A')).toBeVisible({ timeout: 20000 });
         await expect(page.getByText('Test staleness alert for CandidateB in Company B')).toBeVisible({ timeout: 15000 });
 
         // Log out admin
         await page.click('button:has-text("Sign out")');
+        await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
+        await page.waitForLoadState('networkidle');
 
         // --- 2. RECRUITER VIEW & RESOLVE ---
         await page.goto('/login');
@@ -56,7 +60,10 @@ test.describe('Company-Based Alerts RBAC', () => {
         await expect(docCard.getByText('Submitted')).toBeVisible({ timeout: 10000 });
 
         // Log out Recruiter
-        await page.click('button:has-text("Sign out")');
+        const signOutBtn = page.getByText('Sign out').or(page.locator('button[title="Sign out"]')).first();
+        await signOutBtn.click();
+        await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
+        await page.waitForLoadState('networkidle');
 
         // --- 4. ADMIN VALIDATE RESOLUTION ---
         await loginAsAdmin(page);

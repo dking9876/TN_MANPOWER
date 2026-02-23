@@ -51,7 +51,7 @@ export async function updateSession(request: NextRequest) {
 
     // Unauthenticated users
     if (!user) {
-        if (!isLoginRoute && !isRootRoute) {
+        if (!isLoginRoute) {
             const url = request.nextUrl.clone();
             url.pathname = "/login";
             return NextResponse.redirect(url);
