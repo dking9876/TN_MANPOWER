@@ -1,20 +1,31 @@
 import { Page, expect } from '@playwright/test';
 
+/** Navigates to /login, waits for the form, fills credentials and asserts landing on dashboard. */
 export async function loginAsAdmin(page: Page) {
     await page.goto('/login');
+    await expect(page.locator('#email')).toBeVisible({ timeout: 10000 });
     await page.fill('#email', 'admin@tnmanpower.com');
     await page.fill('#password', 'Admin123!');
-    await page.click('button[type="submit"]');
+    await page.locator('button[type="submit"]').click();
     await expect(page).toHaveURL(/.*dashboard/, { timeout: 15000 });
 }
 
 export async function loginAsReferrer(page: Page) {
     await page.goto('/login');
+    await expect(page.locator('#email')).toBeVisible({ timeout: 10000 });
     await page.fill('#email', 'referrer@tnmanpower.com');
     await page.fill('#password', 'Referrer123!');
-    await page.click('button[type="submit"]');
+    await page.locator('button[type="submit"]').click();
     // Referrer is redirected by middleware from /dashboard to /candidates/new
     await expect(page).toHaveURL(/.*candidates\/new/, { timeout: 20000 });
+}
+
+/** Signs out from any authenticated page and waits for redirect to /login. */
+export async function signOut(page: Page) {
+    const signOutBtn = page.getByText('Sign out').or(page.locator('button[title="Sign out"]')).first();
+    await signOutBtn.click();
+    await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
+    await page.waitForLoadState('networkidle');
 }
 
 /**
@@ -65,9 +76,3 @@ export async function createReferrerUser(page: Page) {
     await signOut(page);
 }
 
-async function signOut(page: Page) {
-    // Click sign out
-    const signOutBtn = page.getByText('Sign out').or(page.locator('button[title="Sign out"]')).first();
-    await signOutBtn.click();
-    await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
-}

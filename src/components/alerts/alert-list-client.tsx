@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Clock, FileWarning, Search, BellOff } from "lucide-react";
+import { Clock, FileWarning, Search, BellOff, Gift } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ResolveAlertDialog } from "./resolve-alert-dialog";
 import { ALERT_TYPES } from "@/lib/constants";
@@ -102,7 +102,8 @@ export function AlertListClient() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Types</SelectItem>
-                                <SelectItem value="Staleness">Staleness</SelectItem>
+                                <SelectItem value="STALENESS">Staleness</SelectItem>
+                                <SelectItem value="REFERRER_BONUS">Referrer Bonus</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -148,16 +149,22 @@ export function AlertListClient() {
                                     <TableRow key={alert.id} className="group hover:bg-muted/20 transition-colors border-b border-border/30">
                                         <TableCell className="py-4">
                                             <div className="flex items-center gap-2.5">
-                                                {alert.alert_type === "Staleness" ? (
+                                                {alert.alert_type === "STALENESS" ? (
                                                     <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-500">
                                                         <Clock className="h-4 w-4" />
+                                                    </div>
+                                                ) : alert.alert_type === "REFERRER_BONUS" ? (
+                                                    <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-500">
+                                                        <Gift className="h-4 w-4" />
                                                     </div>
                                                 ) : (
                                                     <div className="p-1.5 rounded-md bg-red-500/10 text-red-500">
                                                         <FileWarning className="h-4 w-4" />
                                                     </div>
                                                 )}
-                                                <span className="font-medium text-foreground text-sm">{alert.alert_type}</span>
+                                                <span className="font-medium text-foreground text-sm">
+                                                    {alert.alert_type === "REFERRER_BONUS" ? "Referrer Bonus" : alert.alert_type}
+                                                </span>
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-4">

@@ -8,7 +8,8 @@ import { ProfessionsSection } from "@/components/settings/professions-section";
 import { CompaniesSection } from "@/components/settings/companies-section";
 import { StatusesSection } from "@/components/settings/statuses-section";
 import { DocumentThresholdsSection } from "@/components/settings/document-thresholds-section";
-import { Settings, Globe, Briefcase, Building2, ListChecks, FileWarning } from "lucide-react";
+import { BonusAdminSection } from "@/components/settings/bonus-admin-section";
+import { Settings, Globe, Briefcase, Building2, ListChecks, FileWarning, Gift } from "lucide-react";
 
 export default function SettingsAdminPage() {
     return (
@@ -48,6 +49,10 @@ export default function SettingsAdminPage() {
                         <ListChecks className="h-3.5 w-3.5" />
                         Statuses
                     </TabsTrigger>
+                    <TabsTrigger value="bonus-admin" className="gap-1.5">
+                        <Gift className="h-3.5 w-3.5" />
+                        Referrer Bonus
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="thresholds">
@@ -72,6 +77,10 @@ export default function SettingsAdminPage() {
 
                 <TabsContent value="statuses">
                     <StatusesSection />
+                </TabsContent>
+
+                <TabsContent value="bonus-admin">
+                    <BonusAdminSection />
                 </TabsContent>
             </Tabs>
         </div>

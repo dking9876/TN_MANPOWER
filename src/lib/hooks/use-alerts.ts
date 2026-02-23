@@ -14,7 +14,7 @@ export const alertKeys = {
 
 export type AlertFilters = {
     search?: string;
-    type?: string;     // STALENESS
+    type?: string;     // STALENESS | REFERRER_BONUS
     status?: "unresolved" | "resolved" | "all";
     page: number;
 };
@@ -23,6 +23,9 @@ export function useAlerts(filters: AlertFilters) {
     return useQuery({
         queryKey: alertKeys.list(JSON.stringify(filters)),
         queryFn: async () => {
+            // Get current user for targeted alert filtering
+            const { data: { user } } = await supabase.auth.getUser();
+
             let query = supabase
                 .from("alerts")
                 .select(`
@@ -31,14 +34,13 @@ export function useAlerts(filters: AlertFilters) {
                     company:company_id(name)
                 `, { count: "exact" });
 
+            // Filter: show alerts where target_user_id is null (global) OR matches the current user
+            if (user) {
+                query = query.or(`target_user_id.is.null,target_user_id.eq.${user.id}`);
+            }
+
             // Apply filters
             if (filters.search) {
-                // Search by candidate name via joined table
-                // Note: Supabase doesn't support easy joining for search on foreign table properly in one go without raw SQL
-                // or embedded filtering.
-                // Workaround: We'll filter on alert_message for now or client-side.
-                // Given standard implementation of Supabase JS:
-                // We'll rely on text search on alert_message if name is included there, or just simple message search
                 query = query.ilike("alert_message", `%${filters.search}%`);
             }
 
@@ -73,10 +75,12 @@ export function useAlertCount(userId: string, role: "ADMIN" | "RECRUITER") {
         queryKey: alertKeys.count(),
         queryFn: async () => {
             if (role === "ADMIN") {
+                // Admins see global alerts + their own targeted alerts
                 const { count, error } = await supabase
                     .from("alerts")
                     .select("*", { count: "exact", head: true })
-                    .eq("is_resolved", false);
+                    .eq("is_resolved", false)
+                    .or(`target_user_id.is.null,target_user_id.eq.${userId}`);
                 if (error) throw error;
                 return count || 0;
             }
@@ -96,7 +100,8 @@ export function useAlertCount(userId: string, role: "ADMIN" | "RECRUITER") {
                 .from("alerts")
                 .select("*", { count: "exact", head: true })
                 .eq("is_resolved", false)
-                .in("company_id", companyIds);
+                .in("company_id", companyIds)
+                .or(`target_user_id.is.null,target_user_id.eq.${userId}`);
 
             if (error) throw error;
             return count || 0;
@@ -128,7 +133,17 @@ export function useResolveAlert() {
 
             if (alertError) throw alertError;
 
-            // 2. Optionally update candidate timestamp
+            // 2. For REFERRER_BONUS alerts, mark referrer as paid
+            if (alert && (alert as any).alert_type === "REFERRER_BONUS") {
+                const { error: paidError } = await supabase
+                    .from("candidates")
+                    .update({ referrer_got_paid: true } as any)
+                    .eq("id", alert.candidate_id);
+
+                if (paidError) throw paidError;
+            }
+
+            // 3. Optionally update candidate timestamp
             if (updateTimestamp && alert) {
                 await supabase
                     .from("candidates")

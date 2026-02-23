@@ -62,4 +62,5 @@ export const DOCUMENT_TYPES = {
 
 export const ALERT_TYPES = {
     STALENESS: "Staleness",
+    REFERRER_BONUS: "Referrer Bonus",
 } as const;

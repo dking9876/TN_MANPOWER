@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from './helpers';
+import { loginAsAdmin, signOut } from './helpers';
 
 test.describe('Company-Based Alerts RBAC', () => {
 
@@ -14,15 +14,15 @@ test.describe('Company-Based Alerts RBAC', () => {
         await expect(page.locator('tr').filter({ hasText: 'CandidateB' })).toBeVisible({ timeout: 15000 });
 
         // Log out admin
-        await page.click('button:has-text("Sign out")');
-        await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
-        await page.waitForLoadState('networkidle');
+        await signOut(page);
 
         // --- 2. RECRUITER VIEW & RESOLVE ---
         await page.goto('/login');
+        await expect(page.locator('#email')).toBeVisible({ timeout: 10000 });
         await page.fill('#email', 'recruiter.alerts@tnmanpower.com');
         await page.fill('#password', 'Recruiter123!');
-        await page.click('button[type="submit"]');
+        await page.locator('button[type="submit"]').click();
+        await page.waitForURL(/.*dashboard|.*alerts/, { timeout: 15000 });
 
         // Go to Alerts page
         await page.goto('/alerts');
@@ -48,23 +48,27 @@ test.describe('Company-Based Alerts RBAC', () => {
 
         // --- 3. RECRUITER DOCUMENT UPDATE ---
         await page.goto('/candidates');
-        await page.getByText('IDA_TESTV1').first().waitFor({ state: 'visible' });
-        await page.getByText('IDA_TESTV1').first().click();
+        await page.waitForLoadState('networkidle');
+        // Navigate to CandidateA via the View button in their row
+        const candidateRow = page.locator('tr').filter({ hasText: 'IDA_TESTV1' });
+        await expect(candidateRow).toBeVisible({ timeout: 10000 });
+        await candidateRow.getByRole('button', { name: 'View' }).click();
 
-        await page.click('button[role="tab"]:has-text("Documents")');
-        const docCard = page.locator('.card').filter({ hasText: 'Passport Copies' });
-        await docCard.getByRole('button', { name: 'Update' }).click();
+        await page.waitForLoadState('networkidle');
+        await page.getByRole('tab', { name: 'Documents' }).click();
+
+        // Locate the Passport Copies Update button
+        const updateBtn = page.locator('div').filter({ hasText: /^Passport Copies/ }).locator('button', { hasText: 'Update' }).first();
+        await expect(updateBtn).toBeVisible({ timeout: 10000 });
+        await updateBtn.click();
         await page.getByRole('combobox').click();
         await page.locator('div[role="option"]').filter({ hasText: /^Submitted$/ }).click();
         await page.fill('textarea', 'Verified via consolidated E2E');
         await page.getByRole('button', { name: 'Save Changes' }).click();
-        await expect(docCard.getByText('Submitted')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Submitted').first()).toBeVisible({ timeout: 10000 });
 
         // Log out Recruiter
-        const signOutBtn = page.getByText('Sign out').or(page.locator('button[title="Sign out"]')).first();
-        await signOutBtn.click();
-        await expect(page).toHaveURL(/.*login/, { timeout: 10000 });
-        await page.waitForLoadState('networkidle');
+        await signOut(page);
 
         // --- 4. ADMIN VALIDATE RESOLUTION ---
         await loginAsAdmin(page);

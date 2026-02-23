@@ -25,8 +25,6 @@ const DOCUMENT_TYPES = [
     { type: 'ENGLISH_AGREEMENT', label: 'English Agreement' },
     { type: 'LETTER_FROM_TRANSLATOR', label: 'Letter From Translator' },
     { type: 'SINHALA_AGREEMENT', label: 'Sinhala Agreement' },
-    { type: 'PASSPORT_COPY', label: 'Passport Copy' },
-    { type: 'IMMIGRATION_LETTER_COPY', label: 'Immigration Letter Copy' },
     { type: 'NIC_APPLICANT_AND_CANDIDATE', label: 'NIC Applicant & Candidate' },
 ];
 
