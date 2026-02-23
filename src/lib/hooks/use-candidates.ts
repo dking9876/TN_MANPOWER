@@ -36,6 +36,20 @@ export function useCandidates(filters: CandidateFilters) {
                 .from("candidates")
                 .select("*, companies(id, name)", { count: "exact" });
 
+            // Check if user is a referrer and apply filter
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from("users")
+                    .select("role")
+                    .eq("id", user.id)
+                    .single();
+
+                if (profile?.role === "REFERRER") {
+                    query = query.or(`created_by.eq.${user.id},referrer_id.eq.${user.id}`);
+                }
+            }
+
             // Apply filters
             if (filters.search) {
                 const search = `%${filters.search}%`;

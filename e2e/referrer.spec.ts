@@ -31,9 +31,11 @@ test.describe('Referrer Role: Routing & Access Control', () => {
         await expect(page).toHaveURL(/.*candidates\/new/, { timeout: 10000 });
     });
 
-    test('should redirect referrer away from /candidates (list view)', async ({ page }) => {
+    test('should NOT redirect referrer away from /candidates (list view)', async ({ page }) => {
         await page.goto('/candidates');
-        await expect(page).toHaveURL(/.*candidates\/new/, { timeout: 10000 });
+        await expect(page).toHaveURL(/.*candidates/, { timeout: 10000 });
+        // Should show the candidates table
+        await expect(page.locator('h1')).toHaveText('Candidates');
     });
 
     test('should redirect referrer away from /alerts', async ({ page }) => {
@@ -65,9 +67,8 @@ test.describe('Referrer Role: UI Restrictions', () => {
         await expect(page.locator('nav >> text=Dashboard')).not.toBeVisible();
     });
 
-    test('should NOT show Candidates list link in sidebar', async ({ page }) => {
-        // "Candidates" is the regular nav link to the list; referrer has "Add Candidate" instead
-        await expect(page.locator('nav >> text=/^Candidates$/')).not.toBeVisible();
+    test('should show Candidates list link in sidebar', async ({ page }) => {
+        await expect(page.locator('nav >> text=Candidates')).toBeVisible();
     });
 
     test('should NOT show Alerts link in sidebar', async ({ page }) => {
@@ -131,8 +132,11 @@ test.describe('Referrer Role: Functional Usage', () => {
         // Verify success
         await expect(page.getByText('Candidate created successfully')).toBeVisible({ timeout: 15000 });
 
-        // Verify referrer stays on /candidates/new (not redirected to list)
-        await expect(page).toHaveURL(/.*candidates\/new/);
+        // Now verify it appears in the list
+        await page.goto('/candidates');
+        const candidateRow = page.getByRole('row', { name: nationalId });
+        await expect(candidateRow).toBeVisible({ timeout: 15000 });
+        await expect(candidateRow.getByText('Referred Candidate')).toBeVisible();
     });
 });
 

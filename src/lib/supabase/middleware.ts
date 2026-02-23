@@ -95,7 +95,7 @@ export async function updateSession(request: NextRequest) {
 
     // REFERRER protection
     if (role === "REFERRER") {
-        const allowedReferrerRoutes = ["/candidates/new"];
+        const allowedReferrerRoutes = ["/candidates", "/candidates/new"];
         const isAllowed = allowedReferrerRoutes.some(r => currentPath === r || currentPath.startsWith(`${r}/`));
         if (!isAllowed && !currentPath.startsWith("/api/")) {
             const url = request.nextUrl.clone();

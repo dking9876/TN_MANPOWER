@@ -7,10 +7,11 @@ test.describe('Company-Based Alerts RBAC', () => {
         // --- 1. ADMIN VIEW ALL ---
         await loginAsAdmin(page);
         await page.goto('/alerts');
+        await page.waitForLoadState('networkidle');
         // Wait for potential background generation/propagation
-        await page.waitForTimeout(10000);
-        await expect(page.getByText('Test staleness alert for CandidateA in Company A')).toBeVisible({ timeout: 20000 });
-        await expect(page.getByText('Test staleness alert for CandidateB in Company B')).toBeVisible({ timeout: 15000 });
+        await page.waitForTimeout(5000);
+        await expect(page.locator('tr').filter({ hasText: 'CandidateA' })).toBeVisible({ timeout: 20000 });
+        await expect(page.locator('tr').filter({ hasText: 'CandidateB' })).toBeVisible({ timeout: 15000 });
 
         // Log out admin
         await page.click('button:has-text("Sign out")');

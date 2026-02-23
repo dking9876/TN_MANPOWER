@@ -118,7 +118,11 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto py-2 px-2">
                     <div className="space-y-0.5">
-                        {!isReferrer && NAV_ITEMS.map((item) => {
+                        {NAV_ITEMS.map((item) => {
+                            // Hide "Dashboard" and "Alerts" for Referrers
+                            if (isReferrer && (item.label === "Dashboard" || item.label === "Alerts")) {
+                                return null;
+                            }
                             const isActive = pathname.startsWith(item.href);
                             return (
                                 <Link
@@ -159,7 +163,7 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                                 href="/candidates/new"
                                 className={cn(
                                     "group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200",
-                                    pathname.startsWith("/candidates/new")
+                                    pathname === "/candidates/new"
                                         ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary shadow-sm"
                                         : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 border-l-2 border-transparent",
                                     collapsed && "justify-center px-0 border-l-0"
