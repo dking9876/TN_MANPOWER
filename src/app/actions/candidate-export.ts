@@ -61,6 +61,10 @@ export async function getCandidatesForExport(filters: any) {
         query = query.in("created_by", filters.recruiter);
     }
 
+    if (filters.referrer && filters.referrer.length > 0) {
+        query = query.in("referrer_id", filters.referrer);
+    }
+
     if (filters.is_blacklisted !== undefined) {
         query = query.eq("is_blacklisted", filters.is_blacklisted);
     }

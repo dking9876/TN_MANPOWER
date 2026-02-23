@@ -20,6 +20,7 @@ export type CandidateFilters = {
     industry?: string[];
     recruiter?: string[];
     company_id?: string[];
+    referrer?: string[];
     is_blacklisted?: boolean;
     page: number;
     sortBy?: string;
@@ -71,6 +72,10 @@ export function useCandidates(filters: CandidateFilters) {
 
             if (filters.company_id && filters.company_id.length > 0) {
                 query = query.in("company_id", filters.company_id);
+            }
+
+            if (filters.referrer && filters.referrer.length > 0) {
+                query = query.in("referrer_id", filters.referrer);
             }
 
             if (filters.is_blacklisted !== undefined) {

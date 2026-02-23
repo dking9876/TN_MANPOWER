@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -71,6 +72,30 @@ export function useAlerts(filters: AlertFilters) {
 
 // Global hook for alert badge in sidebar or header
 export function useAlertCount(userId: string, role: "ADMIN" | "RECRUITER") {
+    const queryClient = useQueryClient();
+
+    // Set up real-time subscription
+    useEffect(() => {
+        const channel = supabase
+            .channel("realtime:alerts_count")
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "alerts",
+                },
+                () => {
+                    queryClient.invalidateQueries({ queryKey: alertKeys.all });
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [queryClient]);
+
     return useQuery({
         queryKey: alertKeys.count(),
         queryFn: async () => {
@@ -106,7 +131,7 @@ export function useAlertCount(userId: string, role: "ADMIN" | "RECRUITER") {
             if (error) throw error;
             return count || 0;
         },
-        refetchInterval: 30000,
+        refetchInterval: 60000, // Still keep a backup poll just in case, but increased to reduce load
     });
 }
 

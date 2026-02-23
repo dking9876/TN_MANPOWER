@@ -21,8 +21,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
     INDUSTRIES,
 } from "@/lib/constants";
-import { Check, Filter, Plus, X, Building2 } from "lucide-react";
+import { Check, Filter, Plus, X, Building2, User } from "lucide-react";
 import { useCompanies, useRecruitmentStatuses } from "@/lib/hooks/use-settings";
+import { useUsers } from "@/lib/hooks/use-users";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/lib/hooks/use-debounce"; // We need to create this hook or use external lib. 
@@ -38,6 +39,9 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
     const [searchValue, setSearchValue] = useState(filters.search || "");
     const { data: companies } = useCompanies();
     const { data: recruitmentStatuses } = useRecruitmentStatuses();
+    const { data: users } = useUsers();
+
+    const referrers = users?.filter(u => ["ADMIN", "RECRUITER", "REFERRER"].includes(u.role)) || [];
 
     // Simple debounce
     useEffect(() => {
@@ -80,6 +84,14 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
         setFilters((prev: any) => ({ ...prev, company_id: next, page: 1 }));
     };
 
+    const toggleReferrer = (referrerId: string) => {
+        const current = filters.referrer || [];
+        const next = current.includes(referrerId)
+            ? current.filter((id: string) => id !== referrerId)
+            : [...current, referrerId];
+        setFilters((prev: any) => ({ ...prev, referrer: next, page: 1 }));
+    };
+
     const clearFilters = () => {
         setFilters({ page: 1 });
         setSearchValue("");
@@ -89,6 +101,7 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
         (filters.status?.length || 0) +
         (filters.industry?.length || 0) +
         (filters.company_id?.length || 0) +
+        (filters.referrer?.length || 0) +
         (filters.is_blacklisted ? 1 : 0);
 
     return (
@@ -335,6 +348,89 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
                                             <CommandGroup>
                                                 <CommandItem
                                                     onSelect={() => setFilters((prev: any) => ({ ...prev, company_id: [], page: 1 }))}
+                                                    className="justify-center text-center"
+                                                >
+                                                    Clear filters
+                                                </CommandItem>
+                                            </CommandGroup>
+                                        </>
+                                    )}
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+
+                    {/* Referrer Filter */}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-9 border-dashed">
+                                <Plus className="mr-2 h-4 w-4" />
+                                <User className="mr-2 h-4 w-4 hidden md:block" />
+                                Referrer
+                                {filters.referrer?.length > 0 && (
+                                    <>
+                                        <Separator orientation="vertical" className="mx-2 h-4" />
+                                        <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
+                                            {filters.referrer.length}
+                                        </Badge>
+                                        <div className="hidden space-x-1 lg:flex">
+                                            {filters.referrer.length > 2 ? (
+                                                <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                                                    {filters.referrer.length} selected
+                                                </Badge>
+                                            ) : (
+                                                filters.referrer.map((refId: string) => {
+                                                    const ref = referrers?.find(r => r.id === refId);
+                                                    return (
+                                                        <Badge
+                                                            variant="secondary"
+                                                            key={refId}
+                                                            className="rounded-sm px-1 font-normal"
+                                                        >
+                                                            {ref ? ref.full_name : "Unknown"}
+                                                        </Badge>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0" align="start">
+                            <Command>
+                                <CommandInput placeholder="Referrer" />
+                                <CommandList>
+                                    <CommandEmpty>No results found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {referrers?.map((referrer) => {
+                                            const isSelected = filters.referrer?.includes(referrer.id);
+                                            return (
+                                                <CommandItem
+                                                    key={referrer.id}
+                                                    onSelect={() => toggleReferrer(referrer.id)}
+                                                >
+                                                    <div
+                                                        className={cn(
+                                                            "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                                            isSelected
+                                                                ? "bg-primary text-primary-foreground"
+                                                                : "opacity-50 [&_svg]:invisible"
+                                                        )}
+                                                    >
+                                                        <Check className={cn("h-4 w-4")} />
+                                                    </div>
+                                                    <span>{referrer.full_name}</span>
+                                                </CommandItem>
+                                            );
+                                        })}
+                                    </CommandGroup>
+                                    {filters.referrer?.length > 0 && (
+                                        <>
+                                            <CommandSeparator />
+                                            <CommandGroup>
+                                                <CommandItem
+                                                    onSelect={() => setFilters((prev: any) => ({ ...prev, referrer: [], page: 1 }))}
                                                     className="justify-center text-center"
                                                 >
                                                     Clear filters

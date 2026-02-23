@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useAlertCount } from "@/lib/hooks/use-alerts";
 import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
@@ -62,12 +63,16 @@ const ADMIN_ITEMS = [
     },
 ];
 
-export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
+export function Sidebar({ user, alertCount: initialAlertCount = 0 }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const supabase = createClient();
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    // Live alert count with real-time subscription
+    const { data: liveAlertCount } = useAlertCount(user.id, user.role as "ADMIN" | "RECRUITER");
+    const countToDisplay = liveAlertCount ?? initialAlertCount;
 
     async function handleLogout() {
         await supabase.auth.signOut();
@@ -142,17 +147,17 @@ export function Sidebar({ user, alertCount = 0 }: SidebarProps) {
                                     {!collapsed && (
                                         <>
                                             <span className="truncate">{item.label}</span>
-                                            {item.showBadge && alertCount > 0 && (
+                                            {item.showBadge && countToDisplay > 0 && (
                                                 <Badge
                                                     variant="destructive"
                                                     className="ml-auto h-5 min-w-[20px] px-1.5 text-[10px] font-bold"
                                                 >
-                                                    {alertCount > 99 ? "99+" : alertCount}
+                                                    {countToDisplay > 99 ? "99+" : countToDisplay}
                                                 </Badge>
                                             )}
                                         </>
                                     )}
-                                    {collapsed && item.showBadge && alertCount > 0 && (
+                                    {collapsed && item.showBadge && countToDisplay > 0 && (
                                         <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
                                     )}
                                 </Link>
