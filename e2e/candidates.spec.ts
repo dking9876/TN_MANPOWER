@@ -9,7 +9,7 @@ test.describe('Candidate Management', () => {
 
     test('should create a new candidate and verify auto-creation of documents', async ({ page }) => {
         await page.goto('/candidates');
-        await page.click('text=Add Candidate');
+        await page.getByRole('button', { name: 'Add Candidate' }).click();
 
         const nationalId = `NID${Math.floor(Math.random() * 1000000)}`;
         const passportNum = `PASS${Math.floor(Math.random() * 1000000)}`;
@@ -38,7 +38,7 @@ test.describe('Candidate Management', () => {
         await page.locator('button[role="combobox"]').nth(2).click();
         await page.click('role=option[name="Good"]');
 
-        await page.click('button:has-text("Create Candidate")');
+        await page.getByRole('button', { name: 'Create Candidate' }).click();
 
         // Check success toast
         await expect(page.getByText('Candidate created successfully')).toBeVisible({ timeout: 15000 });
@@ -60,7 +60,7 @@ test.describe('Candidate Management', () => {
 
     test('should show dynamic police reports for visited countries', async ({ page }) => {
         await page.goto('/candidates');
-        await page.click('text=Add Candidate');
+        await page.getByRole('button', { name: 'Add Candidate' }).click();
 
         const nationalId = `V${Math.floor(Math.random() * 1000000)}`;
         await page.fill('input[name="first_name"]', 'Visa');
@@ -82,7 +82,7 @@ test.describe('Candidate Management', () => {
         await page.getByLabel('Has visited other countries?').click();
         await page.getByPlaceholder('Dubai, Qatar, USA...').fill('Poland, Germany');
 
-        await page.click('button:has-text("Create Candidate")');
+        await page.getByRole('button', { name: 'Create Candidate' }).click();
         await expect(page.getByText('Candidate created successfully')).toBeVisible({ timeout: 15000 });
 
         // Navigate to details and verify dynamic docs
@@ -96,7 +96,7 @@ test.describe('Candidate Management', () => {
 
     test('should auto-reject candidate from blacklisted country', async ({ page }) => {
         await page.goto('/candidates');
-        await page.click('text=Add Candidate');
+        await page.getByRole('button', { name: 'Add Candidate' }).click();
 
         const nationalId = `BL${Math.floor(Math.random() * 1000000)}`;
 

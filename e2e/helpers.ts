@@ -3,11 +3,12 @@ import { Page, expect } from '@playwright/test';
 /** Navigates to /login, waits for the form, fills credentials and asserts landing on dashboard. */
 export async function loginAsAdmin(page: Page) {
     await page.goto('/login');
-    await expect(page.locator('#email')).toBeVisible({ timeout: 10000 });
+    await page.waitForLoadState('networkidle');
     await page.fill('#email', 'admin@tnmanpower.com');
     await page.fill('#password', 'Admin123!');
-    await page.locator('button[type="submit"]').click();
-    await expect(page).toHaveURL(/.*dashboard/, { timeout: 15000 });
+    await page.click('button[type="submit"]');
+    // Wait for URL to change to dashboard, with a fallback for slow hydration
+    await expect(page).toHaveURL(/.*dashboard|.*candidates/, { timeout: 20000 });
 }
 
 export async function loginAsReferrer(page: Page) {

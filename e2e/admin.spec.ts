@@ -32,16 +32,22 @@ test.describe('Phase 5: Admin Pages', () => {
     });
 
     test('should display alert threshold settings', async ({ page }) => {
-        await page.goto('/settings');
+        await page.goto('/admin/settings');
         await page.waitForLoadState('networkidle');
+
+        // Click Alert Thresholds tab
+        await page.getByRole('tab', { name: 'Alert Thresholds' }).click();
 
         // Check for threshold configuration fields
         await expect(page.getByText(/Staleness|threshold/i).first()).toBeVisible({ timeout: 10000 });
     });
 
     test('should display blacklisted countries section', async ({ page }) => {
-        await page.goto('/settings');
+        await page.goto('/admin/settings');
         await page.waitForLoadState('networkidle');
+
+        // Click Countries tab
+        await page.getByRole('tab', { name: 'Countries' }).click();
 
         // Check for blacklisted countries section
         await expect(page.getByText(/Blacklist|Countries/i).first()).toBeVisible({ timeout: 10000 });

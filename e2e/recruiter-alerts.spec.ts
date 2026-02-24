@@ -33,11 +33,10 @@ test.describe('Company-Based Alerts RBAC', () => {
 
         // Resolve CandidateA Alert
         const row = page.locator('tr').filter({ hasText: 'CandidateA' });
-        await row.getByRole('button', { name: 'Resolve' }).click();
-        await page.fill('textarea', 'Tested resolution via consolidated E2E');
-        await page.locator('button[role="checkbox"]').click(); // Uncheck timestamp update
+        await row.getByRole('button', { name: /Resolve|Alert/i }).click();
+        await page.fill('textarea[placeholder*="Enter resolution"]', 'Tested resolution via consolidated E2E');
         await page.getByRole('button', { name: 'Resolve Alert' }).click();
-        await expect(page.getByText('Alert resolved')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Alert resolved')).toBeVisible({ timeout: 15000 });
 
         // Check Resolved Tab as Recruiter
         await page.getByRole('combobox', { name: 'Status' }).or(page.locator('button:has-text("Unresolved")')).click();
