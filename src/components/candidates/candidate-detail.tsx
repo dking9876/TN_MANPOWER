@@ -84,34 +84,34 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <Button variant="outline" size="icon" onClick={() => router.push("/candidates")}>
+                <div className="flex items-start md:items-center gap-4">
+                    <Button variant="outline" size="icon" onClick={() => router.push("/candidates")} className="shrink-0 mt-1 md:mt-0">
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold flex items-center gap-2">
+                        <h1 className="text-2xl font-bold flex flex-wrap items-center gap-2">
                             {candidate.first_name} {candidate.last_name}
                             {candidate.is_blacklisted && (
-                                <Badge variant="destructive" className="ml-2 gap-1 px-2">
+                                <Badge variant="destructive" className="ml-0 md:ml-2 gap-1 px-2">
                                     <Ban className="h-3 w-3" /> Blacklisted
                                 </Badge>
                             )}
                         </h1>
-                        <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                        <div className="flex flex-wrap items-center gap-2 text-muted-foreground mt-1 text-sm">
                             <span className="font-mono">{candidate.national_id}</span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span>{candidate.passport_number}</span>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
                     {/* Status dropdown */}
                     <Select
                         value={candidate.recruitment_status}
                         onValueChange={handleStatusChange}
                         disabled={changeStatusMutation.isPending}
                     >
-                        <SelectTrigger className="w-[220px] h-9">
+                        <SelectTrigger className="w-full sm:w-[220px] h-9">
                             <SelectValue>
                                 <StatusBadge status={candidate.recruitment_status} />
                             </SelectValue>
@@ -126,19 +126,19 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                             ))}
                         </SelectContent>
                     </Select>
-                    <Button onClick={() => router.push(`/candidates/${id}/edit`)}>
+                    <Button onClick={() => router.push(`/candidates/${id}/edit`)} className="flex-1 sm:flex-none">
                         <Pencil className="mr-2 h-4 w-4" /> Edit
                     </Button>
-                    <Button variant="outline" onClick={handleLogActivity}>
+                    <Button variant="outline" onClick={handleLogActivity} className="flex-1 sm:flex-none">
                         <History className="mr-2 h-4 w-4" /> Log Activity
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon">
+                            <Button variant="destructive" size="icon" className="shrink-0">
                                 <Trash2 className="h-4 w-4" />
                             </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="w-[95vw] max-w-md">
                             <AlertDialogHeader>
                                 <AlertDialogTitle>Delete Candidate?</AlertDialogTitle>
                                 <AlertDialogDescription>

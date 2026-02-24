@@ -45,7 +45,7 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
                         Manage recruitment candidates and track their status.
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
                     <CandidatePDFExportDialog
                         filters={filters}
                         disabled={isLoading || candidates.length === 0}
@@ -54,12 +54,13 @@ export function CandidateListClient({ isAdmin }: { isAdmin: boolean }) {
                         variant="outline"
                         onClick={() => exportCandidatesToCSV(filters)}
                         disabled={isLoading || candidates.length === 0}
-                        className="shadow-sm hover:shadow"
+                        className="shadow-sm hover:shadow flex-1 sm:flex-none"
                     >
                         <Download className="mr-2 h-4 w-4" />
-                        Export CSV
+                        <span className="hidden sm:inline">Export CSV</span>
+                        <span className="sm:hidden">CSV</span>
                     </Button>
-                    <Button onClick={() => router.push("/candidates/new")} className="shadow-sm shadow-primary/20">
+                    <Button onClick={() => router.push("/candidates/new")} className="shadow-sm shadow-primary/20 w-full sm:w-auto mt-2 sm:mt-0">
                         <Plus className="mr-2 h-4 w-4" />
                         Add Candidate
                     </Button>
