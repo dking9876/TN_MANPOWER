@@ -19,7 +19,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     const colorClass = dbStatus?.color || STATUS_COLORS[status] || "bg-gray-100 text-gray-800";
 
     // Extract just the text color class (e.g. 'text-blue-700') to use for the dot indicator
-    const textColorClass = colorClass.split(" ").find((c) => c.startsWith("text-")) || "text-muted-foreground";
+    const textColorClass = colorClass.split(" ").find((c: string) => c.startsWith("text-")) || "text-muted-foreground";
 
     return (
         <Badge

@@ -42,7 +42,7 @@ export function AlertSummaryCard({ filters }: AlertSummaryCardProps) {
                 </Link>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
                 {/* Mini donut */}
                 <div className="w-[120px] h-[120px] shrink-0">
                     {total > 0 ? (
@@ -83,18 +83,22 @@ export function AlertSummaryCard({ filters }: AlertSummaryCardProps) {
                 </div>
 
                 {/* Stats */}
-                <div className="space-y-3 flex-1">
-                    <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-rose-500" />
-                        <span className="text-sm text-muted-foreground font-medium">Open</span>
-                        <span className="ml-auto text-xl font-bold text-rose-600 dark:text-rose-400">
+                <div className="space-y-3 flex-1 w-full sm:w-auto">
+                    <div className="flex items-center justify-between sm:justify-start gap-3">
+                        <div className="flex items-center gap-2">
+                            <AlertTriangle className="h-4 w-4 text-rose-500" />
+                            <span className="text-sm text-muted-foreground font-medium">Open</span>
+                        </div>
+                        <span className="text-xl sm:ml-auto font-bold text-rose-600 dark:text-rose-400">
                             {open}
                         </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-emerald-500" />
-                        <span className="text-sm text-muted-foreground font-medium">Resolved</span>
-                        <span className="ml-auto text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                    <div className="flex items-center justify-between sm:justify-start gap-3">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-emerald-500" />
+                            <span className="text-sm text-muted-foreground font-medium">Resolved</span>
+                        </div>
+                        <span className="text-xl sm:ml-auto font-bold text-emerald-600 dark:text-emerald-400">
                             {resolved}
                         </span>
                     </div>

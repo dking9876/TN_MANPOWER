@@ -234,9 +234,21 @@ export function useDocumentCompletion(filters?: DashboardFilters) {
     return useQuery({
         queryKey: dashboardKeys.documents(filters),
         queryFn: async (): Promise<DocumentCompletion[]> => {
+            // 1. Get total number of active candidates for the denominator
+            let candidatesQuery = supabase
+                .from("candidates")
+                .select("*", { count: "exact", head: true })
+                .not("recruitment_status", "in", `(${TERMINAL_STATUSES.join(",")})`);
+            candidatesQuery = applyCandidateFilters(candidatesQuery, filters);
+            const { count: totalCandidates } = await candidatesQuery;
+
+            const baseTotal = totalCandidates || 0;
+
+            // 2. Get the existing documents
             let query = supabase
                 .from("candidate_documents")
-                .select("type, status, candidate:candidate_id!inner(company_id, referrer_id)");
+                .select("type, status, candidate:candidate_id!inner(company_id, referrer_id, recruitment_status)")
+                .not("candidate.recruitment_status", "in", `(${TERMINAL_STATUSES.join(",")})`);
 
             if (filters?.company_id && filters.company_id.length > 0) {
                 query = query.in("candidate.company_id", filters.company_id);
@@ -247,16 +259,39 @@ export function useDocumentCompletion(filters?: DashboardFilters) {
 
             const { data } = await query;
 
-            if (!data) return [];
-
             const stats: Record<string, { total: number; received: number }> = {};
-            data.forEach((d) => {
-                if (!stats[d.type]) {
-                    stats[d.type] = { total: 0, received: 0 };
-                }
-                stats[d.type].total++;
-                if (d.status === 'SUBMITTED') stats[d.type].received++;
+
+            // 3. Initialize all 15 expected document types with 0% completion
+            const ALL_DOC_TYPES = [
+                "PASSPORT_COPIES",
+                "IMMIGRATION_LETTER_COPIES",
+                "ORIGINAL_IMMIGRATION_LETTER",
+                "RED_RIBBON_DOCUMENT",
+                "VISA_APPLICATION_FORM",
+                "MEDICAL_REPORT",
+                "POLICE_REPORT",
+                "BIRTH_CERTIFICATE",
+                "GS_CERTIFICATE",
+                "PERSONAL_AFFIDAVIT",
+                "NIC_COPY_APPLICANT_AND_SPOUSE",
+                "ENGLISH_AGREEMENT",
+                "LETTER_FROM_TRANSLATOR",
+                "SINHALA_AGREEMENT",
+                "NIC_APPLICANT_AND_CANDIDATE",
+            ];
+
+            ALL_DOC_TYPES.forEach((type) => {
+                stats[type] = { total: baseTotal, received: 0 };
             });
+
+            if (data) {
+                data.forEach((d) => {
+                    // Only count known expected types, skipping deleted/legacy ones
+                    if (stats[d.type]) {
+                        if (d.status === 'SUBMITTED') stats[d.type].received++;
+                    }
+                });
+            }
 
             return Object.entries(stats).map(([documentType, s]) => ({
                 documentType,

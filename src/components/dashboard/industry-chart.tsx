@@ -57,22 +57,40 @@ export function IndustryChart({ filters }: IndustryChartProps) {
             <h3 className="text-base font-semibold mb-6 tracking-tight">
                 Candidates by Industry
             </h3>
-            <div className="h-[300px]">
+            <div className="h-[280px] sm:h-[350px] md:h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                    <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                         <Pie
                             data={chartData}
                             cx="50%"
                             cy="45%"
-                            innerRadius={70}
-                            outerRadius={100}
+                            innerRadius="50%"
+                            outerRadius="70%"
                             paddingAngle={2}
                             dataKey="count"
                             nameKey="label"
                             stroke="none"
                             className="transition-opacity duration-300 hover:opacity-90 cursor-pointer outline-none"
-                            label={({ name, value }) => `${name}: ${value}`}
-                            labelLine={{ stroke: 'currentColor', strokeWidth: 1, opacity: 0.5 }}
+                            labelLine={false}
+                            label={({ cx, cy, midAngle, outerRadius, value, name, percent }: any) => {
+                                if (!percent || percent < 0.05) return null;
+                                const RADIAN = Math.PI / 180;
+                                const radius = outerRadius * 1.25;
+                                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                return (
+                                    <text
+                                        x={x}
+                                        y={y}
+                                        fill="currentColor"
+                                        textAnchor={x > cx ? 'start' : 'end'}
+                                        dominantBaseline="central"
+                                        className="text-[11px] font-medium fill-muted-foreground hidden sm:block"
+                                    >
+                                        {name}: {value}
+                                    </text>
+                                );
+                            }}
                         >
                             {chartData.map((_, index) => (
                                 <Cell
@@ -97,7 +115,17 @@ export function IndustryChart({ filters }: IndustryChartProps) {
                         <Legend
                             iconType="circle"
                             iconSize={8}
-                            wrapperStyle={{ fontSize: "12px", paddingTop: "20px" }}
+                            layout="horizontal"
+                            verticalAlign="bottom"
+                            align="center"
+                            wrapperStyle={{
+                                fontSize: "12px",
+                                paddingTop: "10px",
+                                display: "flex",
+                                flexWrap: "wrap",
+                                justifyContent: "center",
+                                gap: "10px"
+                            }}
                         />
                     </PieChart>
                 </ResponsiveContainer>

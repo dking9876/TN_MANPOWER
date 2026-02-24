@@ -20,16 +20,14 @@ Deno.serve(async (req) => {
         const { data: config, error: configError } = await supabase
             .from("system_config")
             .select("key, value")
-            .in("key", ["alert_staleness_threshold_days", "alert_document_expiration_threshold_days"]);
+            .in("key", ["alert_staleness_threshold_days"]);
 
         if (configError) throw configError;
 
         const stalenessDays = parseInt(config.find((c) => c.key === "alert_staleness_threshold_days")?.value ?? "14");
-        const expirationDays = parseInt(config.find((c) => c.key === "alert_document_expiration_threshold_days")?.value ?? "30");
 
         const now = new Date();
         const stalenessDate = new Date(now.getTime() - stalenessDays * 24 * 60 * 60 * 1000);
-        const expirationDate = new Date(now.getTime() + expirationDays * 24 * 60 * 60 * 1000);
 
         const newAlerts = [];
 
