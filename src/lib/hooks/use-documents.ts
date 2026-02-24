@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { DocumentFormValues } from "@/lib/validations/document-schema";
+import { handleError } from "@/lib/utils/error-handler";
 
 const supabase = createClient();
 
@@ -49,7 +50,7 @@ export function useUpdateDocument() {
             // (Not strictly needed unless we show doc status in header, but good practice)
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to update document");
+            toast.error(handleError(error, "Failed to update document"));
         },
     });
 }

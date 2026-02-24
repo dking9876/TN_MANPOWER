@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { handleError } from "@/lib/utils/error-handler";
 
 const supabase = createClient();
 
@@ -184,7 +185,7 @@ export function useResolveAlert() {
             router.refresh();
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to resolve alert");
+            toast.error(handleError(error, "Failed to resolve alert"));
         },
     });
 }

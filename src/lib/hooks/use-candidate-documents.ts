@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { CandidateDocumentFormValues } from "@/lib/validations/candidate-document-schema";
+import { handleError } from "@/lib/utils/error-handler";
 import { Database } from "@/lib/supabase/types";
 
 const supabase = createClient();
@@ -72,7 +73,7 @@ export function useUpsertCandidateDocument() {
             queryClient.invalidateQueries({ queryKey: ["candidate_documents", variables.candidate_id] });
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to update document");
+            toast.error(handleError(error, "Failed to update document"));
         },
     });
 }

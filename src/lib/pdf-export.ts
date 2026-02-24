@@ -3,6 +3,7 @@ import autoTable from "jspdf-autotable";
 import { getCandidatesForExport } from "@/app/actions/candidate-export";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { handleError } from "@/lib/utils/error-handler";
 
 export interface PDFExportField {
     id: string;
@@ -54,7 +55,7 @@ export async function exportCandidatesToPDF(filters: any, selectedFieldIds: stri
         data = await getCandidatesForExport(filters);
     } catch (error: any) {
         console.error("Export failed:", error);
-        toast.error(error.message || "Failed to fetch candidates for export");
+        toast.error(handleError(error, "Failed to fetch candidates for export"));
         return;
     }
 
@@ -134,6 +135,6 @@ export async function exportCandidatesToPDF(filters: any, selectedFieldIds: stri
 
     } catch (error: any) {
         console.error("PDF generation failed:", error);
-        toast.error("Failed to generate PDF document");
+        toast.error(handleError(error, "Failed to generate PDF document"));
     }
 }

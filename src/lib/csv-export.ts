@@ -1,5 +1,6 @@
 import { getCandidatesForExport } from "@/app/actions/candidate-export";
 import { toast } from "sonner";
+import { handleError } from "@/lib/utils/error-handler";
 
 export async function exportCandidatesToCSV(filters: any) {
     let data;
@@ -7,7 +8,7 @@ export async function exportCandidatesToCSV(filters: any) {
         data = await getCandidatesForExport(filters);
     } catch (error: any) {
         console.error("Export failed:", error);
-        toast.error(error.message || "Failed to export candidates");
+        toast.error(handleError(error, "Failed to export candidates"));
         return;
     }
 

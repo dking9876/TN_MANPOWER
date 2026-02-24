@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { handleError } from "@/lib/utils/error-handler";
 
 const supabase = createClient();
 
@@ -60,8 +61,8 @@ export function useUpdateConfig() {
             toast.success("Settings saved");
             queryClient.invalidateQueries({ queryKey: settingsKeys.config() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to save settings");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to save settings"));
         },
     });
 }
@@ -107,8 +108,8 @@ export function useToggleBlacklist() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: settingsKeys.countries() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to update country");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to update country"));
         },
     });
 }
@@ -152,8 +153,8 @@ export function useAddProfession() {
             toast.success("Profession added");
             queryClient.invalidateQueries({ queryKey: settingsKeys.professions() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to add profession");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to add profession"));
         },
     });
 }
@@ -174,8 +175,8 @@ export function useDeleteProfession() {
             toast.success("Profession removed");
             queryClient.invalidateQueries({ queryKey: settingsKeys.professions() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to remove profession");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to remove profession"));
         },
     });
 }
@@ -212,8 +213,8 @@ export function useAddCompany() {
             toast.success("Company added successfully");
             queryClient.invalidateQueries({ queryKey: settingsKeys.companies() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to add company");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to add company"));
         },
     });
 }
@@ -234,8 +235,8 @@ export function useDeleteCompany() {
             toast.success("Company deleted successfully");
             queryClient.invalidateQueries({ queryKey: settingsKeys.companies() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to delete company");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to delete company"));
         },
     });
 }
@@ -282,8 +283,8 @@ export function useAddStatus() {
             toast.success("Status added successfully");
             queryClient.invalidateQueries({ queryKey: settingsKeys.statuses() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to add status");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to add status"));
         },
     });
 }
@@ -310,8 +311,8 @@ export function useUpdateStatus() {
             toast.success("Status updated");
             queryClient.invalidateQueries({ queryKey: settingsKeys.statuses() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to update status");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to update status"));
         },
     });
 }
@@ -336,8 +337,8 @@ export function useUpdateStatusesOrder() {
             // Optimistically update or invalidate. Since they drag and drop, we just invalidate to ensure DB consistency.
             queryClient.invalidateQueries({ queryKey: settingsKeys.statuses() });
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Failed to save new status order");
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to save new status order"));
         },
     });
 }
@@ -358,12 +359,8 @@ export function useDeleteStatus() {
             toast.success("Status deleted successfully");
             queryClient.invalidateQueries({ queryKey: settingsKeys.statuses() });
         },
-        onError: (error: Error) => {
-            if (error.message?.includes("foreign key")) {
-                toast.error("Cannot delete: this status is currently assigned to candidates");
-            } else {
-                toast.error(error.message || "Failed to delete status");
-            }
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to delete status"));
         },
     });
 }

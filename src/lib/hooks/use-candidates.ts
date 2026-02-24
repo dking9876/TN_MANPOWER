@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { CandidateFormValues } from "@/lib/validations/candidate-schema";
+import { handleError } from "@/lib/utils/error-handler";
 
 const supabase = createClient();
 
@@ -170,7 +171,7 @@ export function useCreateCandidate() {
             queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to create candidate");
+            toast.error(handleError(error, "Failed to create candidate"));
         },
     });
 }
@@ -203,7 +204,7 @@ export function useUpdateCandidate() {
             queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to update candidate");
+            toast.error(handleError(error, "Failed to update candidate"));
         },
     });
 }
@@ -225,7 +226,7 @@ export function useDeleteCandidate() {
             queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to delete candidate");
+            toast.error(handleError(error, "Failed to delete candidate"));
         },
     });
 }
@@ -254,7 +255,7 @@ export function useLogActivity() {
             queryClient.invalidateQueries({ queryKey: candidateKeys.detail(data.id) });
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to log activity");
+            toast.error(handleError(error, "Failed to log activity"));
         },
     });
 }
@@ -307,7 +308,7 @@ export function useChangeStatus() {
             queryClient.invalidateQueries({ queryKey: ["status_history", variables.candidateId] });
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to update status");
+            toast.error(handleError(error, "Failed to update status"));
         },
     });
 }
