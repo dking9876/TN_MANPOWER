@@ -2,6 +2,7 @@
 
 import { useCandidate, useDeleteCandidate, useLogActivity, useChangeStatus, useStatusHistory } from "@/lib/hooks/use-candidates";
 import { useRecruitmentStatuses } from "@/lib/hooks/use-settings";
+import { useCurrentUser } from "@/lib/hooks/use-users";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,6 +59,9 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
     const changeStatusMutation = useChangeStatus();
     const { data: statuses } = useRecruitmentStatuses();
     const { data: statusHistory } = useStatusHistory(id);
+    const { data: currentUser } = useCurrentUser();
+
+    const isReferrer = currentUser?.role === "REFERRER";
 
     if (isLoading) return <div className="p-8 text-center text-muted-foreground">Loading candidate details...</div>;
     if (error || !candidate) return <div className="p-8 text-center text-destructive">Error loading candidate.</div>;
@@ -106,53 +110,64 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                 </div>
                 <div className="flex flex-wrap items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
                     {/* Status dropdown */}
-                    <Select
-                        value={candidate.recruitment_status}
-                        onValueChange={handleStatusChange}
-                        disabled={changeStatusMutation.isPending}
-                    >
-                        <SelectTrigger className="w-full sm:w-[220px] h-9">
-                            <SelectValue>
-                                <StatusBadge status={candidate.recruitment_status} />
-                            </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent position="popper" className="max-h-80">
-                            {statuses?.map((s) => (
-                                <SelectItem key={s.name} value={s.name}>
-                                    <div className="flex items-center gap-2">
-                                        <StatusBadge status={s.name} className="text-xs" />
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Button onClick={() => router.push(`/candidates/${id}/edit`)} className="flex-1 sm:flex-none">
-                        <Pencil className="mr-2 h-4 w-4" /> Edit
-                    </Button>
-                    <Button variant="outline" onClick={handleLogActivity} className="flex-1 sm:flex-none">
-                        <History className="mr-2 h-4 w-4" /> Log Activity
-                    </Button>
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon" className="shrink-0">
-                                <Trash2 className="h-4 w-4" />
+                    {isReferrer ? (
+                        <div className="h-9 flex items-center">
+                            <StatusBadge status={candidate.recruitment_status} />
+                        </div>
+                    ) : (
+                        <Select
+                            value={candidate.recruitment_status}
+                            onValueChange={handleStatusChange}
+                            disabled={changeStatusMutation.isPending}
+                        >
+                            <SelectTrigger className="w-full sm:w-[220px] h-9">
+                                <SelectValue>
+                                    <StatusBadge status={candidate.recruitment_status} />
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent position="popper" className="max-h-80">
+                                {statuses?.map((s) => (
+                                    <SelectItem key={s.name} value={s.name}>
+                                        <div className="flex items-center gap-2">
+                                            <StatusBadge status={s.name} className="text-xs" />
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+
+                    {!isReferrer && (
+                        <>
+                            <Button onClick={() => router.push(`/candidates/${id}/edit`)} className="flex-1 sm:flex-none">
+                                <Pencil className="mr-2 h-4 w-4" /> Edit
                             </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="w-[95vw] max-w-md">
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Candidate?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the candidate and all associated documents and logs.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-                                    Delete
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                            <Button variant="outline" onClick={handleLogActivity} className="flex-1 sm:flex-none">
+                                <History className="mr-2 h-4 w-4" /> Log Activity
+                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="icon" className="shrink-0">
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="w-[95vw] max-w-md">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Candidate?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the candidate and all associated documents and logs.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                                            Delete
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </>
+                    )}
                 </div>
             </div>
 

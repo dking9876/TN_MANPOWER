@@ -18,7 +18,25 @@ const supabase = createClient();
 export const userKeys = {
     all: ["users"] as const,
     list: () => [...userKeys.all, "list"] as const,
+    current: () => [...userKeys.all, "current"] as const,
 };
+
+export function useCurrentUser() {
+    return useQuery({
+        queryKey: userKeys.current(),
+        queryFn: async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return null;
+            const { data, error } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", user.id)
+                .single();
+            if (error) throw error;
+            return data;
+        },
+    });
+}
 
 export function useUsers() {
     return useQuery({

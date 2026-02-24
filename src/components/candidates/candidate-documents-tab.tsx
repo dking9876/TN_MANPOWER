@@ -2,6 +2,7 @@
 
 import { useCandidate } from "@/lib/hooks/use-candidates";
 import { useCandidateDocumentsData, useUpsertCandidateDocument, UpsertDocumentPayload } from "@/lib/hooks/use-candidate-documents";
+import { useCurrentUser } from "@/lib/hooks/use-users";
 import { useSystemConfig } from "@/lib/hooks/use-settings";
 import { Database } from "@/lib/supabase/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,9 +50,12 @@ export function CandidateDocumentsTab({ candidateId }: CandidateDocumentsTabProp
     const { data: candidate, isLoading: isLoadingCandidate } = useCandidate(candidateId);
     const { data: existingDocuments, isLoading: isLoadingDocs } = useCandidateDocumentsData(candidateId);
     const { data: config, isLoading: isLoadingConfig } = useSystemConfig();
+    const { data: currentUser, isLoading: isLoadingUser } = useCurrentUser();
     const upsertMutation = useUpsertCandidateDocument();
 
-    if (isLoadingCandidate || isLoadingDocs || isLoadingConfig) {
+    const isReferrer = currentUser?.role === "REFERRER";
+
+    if (isLoadingCandidate || isLoadingDocs || isLoadingConfig || isLoadingUser) {
         return <div className="text-muted-foreground p-8 text-center">Loading documents...</div>;
     }
 
@@ -116,6 +120,7 @@ export function CandidateDocumentsTab({ candidateId }: CandidateDocumentsTabProp
                         onUpsert={(payload: UpsertDocumentPayload) => upsertMutation.mutate(payload)}
                         isUpdating={upsertMutation.isPending}
                         config={config}
+                        isReferrer={isReferrer}
                     />
                 ))}
             </div>
@@ -123,7 +128,7 @@ export function CandidateDocumentsTab({ candidateId }: CandidateDocumentsTabProp
     );
 }
 
-function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, config }: any) {
+function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, config, isReferrer }: any) {
     const [isOpen, setIsOpen] = useState(false);
 
     const form = useForm<CandidateDocumentFormValues>({
@@ -204,87 +209,89 @@ function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, co
                     </div>
                 )}
             </CardContent>
-            <CardFooter className="pt-2 pb-3 px-4">
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full h-8 text-xs">
-                            <Pencil className="mr-2 h-3 w-3" />
-                            Update
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Update {document.label}</DialogTitle>
-                            <DialogDescription>
-                                Set the status and supply expiration details if applicable.
-                            </DialogDescription>
-                        </DialogHeader>
+            {!isReferrer && (
+                <CardFooter className="pt-2 pb-3 px-4">
+                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full h-8 text-xs">
+                                <Pencil className="mr-2 h-3 w-3" />
+                                Update
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Update {document.label}</DialogTitle>
+                                <DialogDescription>
+                                    Set the status and supply expiration details if applicable.
+                                </DialogDescription>
+                            </DialogHeader>
 
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                                <FormField
-                                    control={form.control}
-                                    name="status"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Status</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Status</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select status" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="PENDING">Pending</SelectItem>
+                                                        <SelectItem value="SUBMITTED">Submitted</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="expiration_date"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Expiration Date (Optional)</FormLabel>
                                                 <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select status" />
-                                                    </SelectTrigger>
+                                                    <Input
+                                                        type="date"
+                                                        {...field}
+                                                        value={field.value || ""}
+                                                    />
                                                 </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="PENDING">Pending</SelectItem>
-                                                    <SelectItem value="SUBMITTED">Submitted</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
 
-                                <FormField
-                                    control={form.control}
-                                    name="expiration_date"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Expiration Date (Optional)</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="date"
-                                                    {...field}
-                                                    value={field.value || ""}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                    <FormField
+                                        control={form.control}
+                                        name="notes"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Notes</FormLabel>
+                                                <FormControl>
+                                                    <Textarea placeholder="Any comments or file references..." {...field} value={field.value || ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
 
-                                <FormField
-                                    control={form.control}
-                                    name="notes"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Notes</FormLabel>
-                                            <FormControl>
-                                                <Textarea placeholder="Any comments or file references..." {...field} value={field.value || ""} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <DialogFooter>
-                                    <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                                    <Button type="submit" disabled={isUpdating}>Save Changes</Button>
-                                </DialogFooter>
-                            </form>
-                        </Form>
-                    </DialogContent>
-                </Dialog>
-            </CardFooter>
+                                    <DialogFooter>
+                                        <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+                                        <Button type="submit" disabled={isUpdating}>Save Changes</Button>
+                                    </DialogFooter>
+                                </form>
+                            </Form>
+                        </DialogContent>
+                    </Dialog>
+                </CardFooter>
+            )}
         </Card>
     );
 }
