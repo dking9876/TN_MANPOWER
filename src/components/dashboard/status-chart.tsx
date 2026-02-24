@@ -15,33 +15,31 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Fallback hex colors for chart (DB stores Tailwind classes, so we need hex for recharts)
+// Using a sophisticated sequence of Muted Jewel/Deep tones
 const CHART_COLORS: Record<string, string> = {
-    POTENTIAL_CANDIDATE: "#94a3b8",
-    RECRUITMENT_STARTED: "#38bdf8",
-    DOCUMENTS_RECEIVED: "#818cf8",
-    SENT_TO_IVS: "#a78bfa",
-    AWAITING_INTERVIEW: "#f59e0b",
-    VISA_APPROVED: "#2dd4bf",
-    HEALTH_INSURANCE_PURCHASED: "#22d3ee",
-    FLIGHT_TICKET_PURCHASED: "#38bdf8",
-    ARRIVED_IN_ISRAEL: "#10b981",
-    CANDIDATE_REJECTED: "#f87171",
+    POTENTIAL_CANDIDATE: "#475569", // slate-600
+    RECRUITMENT_STARTED: "#0369a1", // sky-700
+    DOCUMENTS_RECEIVED: "#4338ca", // indigo-700
+    SENT_TO_IVS: "#6d28d9", // violet-700
+    AWAITING_INTERVIEW: "#b45309", // amber-700
+    VISA_APPROVED: "#0f766e", // teal-700
+    HEALTH_INSURANCE_PURCHASED: "#0e7490", // cyan-700
+    FLIGHT_TICKET_PURCHASED: "#0369a1", // sky-700
+    ARRIVED_IN_ISRAEL: "#15803d", // green-700
+    CANDIDATE_REJECTED: "#be123c", // rose-700
 };
 
-// Map common Tailwind color classes to hex for the chart
+// Map common Tailwind color classes to hex for the chart, enforcing rich/muted tones
 function tailwindToHex(colorClass: string): string {
-    if (colorClass.includes("slate")) return "#94a3b8";
-    if (colorClass.includes("blue")) return "#38bdf8";
-    if (colorClass.includes("indigo")) return "#818cf8";
-    if (colorClass.includes("purple")) return "#a78bfa";
-    if (colorClass.includes("amber")) return "#f59e0b";
-    if (colorClass.includes("teal")) return "#2dd4bf";
-    if (colorClass.includes("cyan")) return "#22d3ee";
-    if (colorClass.includes("sky")) return "#38bdf8";
-    if (colorClass.includes("green") || colorClass.includes("emerald")) return "#10b981";
-    if (colorClass.includes("rose") || colorClass.includes("destructive") || colorClass.includes("red")) return "#f87171";
-    if (colorClass.includes("orange")) return "#fb923c";
-    return "#94a3b8"; // fallback gray
+    if (colorClass.includes("slate") || colorClass.includes("gray")) return "#475569"; // slate-600
+    if (colorClass.includes("blue") || colorClass.includes("sky")) return "#0369a1"; // sky-700
+    if (colorClass.includes("indigo")) return "#4338ca"; // indigo-700
+    if (colorClass.includes("purple") || colorClass.includes("violet")) return "#6d28d9"; // violet-700
+    if (colorClass.includes("amber") || colorClass.includes("yellow") || colorClass.includes("orange")) return "#b45309"; // amber-700
+    if (colorClass.includes("teal") || colorClass.includes("cyan")) return "#0f766e"; // teal-700
+    if (colorClass.includes("green") || colorClass.includes("emerald")) return "#15803d"; // green-700
+    if (colorClass.includes("rose") || colorClass.includes("red") || colorClass.includes("destructive")) return "#be123c"; // rose-700
+    return "#475569"; // fallback slate
 }
 
 interface StatusChartProps {

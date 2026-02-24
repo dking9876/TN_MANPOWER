@@ -12,13 +12,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 const INDUSTRY_COLORS = [
-    "#0EA5E9", // sky-500
-    "#10B981", // emerald-500
-    "#F59E0B", // amber-500
-    "#8B5CF6", // violet-500
-    "#F43F5E", // rose-500
-    "#06B6D4", // cyan-500
-    "#94A3B8", // slate-400 (neutral fallback)
+    "#0369a1", // sky-700 (deep blue)
+    "#15803d", // green-700 (deep green)
+    "#b45309", // amber-700 (deep gold)
+    "#6d28d9", // violet-700 (deep purple)
+    "#be123c", // rose-700 (deep red)
+    "#0f766e", // teal-700 (deep teal)
+    "#475569", // slate-600 (neutral slate)
 ];
 
 const INDUSTRY_LABELS: Record<string, string> = {

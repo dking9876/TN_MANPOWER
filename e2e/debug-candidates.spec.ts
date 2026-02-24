@@ -7,7 +7,7 @@ test.describe('Debug Candidate', () => {
         await loginAsAdmin(page);
     });
 
-    test.only('should fill form and submit', async ({ page }) => {
+    test('should fill form and submit', async ({ page }) => {
         console.log('Starting debug test...');
         page.on('console', msg => console.log('BROWSER:', msg.text()));
 

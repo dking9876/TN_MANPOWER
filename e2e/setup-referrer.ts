@@ -8,12 +8,12 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 const REFERRER_EMAIL = 'referrer@tnmanpower.com';
-const REFERRER_PASSWORD = 'Referrer123!';
+const REFERRER_PASSWORD = process.env.REFERRER_PASSWORD;
 const REFERRER_NAME = 'Test Referrer';
 
 async function main() {
-    if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-        console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+    if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !REFERRER_PASSWORD) {
+        console.error('Missing NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, or REFERRER_PASSWORD');
         process.exit(1);
     }
 

@@ -91,7 +91,7 @@ export function DocumentCompletion({ filters }: DocumentCompletionProps) {
                     </div>
                     <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-teal-500 rounded-full transition-all"
+                            className="h-full bg-teal-700 dark:bg-teal-600 rounded-full transition-all"
                             style={{ width: `${overallRate}%` }}
                         />
                     </div>
@@ -112,7 +112,7 @@ export function DocumentCompletion({ filters }: DocumentCompletionProps) {
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-emerald-500 rounded-full transition-all"
+                                className="h-full bg-emerald-700 dark:bg-emerald-600 rounded-full transition-all"
                                 style={{ width: `${doc.rate}%` }}
                             />
                         </div>

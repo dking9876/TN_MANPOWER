@@ -10,13 +10,13 @@ const ACTION_CONFIG: Record<
     string,
     { label: string; icon: typeof Plus; color: string }
 > = {
-    CREATE: { label: "Created", icon: Plus, color: "text-emerald-600 bg-emerald-50" },
-    UPDATE: { label: "Updated", icon: Pencil, color: "text-sky-600 bg-sky-50" },
-    DELETE: { label: "Deleted", icon: Trash2, color: "text-red-600 bg-red-50" },
+    CREATE: { label: "Created", icon: Plus, color: "text-emerald-600 dark:text-emerald-400 bg-muted" },
+    UPDATE: { label: "Updated", icon: Pencil, color: "text-sky-600 dark:text-sky-400 bg-muted" },
+    DELETE: { label: "Deleted", icon: Trash2, color: "text-red-600 dark:text-red-400 bg-muted" },
     STATUS_CHANGE: {
         label: "Status Changed",
         icon: ArrowRightLeft,
-        color: "text-amber-600 bg-amber-50",
+        color: "text-amber-600 dark:text-amber-400 bg-muted",
     },
 };
 
