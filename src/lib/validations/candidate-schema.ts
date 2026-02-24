@@ -63,7 +63,7 @@ export const candidateFormSchema = z.object({
 
     // Optional Company / Referrer
     company_id: z.string().uuid("Invalid company ID").optional().nullable(),
-    referrer_id: z.string().uuid("Invalid referrer ID").optional().nullable(),
+    referrer_id: z.string().uuid("Invalid referrer ID").min(1, "Referrer is required"),
 });
 
 export type CandidateFormValues = z.infer<typeof candidateFormSchema>;

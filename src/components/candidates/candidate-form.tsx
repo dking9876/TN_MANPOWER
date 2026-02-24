@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { candidateFormSchema, CandidateFormValues } from "@/lib/validations/candidate-schema";
 import { useCreateCandidate, useUpdateCandidate } from "@/lib/hooks/use-candidates";
-import { useCompanies, useRecruitmentStatuses } from "@/lib/hooks/use-settings";
+import { useCompanies, useRecruitmentStatuses, useProfessions, useBlacklistedCountries } from "@/lib/hooks/use-settings";
 import { useUsers } from "@/lib/hooks/use-users";
 import { Tables } from "@/lib/supabase/types";
 import { useRouter } from "next/navigation";
@@ -26,14 +26,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { INDUSTRIES, INDUSTRY_PROFESSIONS, ENGLISH_LEVELS } from "@/lib/constants";
+import { INDUSTRIES, ENGLISH_LEVELS } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { differenceInYears, parseISO } from "date-fns";
+import { AlertCircle, Loader2, CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { differenceInYears, parseISO, format } from "date-fns";
 
 interface CandidateFormProps {
     initialData?: Tables<"candidates">;
@@ -47,7 +52,10 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
     const { data: companies, isLoading: companiesLoading } = useCompanies();
     const { data: users, isLoading: usersLoading } = useUsers();
     const { data: recruitmentStatuses } = useRecruitmentStatuses();
+    const { data: professionsData, isLoading: professionsLoading } = useProfessions();
+    const { data: countriesData, isLoading: countriesLoading } = useBlacklistedCountries();
     const [age, setAge] = useState<number | null>(null);
+    const [openCountriesDropdown, setOpenCountriesDropdown] = useState(false);
 
     // Find the default status from DB
     const defaultStatusName = recruitmentStatuses?.find((s) => s.is_default)?.name || "POTENTIAL_CANDIDATE";
@@ -76,7 +84,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
             recruitment_status: initialData?.recruitment_status || defaultStatusName,
             is_blacklisted: initialData?.is_blacklisted || false,
             company_id: initialData?.company_id || null,
-            referrer_id: initialData?.referrer_id || null,
+            referrer_id: initialData?.referrer_id || "",
             // Status metadata
             interview_date: initialData?.interview_date || null,
             visa_number: initialData?.visa_number || "",
@@ -112,7 +120,22 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
     // Derived blacklist check (soft check for UI warning)
     // The real check happens in DB trigger, but we want to warn user
     const [isBlacklistWarning, setIsBlacklistWarning] = useState(false);
-    // TODO: We could fetch blacklist countries here to warn dynamically
+
+    useEffect(() => {
+        const visited = form.watch("countries_visited") || [];
+        if (countriesData && visited.length > 0) {
+            const hasBlacklisted = visited.some((cv: string) => {
+                return countriesData.some(c => c.country_name === cv && c.is_blacklisted);
+            });
+            setIsBlacklistWarning(hasBlacklisted);
+        } else {
+            setIsBlacklistWarning(false);
+        }
+    }, [form.watch("countries_visited"), countriesData]);
+
+    const relevantProfessions = watchedIndustry
+        ? professionsData?.filter(p => p.industry === watchedIndustry) || []
+        : [];
 
     const onSubmit = async (values: CandidateFormValues) => {
         try {
@@ -208,11 +231,41 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                             control={form.control}
                             name="date_of_birth"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-col mt-2.5">
                                     <FormLabel>Date of Birth {age !== null && <span className="text-muted-foreground ml-2">(Age: {age})</span>}</FormLabel>
-                                    <FormControl>
-                                        <Input type="date" {...field} value={(field.value as any) ?? ""} />
-                                    </FormControl>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(parseISO(field.value.toString()), "PPP")
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value ? parseISO(field.value.toString()) : undefined}
+                                                onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                                                disabled={(date) =>
+                                                    date > new Date() || date < new Date("1930-01-01")
+                                                }
+                                                captionLayout="dropdown"
+                                                fromYear={1930}
+                                                toYear={new Date().getFullYear()}
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -306,9 +359,9 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {watchedIndustry && INDUSTRY_PROFESSIONS[watchedIndustry as keyof typeof INDUSTRIES]?.map((prof) => (
-                                                <SelectItem key={prof} value={prof}>
-                                                    {prof}
+                                            {relevantProfessions.map((prof) => (
+                                                <SelectItem key={prof.id} value={prof.profession}>
+                                                    {prof.profession}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -351,8 +404,8 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                 <FormItem>
                                     <FormLabel>Company (Optional)</FormLabel>
                                     <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={(field.value as string) || undefined}
+                                        onValueChange={(val) => field.onChange(val === "none" ? null : val)}
+                                        value={(field.value as string) || "none"}
                                         disabled={companiesLoading}
                                     >
                                         <FormControl>
@@ -393,8 +446,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="none">None</SelectItem>
-                                            {users?.filter(u => ["ADMIN", "RECRUITER", "REFERRER"].includes(u.role)).map((user) => (
+                                            {users?.map((user) => (
                                                 <SelectItem key={user.id} value={user.id}>
                                                     {user.full_name} ({user.role.toLowerCase()})
                                                 </SelectItem>
@@ -530,24 +582,101 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                 <FormField<CandidateFormValues>
                                     control={form.control}
                                     name="countries_visited"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Countries Visited</FormLabel>
-                                            <FormControl>
-                                                {/* Temporary: handling array as comma joined string for the input */}
-                                                <Input
-                                                    placeholder="Dubai, Qatar, USA..."
-                                                    value={(field.value as string[])?.join(", ") || ""}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
-                                                        field.onChange(val);
-                                                    }}
-                                                />
-                                            </FormControl>
-                                            <FormDescription>Separate multiple countries with commas</FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
+                                    render={({ field }) => {
+                                        const selectedValues = (field.value as string[]) || [];
+                                        return (
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel>Countries Visited</FormLabel>
+                                                <Popover open={openCountriesDropdown} onOpenChange={setOpenCountriesDropdown}>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant="outline"
+                                                                role="combobox"
+                                                                className={cn(
+                                                                    "w-full justify-between font-normal",
+                                                                    !selectedValues.length && "text-muted-foreground"
+                                                                )}
+                                                                disabled={countriesLoading}
+                                                            >
+                                                                {selectedValues.length > 0
+                                                                    ? `${selectedValues.length} selected`
+                                                                    : "Select countries"}
+                                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[400px] p-0" align="start">
+                                                        <Command>
+                                                            <CommandInput placeholder="Search country..." />
+                                                            <CommandList>
+                                                                <CommandEmpty>No country found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    {countriesData?.map((country) => {
+                                                                        const isSelected = selectedValues.includes(country.country_name);
+                                                                        return (
+                                                                            <CommandItem
+                                                                                key={country.id}
+                                                                                value={country.country_name}
+                                                                                onSelect={() => {
+                                                                                    const newSelected = isSelected
+                                                                                        ? selectedValues.filter((val) => val !== country.country_name)
+                                                                                        : [...selectedValues, country.country_name];
+                                                                                    field.onChange(newSelected);
+                                                                                }}
+                                                                                className="flex justify-between items-center"
+                                                                            >
+                                                                                <div className="flex items-center">
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4",
+                                                                                            isSelected ? "opacity-100" : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                    {country.country_name}
+                                                                                </div>
+                                                                                {country.is_blacklisted && (
+                                                                                    <Badge variant="destructive" className="ml-2 text-[10px] uppercase">
+                                                                                        Blacklisted
+                                                                                    </Badge>
+                                                                                )}
+                                                                            </CommandItem>
+                                                                        );
+                                                                    })}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+
+                                                {selectedValues.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mt-3">
+                                                        {selectedValues.map(val => {
+                                                            const c = countriesData?.find(x => x.country_name === val);
+                                                            return (
+                                                                <Badge key={val} variant={c?.is_blacklisted ? "destructive" : "secondary"}>
+                                                                    {val}
+                                                                </Badge>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                )}
+
+                                                {isBlacklistWarning && (
+                                                    <Alert variant="destructive" className="mt-2 py-2">
+                                                        <AlertCircle className="h-4 w-4" />
+                                                        <AlertTitle className="text-sm">Warning</AlertTitle>
+                                                        <AlertDescription className="text-xs">
+                                                            Candidate has visited a restricted country and will be automatically blacklisted after saving.
+                                                        </AlertDescription>
+                                                    </Alert>
+                                                )}
+
+                                                <FormDescription>Select multiple countries from the list</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        );
+                                    }}
                                 />
                             </div>
                         )}

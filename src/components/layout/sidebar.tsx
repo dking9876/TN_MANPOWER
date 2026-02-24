@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAlertCount } from "@/lib/hooks/use-alerts";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
@@ -74,7 +75,10 @@ export function Sidebar({ user, alertCount: initialAlertCount = 0 }: SidebarProp
     const { data: liveAlertCount } = useAlertCount(user.id, user.role as "ADMIN" | "RECRUITER");
     const countToDisplay = liveAlertCount ?? initialAlertCount;
 
+    const queryClient = useQueryClient();
+
     async function handleLogout() {
+        queryClient.clear();
         await supabase.auth.signOut();
         router.push("/login");
         router.refresh();
