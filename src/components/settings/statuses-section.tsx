@@ -1,7 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { useRecruitmentStatuses, useAddStatus, useDeleteStatus } from "@/lib/hooks/use-settings";
+import { useState, useEffect } from "react";
+import { useRecruitmentStatuses, useAddStatus, useDeleteStatus, useUpdateStatusesOrder } from "@/lib/hooks/use-settings";
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent
+} from "@dnd-kit/core";
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,13 +60,136 @@ const COLOR_OPTIONS = [
     { value: "bg-destructive/10 text-destructive border-destructive/20", label: "Red (Danger)", preview: "bg-red-400" },
 ];
 
+function SortableStatusItem({ status, deleteMutation }: { status: any, deleteMutation: any }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: status.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : 1,
+        position: isDragging ? "relative" : undefined,
+    } as React.CSSProperties;
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`flex items-center justify-between gap-3 rounded-lg border p-3 bg-card transition-colors ${isDragging ? "shadow-md opacity-90 border-primary" : "hover:bg-muted/50"
+                }`}
+        >
+            <div className="flex items-center gap-3">
+                <button
+                    {...attributes}
+                    {...listeners}
+                    className="cursor-grab active:cursor-grabbing hover:bg-muted p-1 rounded touch-none"
+                    aria-label="Drag to reorder"
+                >
+                    <GripVertical className="h-4 w-4 text-muted-foreground/60 transition-colors hover:text-foreground" />
+                </button>
+                <Badge
+                    variant="outline"
+                    className={`font-medium border px-2 py-0.5 whitespace-nowrap ${status.color}`}
+                >
+                    {status.label}
+                </Badge>
+                {status.is_default && (
+                    <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                        Default
+                    </span>
+                )}
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground font-mono">
+                    {status.name}
+                </span>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            disabled={status.is_default}
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Status?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This will delete &ldquo;{status.label}&rdquo;. This is blocked if any candidates currently have this status.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={() => deleteMutation.mutate(status.id)}
+                                className="bg-destructive hover:bg-destructive/90"
+                            >
+                                Delete
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+        </div>
+    );
+}
+
 export function StatusesSection() {
-    const { data: statuses, isLoading } = useRecruitmentStatuses();
+    const { data: dbStatuses, isLoading } = useRecruitmentStatuses();
     const addMutation = useAddStatus();
     const deleteMutation = useDeleteStatus();
+    const updateOrderMutation = useUpdateStatusesOrder();
 
+    const [statuses, setStatuses] = useState<any[]>([]);
     const [newLabel, setNewLabel] = useState("");
     const [newColor, setNewColor] = useState(COLOR_OPTIONS[0].value);
+
+    // Sync state when DB statuses loaded
+    useEffect(() => {
+        if (dbStatuses) {
+            setStatuses([...dbStatuses].sort((a, b) => a.display_order - b.display_order));
+        }
+    }, [dbStatuses]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            setStatuses((items) => {
+                const oldIndex = items.findIndex(item => item.id === active.id);
+                const newIndex = items.findIndex(item => item.id === over.id);
+
+                const newItems = arrayMove(items, oldIndex, newIndex);
+
+                // Construct payload to save to DB safely
+                const payload = newItems.map((item, index) => ({
+                    id: item.id,
+                    display_order: index + 1
+                }));
+
+                // Fire off mutation to persist changes in DB
+                updateOrderMutation.mutate(payload);
+
+                return newItems;
+            });
+        }
+    };
 
     const handleAdd = () => {
         if (!newLabel.trim()) return;
@@ -90,64 +230,24 @@ export function StatusesSection() {
             <CardContent className="space-y-6">
                 {/* Status list */}
                 <div className="space-y-2">
-                    {statuses?.map((status) => (
-                        <div
-                            key={status.id}
-                            className="flex items-center justify-between gap-3 rounded-lg border p-3 hover:bg-muted/50 transition-colors"
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={statuses.map(s => s.id)}
+                            strategy={verticalListSortingStrategy}
                         >
-                            <div className="flex items-center gap-3">
-                                <GripVertical className="h-4 w-4 text-muted-foreground/40" />
-                                <span className="text-sm text-muted-foreground font-mono w-6 text-center">
-                                    {status.display_order}
-                                </span>
-                                <Badge
-                                    variant="outline"
-                                    className={`font-medium border px-2 py-0.5 whitespace-nowrap ${status.color}`}
-                                >
-                                    {status.label}
-                                </Badge>
-                                {status.is_default && (
-                                    <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                                        Default
-                                    </span>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground font-mono">
-                                    {status.name}
-                                </span>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                            disabled={status.is_default}
-                                        >
-                                            <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Delete Status?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This will delete &ldquo;{status.label}&rdquo;. This is blocked if any candidates currently have this status.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction
-                                                onClick={() => deleteMutation.mutate(status.id)}
-                                                className="bg-destructive hover:bg-destructive/90"
-                                            >
-                                                Delete
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </div>
-                        </div>
-                    ))}
+                            {statuses.map((status) => (
+                                <SortableStatusItem
+                                    key={status.id}
+                                    status={status}
+                                    deleteMutation={deleteMutation}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
                 </div>
 
                 {/* Add new status */}

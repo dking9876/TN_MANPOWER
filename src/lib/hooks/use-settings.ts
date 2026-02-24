@@ -316,6 +316,32 @@ export function useUpdateStatus() {
     });
 }
 
+export function useUpdateStatusesOrder() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (orderedStatuses: { id: string; display_order: number }[]) => {
+            const promises = orderedStatuses.map((status) =>
+                supabase
+                    .from("recruitment_statuses")
+                    .update({ display_order: status.display_order })
+                    .eq("id", status.id)
+            );
+
+            const results = await Promise.all(promises);
+            const error = results.find((r) => r.error)?.error;
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            // Optimistically update or invalidate. Since they drag and drop, we just invalidate to ensure DB consistency.
+            queryClient.invalidateQueries({ queryKey: settingsKeys.statuses() });
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to save new status order");
+        },
+    });
+}
+
 export function useDeleteStatus() {
     const queryClient = useQueryClient();
 

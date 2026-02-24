@@ -49,7 +49,9 @@ export function useCreateUser() {
             role: "ADMIN" | "RECRUITER" | "REFERRER";
             companyIds?: string[];
         }) => {
-            return await createUserAction(data);
+            const res = await createUserAction(data);
+            if ('error' in res && res.error) throw new Error(res.error);
+            return res;
         },
         onSuccess: () => {
             toast.success("User created successfully");
@@ -72,7 +74,9 @@ export function useUpdateUser() {
             userId: string;
             data: { fullName: string; role: "ADMIN" | "RECRUITER" | "REFERRER"; companyIds?: string[] };
         }) => {
-            return await updateUserAction(userId, data);
+            const res = await updateUserAction(userId, data);
+            if ('error' in res && res.error) throw new Error(res.error);
+            return res;
         },
         onSuccess: () => {
             toast.success("User updated successfully");
@@ -93,7 +97,9 @@ export function useResetPassword() {
             userId: string;
             newPassword: string;
         }) => {
-            return await resetPasswordAction(userId, newPassword);
+            const res = await resetPasswordAction(userId, newPassword);
+            if ('error' in res && res.error) throw new Error(res.error);
+            return res;
         },
         onSuccess: () => {
             toast.success("Password reset successfully");
@@ -115,7 +121,9 @@ export function useToggleUserActive() {
             userId: string;
             isActive: boolean;
         }) => {
-            return await toggleUserActiveAction(userId, isActive);
+            const res = await toggleUserActiveAction(userId, isActive);
+            if ('error' in res && res.error) throw new Error(res.error);
+            return res;
         },
         onSuccess: (_, variables) => {
             toast.success(
@@ -134,7 +142,9 @@ export function useDeleteUser() {
 
     return useMutation({
         mutationFn: async (userId: string) => {
-            return await deleteUserAction(userId);
+            const res = await deleteUserAction(userId);
+            if ('error' in res && res.error) throw new Error(res.error);
+            return res;
         },
         onSuccess: () => {
             toast.success("User deleted successfully");
