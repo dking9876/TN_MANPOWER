@@ -9,6 +9,7 @@ import {
     resetPasswordAction,
     toggleUserActiveAction,
     deleteUserAction,
+    getAllUsersForReferrerAction,
 } from "@/lib/actions/user-actions";
 
 const supabase = createClient();
@@ -34,6 +35,18 @@ export function useUsers() {
 
             if (error) throw error;
             return data;
+        },
+    });
+}
+
+export function useAllReferrers() {
+    return useQuery({
+        queryKey: [...userKeys.all, "referrers-dropdown"],
+        queryFn: async () => {
+            const res = await getAllUsersForReferrerAction();
+            if ('error' in res && res.error) throw new Error(res.error);
+            // Return empty array if res.users is undefined to maintain type safety
+            return res.users || [];
         },
     });
 }

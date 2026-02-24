@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { candidateFormSchema, CandidateFormValues } from "@/lib/validations/candidate-schema";
 import { useCreateCandidate, useUpdateCandidate } from "@/lib/hooks/use-candidates";
 import { useCompanies, useRecruitmentStatuses, useProfessions, useBlacklistedCountries } from "@/lib/hooks/use-settings";
-import { useUsers } from "@/lib/hooks/use-users";
+import { useAllReferrers } from "@/lib/hooks/use-users";
 import { Tables } from "@/lib/supabase/types";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
     const createMutation = useCreateCandidate();
     const updateMutation = useUpdateCandidate();
     const { data: companies, isLoading: companiesLoading } = useCompanies();
-    const { data: users, isLoading: usersLoading } = useUsers();
+    const { data: users, isLoading: usersLoading } = useAllReferrers();
     const { data: recruitmentStatuses } = useRecruitmentStatuses();
     const { data: professionsData, isLoading: professionsLoading } = useProfessions();
     const { data: countriesData, isLoading: countriesLoading } = useBlacklistedCountries();
@@ -434,7 +434,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                             name="referrer_id"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Referrer (Optional)</FormLabel>
+                                    <FormLabel>Referrer</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={(field.value as string) || undefined}
@@ -618,6 +618,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                                                                             <CommandItem
                                                                                 key={country.id}
                                                                                 value={country.country_name}
+                                                                                keywords={[country.country_name, country.country_code]}
                                                                                 onSelect={() => {
                                                                                     const newSelected = isSelected
                                                                                         ? selectedValues.filter((val) => val !== country.country_name)

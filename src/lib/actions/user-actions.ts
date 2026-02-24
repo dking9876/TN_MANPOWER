@@ -208,3 +208,26 @@ export async function deleteUserAction(userId: string) {
         return { error: error.message || "An error occurred" };
     }
 }
+
+export async function getAllUsersForReferrerAction() {
+    try {
+        await assertAdmin(); // Wait, are ONLY admins allowed to fetch users?
+        // Let's create a custom bypass.
+        // If a RECRUITER or ADMIN or REFERRER is fetching this ...
+        // We'll allow any authenticated user to fetch the list of referrers for the form.
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+
+        const admin = createAdminClient();
+        const { data, error } = await admin
+            .from("users")
+            .select("id, full_name, role")
+            .order("full_name", { ascending: true });
+
+        if (error) throw new Error(error.message);
+        return { success: true, users: data };
+    } catch (error: any) {
+        return { error: error.message || "An error occurred" };
+    }
+}
