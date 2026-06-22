@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { StatusBadge } from "./status-badge";
 import { CandidateDocumentsTab } from "./candidate-documents-tab";
+import { CandidateMediaTab } from "./candidate-media-tab";
 import {
     Select,
     SelectContent,
@@ -175,9 +176,10 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 max-w-[400px]">
+                <TabsList className="grid w-full grid-cols-4 max-w-[500px]">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="documents">Documents</TabsTrigger>
+                    <TabsTrigger value="media">Media</TabsTrigger>
                     <TabsTrigger value="history">History</TabsTrigger>
                 </TabsList>
 
@@ -276,6 +278,10 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                                 <div className="grid grid-cols-2">
                                     <span className="text-muted-foreground">Pants Size:</span>
                                     <span>{candidate.pants_size || "-"}</span>
+                                </div>
+                                <div className="grid grid-cols-2">
+                                    <span className="text-muted-foreground">Shirt Size:</span>
+                                    <span>{candidate.shirt_size || "-"}</span>
                                 </div>
                                 <div className="col-span-2">
                                     <span className="text-muted-foreground block mb-1">Allergies/Notes:</span>
@@ -392,6 +398,10 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
 
                 <TabsContent value="documents" className="mt-6">
                     <CandidateDocumentsTab candidateId={id} />
+                </TabsContent>
+
+                <TabsContent value="media" className="mt-6">
+                    <CandidateMediaTab candidateId={id} />
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-6">

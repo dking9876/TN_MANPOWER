@@ -9,6 +9,8 @@ import { useAllReferrers } from "@/lib/hooks/use-users";
 import { Tables } from "@/lib/supabase/types";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useCreateCandidateMedia } from "@/lib/hooks/use-media";
+import { createClient } from "@/lib/supabase/client";
 import {
     Form,
     FormControl,
@@ -37,7 +39,7 @@ import { INDUSTRIES, ENGLISH_LEVELS } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2, CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { AlertCircle, Loader2, CalendarIcon, Check, ChevronsUpDown, X, Image as ImageIcon, Film } from "lucide-react";
 import { differenceInYears, parseISO, format } from "date-fns";
 
 interface CandidateFormProps {
@@ -56,6 +58,10 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
     const { data: countriesData, isLoading: countriesLoading } = useBlacklistedCountries();
     const [age, setAge] = useState<number | null>(null);
     const [openCountriesDropdown, setOpenCountriesDropdown] = useState(false);
+    const [mediaFiles, setMediaFiles] = useState<{ id: string; file: File; title: string }[]>([]);
+
+    const createMediaMutation = useCreateCandidateMedia();
+    const supabase = createClient();
 
     // Find the default status from DB
     const defaultStatusName = recruitmentStatuses?.find((s) => s.is_default)?.name || "POTENTIAL_CANDIDATE";
@@ -75,6 +81,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
             weight: initialData?.weight || null,
             shoe_size: initialData?.shoe_size || "",
             pants_size: initialData?.pants_size || "",
+            shirt_size: initialData?.shirt_size || "",
             allergies: initialData?.allergies || "",
             primary_industry: initialData?.primary_industry || "",
             profession: initialData?.profession || "",
@@ -139,15 +146,36 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
 
     const onSubmit = async (values: CandidateFormValues) => {
         try {
+            let candidateId = "";
             if (isEditMode && initialData) {
                 await updateMutation.mutateAsync({ id: initialData.id, values });
-                // Redirect back to detail
-                router.push(`/candidates/${initialData.id}`);
+                candidateId = initialData.id;
             } else {
                 const newCandidate = await createMutation.mutateAsync(values);
                 if (newCandidate) {
-                    router.push(`/candidates/${newCandidate.id}`);
+                    candidateId = newCandidate.id;
                 }
+            }
+
+            if (candidateId && mediaFiles.length > 0) {
+                for (const item of mediaFiles) {
+                    const filePath = `${candidateId}/${item.id}_${item.file.name}`;
+                    const { error } = await supabase.storage.from('candidate-media').upload(filePath, item.file);
+                    if (!error) {
+                        await createMediaMutation.mutateAsync({
+                            candidate_id: candidateId,
+                            title: item.title,
+                            original_name: item.file.name,
+                            file_size: item.file.size,
+                            storage_path: filePath,
+                            file_type: item.file.type.startsWith('video/') ? 'video' : 'image'
+                        });
+                    }
+                }
+            }
+
+            if (candidateId) {
+                router.push(`/candidates/${candidateId}`);
             }
         } catch (error) {
             console.error(error);
@@ -155,7 +183,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
         }
     };
 
-    const isLoading = createMutation.isPending || updateMutation.isPending;
+    const isLoading = createMutation.isPending || updateMutation.isPending || createMediaMutation.isPending;
 
     return (
         <Form {...form}>
@@ -514,6 +542,19 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Pants Size</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} value={(field.value as any) ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
+                            name="shirt_size"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Shirt Size</FormLabel>
                                     <FormControl>
                                         <Input {...field} value={(field.value as any) ?? ""} />
                                     </FormControl>
@@ -908,6 +949,58 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Candidate Media Uploads */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Candidate Media</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center gap-4">
+                                <Input
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    multiple
+                                    onChange={(e) => {
+                                        if (e.target.files) {
+                                            const newFiles = Array.from(e.target.files).map((f) => ({
+                                                id: Math.random().toString(36).substring(7),
+                                                file: f,
+                                                title: f.name
+                                            }));
+                                            setMediaFiles(prev => [...prev, ...newFiles]);
+                                        }
+                                        e.target.value = ''; // Reset
+                                    }}
+                                />
+                            </div>
+                            {mediaFiles.length > 0 && (
+                                <div className="grid gap-4 mt-4">
+                                    {mediaFiles.map((m, index) => (
+                                        <div key={m.id} className="flex items-center gap-4 p-2 border rounded-md">
+                                            {m.file.type.startsWith('video') ? <Film className="h-8 w-8 text-muted-foreground shrink-0" /> : <ImageIcon className="h-8 w-8 text-muted-foreground shrink-0" />}
+                                            <div className="flex-1">
+                                                <Input 
+                                                    value={m.title} 
+                                                    onChange={(e) => {
+                                                        const newMediaFiles = [...mediaFiles];
+                                                        newMediaFiles[index].title = e.target.value;
+                                                        setMediaFiles(newMediaFiles);
+                                                    }} 
+                                                    placeholder="File title"
+                                                />
+                                            </div>
+                                            <Button variant="ghost" size="icon" type="button" onClick={() => setMediaFiles(mediaFiles.filter(f => f.id !== m.id))}>
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <div className="flex justify-end gap-4">
                     <Button variant="outline" type="button" onClick={() => router.back()}>

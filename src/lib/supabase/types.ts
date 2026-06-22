@@ -197,6 +197,57 @@ export type Database = {
           },
         ]
       }
+      candidate_media: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          file_size: number
+          file_type: string
+          id: string
+          original_name: string
+          storage_path: string
+          title: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          file_size: number
+          file_type: string
+          id?: string
+          original_name: string
+          storage_path: string
+          title?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          original_name?: string
+          storage_path?: string
+          title?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_media_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_media_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidate_status_history: {
         Row: {
           candidate_id: string
@@ -278,6 +329,7 @@ export type Database = {
           referrer_got_paid: boolean | null
           referrer_id: string | null
           shoe_size: string | null
+          shirt_size: string | null
           visa_expiry_date: string | null
           visa_number: string | null
           weight: number | null
@@ -320,6 +372,7 @@ export type Database = {
           referrer_got_paid?: boolean | null
           referrer_id?: string | null
           shoe_size?: string | null
+          shirt_size?: string | null
           visa_expiry_date?: string | null
           visa_number?: string | null
           weight?: number | null
@@ -362,6 +415,7 @@ export type Database = {
           referrer_got_paid?: boolean | null
           referrer_id?: string | null
           shoe_size?: string | null
+          shirt_size?: string | null
           visa_expiry_date?: string | null
           visa_number?: string | null
           weight?: number | null

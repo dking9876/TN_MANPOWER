@@ -31,6 +31,7 @@ export const candidateFormSchema = z.object({
     weight: z.coerce.number().positive("Must be positive").optional().nullable().or(z.literal("")),
     shoe_size: z.string().optional().nullable(),
     pants_size: z.string().optional().nullable(),
+    shirt_size: z.string().optional().nullable(),
     allergies: z.string().optional().nullable(),
 
     // Professional

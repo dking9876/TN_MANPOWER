@@ -127,6 +127,7 @@ describe('Phase 3: CSV Export Formatting', () => {
                 weight: 55,
                 shoe_size: "38",
                 pants_size: "M",
+                shirt_size: "L",
                 allergies: null,
                 english_level: "GOOD",
                 primary_industry: "NURSING",
@@ -155,6 +156,7 @@ describe('Phase 3: CSV Export Formatting', () => {
                 candidate.weight || "",
                 candidate.shoe_size || "",
                 candidate.pants_size || "",
+                candidate.shirt_size || "",
                 candidate.allergies || "",
                 candidate.english_level,
                 candidate.primary_industry,
@@ -169,14 +171,14 @@ describe('Phase 3: CSV Export Formatting', () => {
                 visa?.is_received ? "Yes" : "No", visa?.expiration_date || "",
             ];
 
-            expect(row).toHaveLength(28); // 28 data columns (excluding creator/updater metadata)
+            expect(row).toHaveLength(29); // 29 data columns (excluding creator/updater metadata)
             expect(row[0]).toBe("Jane");
-            expect(row[17]).toBe("Yes"); // has_visited_other
-            expect(row[18]).toBe("USA, Canada"); // countries_visited joined
-            expect(row[19]).toBe("No"); // is_blacklisted
-            expect(row[20]).toBe("Yes"); // passport received
-            expect(row[21]).toBe("2030-01-01"); // passport expiration
-            expect(row[22]).toBe("No"); // police received
+            expect(row[18]).toBe("Yes"); // has_visited_other
+            expect(row[19]).toBe("USA, Canada"); // countries_visited joined
+            expect(row[20]).toBe("No"); // is_blacklisted
+            expect(row[21]).toBe("Yes"); // passport received
+            expect(row[22]).toBe("2030-01-01"); // passport expiration
+            expect(row[23]).toBe("No"); // police received
         });
     });
 });

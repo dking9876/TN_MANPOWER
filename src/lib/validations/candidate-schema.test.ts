@@ -26,6 +26,7 @@ describe('candidateFormSchema', () => {
         profession: "Nurse",
         english_level: "GOOD",
         has_visited_other: false,
+        referrer_id: "123e4567-e89b-12d3-a456-426614174000",
     };
 
     it('validates a correct candidate data', () => {

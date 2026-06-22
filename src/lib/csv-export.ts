@@ -23,7 +23,7 @@ export async function exportCandidatesToCSV(filters: any) {
         [
             "First Name", "Last Name", "National ID", "Passport Number",
             "Date of Birth", "Primary Phone", "Emergency Phone", "Email",
-            "Height", "Weight", "Shoe Size", "Pants Size", "Allergies",
+            "Height", "Weight", "Shoe Size", "Pants Size", "Shirt Size", "Allergies",
             "English Level", "Industry", "Profession", "Recruitment Status",
             "Has Visited Other Countries", "Countries Visited", "Is Blacklisted",
             "Interview Date",
@@ -60,6 +60,7 @@ export async function exportCandidatesToCSV(filters: any) {
             c.weight || "",
             c.shoe_size || "",
             c.pants_size || "",
+            c.shirt_size || "",
             c.allergies || "",
             c.english_level,
             c.primary_industry,

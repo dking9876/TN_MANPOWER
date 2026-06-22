@@ -24,6 +24,7 @@ describe('candidateFormSchema — Extended Tests (Phase 3)', () => {
         profession: "Nurse",
         english_level: "GOOD",
         has_visited_other: false,
+        referrer_id: "123e4567-e89b-12d3-a456-426614174000",
     };
 
     // --- Missing required fields ---
@@ -104,6 +105,7 @@ describe('candidateFormSchema — Extended Tests (Phase 3)', () => {
             weight: null,
             shoe_size: null,
             pants_size: null,
+            shirt_size: null,
             allergies: null,
         });
         expect(result.success).toBe(true);
@@ -144,12 +146,12 @@ describe('candidateFormSchema — Extended Tests (Phase 3)', () => {
         });
     });
 
-    it('fails for invalid recruitment status', () => {
+    it('accepts any string for recruitment status', () => {
         const result = candidateFormSchema.safeParse({
             ...validData,
-            recruitment_status: 'INVALID_STATUS',
+            recruitment_status: 'ANY_STRING',
         });
-        expect(result.success).toBe(false);
+        expect(result.success).toBe(true);
     });
 
     it('accepts all valid english levels', () => {

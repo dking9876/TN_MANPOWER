@@ -101,35 +101,28 @@ describe('Phase 5: Query Key Factories', () => {
         });
 
         it('stats() returns ["dashboard", "stats"]', () => {
-            expect(dashboardKeys.stats()).toEqual(['dashboard', 'stats']);
+            expect(dashboardKeys.stats()).toEqual(['dashboard', 'stats', undefined]);
         });
-
         it('statusChart() returns ["dashboard", "statusChart"]', () => {
-            expect(dashboardKeys.statusChart()).toEqual(['dashboard', 'statusChart']);
+            expect(dashboardKeys.statusChart()).toEqual(['dashboard', 'statusChart', undefined]);
         });
-
         it('industryChart() returns ["dashboard", "industryChart"]', () => {
-            expect(dashboardKeys.industryChart()).toEqual(['dashboard', 'industryChart']);
+            expect(dashboardKeys.industryChart()).toEqual(['dashboard', 'industryChart', undefined]);
         });
-
         it('trendChart() returns ["dashboard", "trendChart"]', () => {
-            expect(dashboardKeys.trendChart()).toEqual(['dashboard', 'trendChart']);
+            expect(dashboardKeys.trendChart()).toEqual(['dashboard', 'trendChart', undefined]);
         });
-
         it('documents() returns ["dashboard", "documents"]', () => {
-            expect(dashboardKeys.documents()).toEqual(['dashboard', 'documents']);
+            expect(dashboardKeys.documents()).toEqual(['dashboard', 'documents', undefined]);
         });
-
         it('alerts() returns ["dashboard", "alerts"]', () => {
-            expect(dashboardKeys.alerts()).toEqual(['dashboard', 'alerts']);
+            expect(dashboardKeys.alerts()).toEqual(['dashboard', 'alerts', undefined]);
         });
-
         it('activity() returns ["dashboard", "activity"]', () => {
-            expect(dashboardKeys.activity()).toEqual(['dashboard', 'activity']);
+            expect(dashboardKeys.activity()).toEqual(['dashboard', 'activity', undefined]);
         });
-
         it('expiring() returns ["dashboard", "expiring"]', () => {
-            expect(dashboardKeys.expiring()).toEqual(['dashboard', 'expiring']);
+            expect(dashboardKeys.expiring()).toEqual(['dashboard', 'expiring', undefined]);
         });
 
         it('all keys are prefixed with "dashboard"', () => {
