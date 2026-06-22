@@ -258,11 +258,12 @@ function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, co
             if (error) throw error;
             
             if (data?.signedUrl) {
-                const a = document.createElement('a');
-                a.href = data.signedUrl;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                const link = window.document.createElement('a');
+                link.href = data.signedUrl;
+                link.style.display = 'none';
+                window.document.body.appendChild(link);
+                link.click();
+                window.document.body.removeChild(link);
             }
         } catch (err) {
             console.error("Download failed", err);
