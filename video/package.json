@@ -1,0 +1,24 @@
+{
+  "name": "tn-manpower-promo",
+  "version": "1.0.0",
+  "description": "T.N Manpower 60-second promotional video",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "render:promo": "remotion render PromoVideo out/TN_Manpower_Promo.mp4",
+    "render:preview": "remotion render PromoVideo out/TN_Manpower_Preview.mp4 --scale=0.5"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@remotion/google-fonts": "^4.0.0",
+    "lucide-react": "^0.564.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.5.0"
+  },
+  "private": true
+}

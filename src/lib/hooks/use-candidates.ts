@@ -19,6 +19,7 @@ export type CandidateFilters = {
     search?: string;
     status?: string[];
     industry?: string[];
+    profession?: string[];
     recruiter?: string[];
     company_id?: string[];
     referrer?: string[];
@@ -65,6 +66,10 @@ export function useCandidates(filters: CandidateFilters) {
 
             if (filters.industry && filters.industry.length > 0) {
                 query = query.in("primary_industry", filters.industry);
+            }
+
+            if (filters.profession && filters.profession.length > 0) {
+                query = query.in("profession", filters.profession);
             }
 
             if (filters.recruiter && filters.recruiter.length > 0) {

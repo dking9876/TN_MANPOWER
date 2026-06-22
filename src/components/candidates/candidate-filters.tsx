@@ -22,7 +22,7 @@ import {
     INDUSTRIES,
 } from "@/lib/constants";
 import { Check, Filter, Plus, X, Building2, User } from "lucide-react";
-import { useCompanies, useRecruitmentStatuses } from "@/lib/hooks/use-settings";
+import { useCompanies, useRecruitmentStatuses, useProfessions } from "@/lib/hooks/use-settings";
 import { useUsers } from "@/lib/hooks/use-users";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -39,6 +39,7 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
     const [searchValue, setSearchValue] = useState(filters.search || "");
     const { data: companies } = useCompanies();
     const { data: recruitmentStatuses } = useRecruitmentStatuses();
+    const { data: professionsData } = useProfessions();
     const { data: users } = useUsers();
 
     const referrers = users?.filter(u => ["ADMIN", "RECRUITER", "REFERRER"].includes(u.role)) || [];
@@ -97,9 +98,18 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
         setSearchValue("");
     };
 
+    const toggleProfession = (profession: string) => {
+        const current = filters.profession || [];
+        const next = current.includes(profession)
+            ? current.filter((p: string) => p !== profession)
+            : [...current, profession];
+        setFilters((prev: any) => ({ ...prev, profession: next, page: 1 }));
+    };
+
     const activeFilterCount =
         (filters.status?.length || 0) +
         (filters.industry?.length || 0) +
+        (filters.profession?.length || 0) +
         (filters.company_id?.length || 0) +
         (filters.referrer?.length || 0) +
         (filters.is_blacklisted ? 1 : 0);
@@ -265,6 +275,85 @@ export function CandidateFilters({ filters, setFilters, isAdmin }: CandidateFilt
                                             <CommandGroup>
                                                 <CommandItem
                                                     onSelect={() => setFilters((prev: any) => ({ ...prev, industry: [], page: 1 }))}
+                                                    className="justify-center text-center"
+                                                >
+                                                    Clear filters
+                                                </CommandItem>
+                                            </CommandGroup>
+                                        </>
+                                    )}
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+
+                    {/* Profession Filter */}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-9 border-dashed">
+                                <Plus className="mr-2 h-4 w-4" />
+                                Profession
+                                {filters.profession?.length > 0 && (
+                                    <>
+                                        <Separator orientation="vertical" className="mx-2 h-4" />
+                                        <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
+                                            {filters.profession.length}
+                                        </Badge>
+                                        <div className="hidden space-x-1 lg:flex">
+                                            {filters.profession.length > 2 ? (
+                                                <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                                                    {filters.profession.length} selected
+                                                </Badge>
+                                            ) : (
+                                                filters.profession.map((prof: string) => (
+                                                    <Badge
+                                                        variant="secondary"
+                                                        key={prof}
+                                                        className="rounded-sm px-1 font-normal"
+                                                    >
+                                                        {prof}
+                                                    </Badge>
+                                                ))
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0" align="start">
+                            <Command>
+                                <CommandInput placeholder="Profession" />
+                                <CommandList>
+                                    <CommandEmpty>No results found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {professionsData?.filter((p: any) => !filters.industry?.length || filters.industry.includes(p.industry)).map((prof: any) => {
+                                            const isSelected = filters.profession?.includes(prof.profession);
+                                            return (
+                                                <CommandItem
+                                                    key={prof.id}
+                                                    onSelect={() => toggleProfession(prof.profession)}
+                                                >
+                                                    <div
+                                                        className={cn(
+                                                            "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                                            isSelected
+                                                                ? "bg-primary text-primary-foreground"
+                                                                : "opacity-50 [&_svg]:invisible"
+                                                        )}
+                                                    >
+                                                        <Check className={cn("h-4 w-4")} />
+                                                    </div>
+                                                    <span>{prof.profession}</span>
+                                                </CommandItem>
+                                            );
+                                        })}
+                                    </CommandGroup>
+                                    {filters.profession?.length > 0 && (
+                                        <>
+                                            <CommandSeparator />
+                                            <CommandGroup>
+                                                <CommandItem
+                                                    onSelect={() => setFilters((prev: any) => ({ ...prev, profession: [], page: 1 }))}
                                                     className="justify-center text-center"
                                                 >
                                                     Clear filters
