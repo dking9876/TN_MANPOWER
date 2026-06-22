@@ -1,16 +1,18 @@
 "use client";
 
 import { useCandidate } from "@/lib/hooks/use-candidates";
-import { useCandidateDocumentsData, useUpsertCandidateDocument, UpsertDocumentPayload } from "@/lib/hooks/use-candidate-documents";
+import { useCandidateDocumentsData, useUpsertCandidateDocument, UpsertDocumentPayload, useDeleteCandidateDocumentFile } from "@/lib/hooks/use-candidate-documents";
 import { useCurrentUser } from "@/lib/hooks/use-users";
 import { useSystemConfig } from "@/lib/hooks/use-settings";
 import { Database } from "@/lib/supabase/types";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Info, Pencil, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { Info, Pencil, CheckCircle2, AlertTriangle, Clock, Download, Trash2, Paperclip, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -94,6 +96,9 @@ export function CandidateDocumentsTab({ candidateId }: CandidateDocumentsTabProp
             status: existing?.status || 'PENDING',
             expiration_date: existing?.expiration_date,
             notes: existing?.notes,
+            file_path: existing?.file_path,
+            file_name: existing?.file_name,
+            file_type: existing?.file_type,
         };
     });
 
@@ -130,6 +135,27 @@ export function CandidateDocumentsTab({ candidateId }: CandidateDocumentsTabProp
 
 function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, config, isReferrer }: any) {
     const [isOpen, setIsOpen] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const [fileUrl, setFileUrl] = useState<string | null>(null);
+    const deleteFileMutation = useDeleteCandidateDocumentFile();
+
+    useEffect(() => {
+        let cancelled = false;
+        if (document.file_path) {
+            const fetchUrl = async () => {
+                const supabase = createClient();
+                const { data } = await supabase.storage.from('candidate-documents').createSignedUrl(document.file_path, 3600);
+                if (!cancelled && data?.signedUrl) {
+                    setFileUrl(data.signedUrl);
+                }
+            };
+            fetchUrl();
+        } else {
+            setFileUrl(null);
+        }
+        return () => { cancelled = true; };
+    }, [document.file_path]);
 
     const form = useForm<CandidateDocumentFormValues>({
         resolver: zodResolver(candidateDocumentFormSchema),
@@ -171,15 +197,75 @@ function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, co
         StatusIcon = AlertTriangle;
     }
 
-    const onSubmit = (values: CandidateDocumentFormValues) => {
+    const onSubmit = async (values: CandidateDocumentFormValues) => {
+        let file_path = undefined;
+        let file_name = undefined;
+        let file_type = undefined;
+
+        if (file) {
+            setIsUploading(true);
+            try {
+                const supabase = createClient();
+                const fileExt = file.name.split('.').pop();
+                const uniqueName = `${candidateId}/${document.type}_${Date.now()}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('candidate-documents')
+                    .upload(uniqueName, file);
+
+                if (uploadError) throw uploadError;
+
+                file_path = uniqueName;
+                file_name = file.name;
+                file_type = file.type;
+            } catch (error: any) {
+                toast.error(`Failed to upload file: ${error.message}`);
+                setIsUploading(false);
+                return;
+            }
+        }
+
         onUpsert({
             id: document.id,
             candidate_id: candidateId,
             type: document.type,
             country: document.country,
+            ...(file_path !== undefined ? { file_path, file_name, file_type } : {}),
             ...values
         });
         setIsOpen(false);
+        setIsUploading(false);
+        setFile(null);
+    };
+
+    const handleDeleteFile = async () => {
+        if (confirm("Are you sure you want to delete this attached file?")) {
+            await deleteFileMutation.mutateAsync({
+                id: document.id,
+                file_path: document.file_path,
+                candidate_id: candidateId,
+            });
+        }
+    };
+
+    const handleDownload = async () => {
+        if (fileUrl) {
+            try {
+                const response = await fetch(fileUrl);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = document.file_name || 'download';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (err) {
+                console.error("Download failed", err);
+                window.open(fileUrl, '_blank');
+            }
+        }
     };
 
     return (
@@ -196,7 +282,7 @@ function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, co
                     {status === 'SUBMITTED' ? (isExpired ? "Expired" : isExpiringSoon ? "Expiring Soon" : "Submitted") : status === 'EXPIRED' ? 'Expired' : 'Pending'}
                 </Badge>
             </CardHeader>
-            <CardContent className="text-sm pb-2 min-h-[40px]">
+            <CardContent className="text-sm pb-2 min-h-[40px] space-y-2">
                 {document.expiration_date && (
                     <div className={cn("flex justify-between items-center bg-background/50 rounded-sm px-2 py-1", isExpiringSoon && "bg-amber-50 dark:bg-amber-950/20")}>
                         <span className="text-muted-foreground text-xs">Expires:</span>
@@ -205,6 +291,24 @@ function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, co
                             <span className={cn("text-xs", isExpired ? "text-destructive font-bold" : isExpiringSoon ? "text-amber-600 font-semibold" : "")}>
                                 {format(new Date(document.expiration_date), "PP")}
                             </span>
+                        </div>
+                    </div>
+                )}
+                {document.file_path && (
+                    <div className="flex items-center justify-between bg-muted/50 rounded-sm px-2 py-1 mt-2">
+                        <div className="flex items-center space-x-2 overflow-hidden mr-2">
+                            <Paperclip className="h-3 w-3 shrink-0 text-muted-foreground" />
+                            <span className="text-xs truncate" title={document.file_name}>{document.file_name}</span>
+                        </div>
+                        <div className="flex items-center space-x-1 shrink-0">
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleDownload} title="Download File">
+                                <Download className="h-3 w-3" />
+                            </Button>
+                            {!isReferrer && (
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:text-destructive" onClick={handleDeleteFile} disabled={deleteFileMutation.isPending} title="Delete File">
+                                    <Trash2 className="h-3 w-3" />
+                                </Button>
+                            )}
                         </div>
                     </div>
                 )}
@@ -282,9 +386,25 @@ function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, co
                                         )}
                                     />
 
+                                    <div className="space-y-2">
+                                        <FormLabel>Upload Document Image/File</FormLabel>
+                                        <div className="flex items-center gap-2">
+                                            <Input 
+                                                type="file" 
+                                                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                                className="text-sm"
+                                            />
+                                        </div>
+                                        {document.file_path && (
+                                            <p className="text-xs text-muted-foreground">Uploading a new file will replace the current one.</p>
+                                        )}
+                                    </div>
+
                                     <DialogFooter>
                                         <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                                        <Button type="submit" disabled={isUpdating}>Save Changes</Button>
+                                        <Button type="submit" disabled={isUpdating || isUploading}>
+                                            {isUploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...</> : "Save Changes"}
+                                        </Button>
                                     </DialogFooter>
                                 </form>
                             </Form>

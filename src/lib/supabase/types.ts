@@ -159,6 +159,9 @@ export type Database = {
           country: string | null
           created_at: string
           expiration_date: string | null
+          file_name: string | null
+          file_path: string | null
+          file_type: string | null
           id: string
           notes: string | null
           status: Database["public"]["Enums"]["candidate_document_status"]
@@ -170,6 +173,9 @@ export type Database = {
           country?: string | null
           created_at?: string
           expiration_date?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_type?: string | null
           id?: string
           notes?: string | null
           status?: Database["public"]["Enums"]["candidate_document_status"]
@@ -181,6 +187,9 @@ export type Database = {
           country?: string | null
           created_at?: string
           expiration_date?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_type?: string | null
           id?: string
           notes?: string | null
           status?: Database["public"]["Enums"]["candidate_document_status"]

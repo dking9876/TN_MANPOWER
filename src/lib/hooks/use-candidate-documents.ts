@@ -14,6 +14,9 @@ export interface UpsertDocumentPayload extends CandidateDocumentFormValues {
     candidate_id: string;
     type: CandidateDocumentType;
     country?: string | null;
+    file_path?: string | null;
+    file_name?: string | null;
+    file_type?: string | null;
 }
 
 export function useCandidateDocumentsData(candidateId: string) {
@@ -47,6 +50,7 @@ export function useUpsertCandidateDocument() {
                         status: rest.status,
                         expiration_date: rest.expiration_date || null,
                         notes: rest.notes || null,
+                        ...(rest.file_path !== undefined ? { file_path: rest.file_path, file_name: rest.file_name, file_type: rest.file_type } : {})
                     })
                     .eq("id", id);
             } else {
@@ -60,6 +64,7 @@ export function useUpsertCandidateDocument() {
                         status: rest.status,
                         expiration_date: rest.expiration_date || null,
                         notes: rest.notes || null,
+                        ...(rest.file_path !== undefined ? { file_path: rest.file_path, file_name: rest.file_name, file_type: rest.file_type } : {})
                     });
             }
 
@@ -74,6 +79,40 @@ export function useUpsertCandidateDocument() {
         },
         onError: (error: any) => {
             toast.error(handleError(error, "Failed to update document"));
+        },
+    });
+}
+
+export function useDeleteCandidateDocumentFile() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ id, file_path, candidate_id }: { id: string; file_path: string; candidate_id: string }) => {
+            // Delete the file from storage
+            const { error: storageError } = await supabase.storage
+                .from('candidate-documents')
+                .remove([file_path]);
+
+            if (storageError) throw storageError;
+
+            // Remove file metadata from the database record
+            const { error: dbError } = await supabase
+                .from("candidate_documents")
+                .update({
+                    file_path: null,
+                    file_name: null,
+                    file_type: null,
+                })
+                .eq("id", id);
+
+            if (dbError) throw dbError;
+        },
+        onSuccess: (_, variables) => {
+            toast.success("Document file deleted successfully");
+            queryClient.invalidateQueries({ queryKey: ["candidate_documents", variables.candidate_id] });
+        },
+        onError: (error: any) => {
+            toast.error(handleError(error, "Failed to delete document file"));
         },
     });
 }
