@@ -59,23 +59,24 @@ function MediaItem({ item }: { item: any }) {
     };
 
     const handleDownload = async () => {
-        if (url) {
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
+        try {
+            const supabase = createClient();
+            const { data, error } = await supabase.storage.from('candidate-media').createSignedUrl(item.storage_path, 60, {
+                download: item.original_name || item.title || true
+            });
+            
+            if (error) throw error;
+            
+            if (data?.signedUrl) {
                 const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = item.original_name || item.title || 'download';
+                a.href = data.signedUrl;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                window.URL.revokeObjectURL(blobUrl);
-            } catch (err) {
-                console.error("Download failed", err);
-                // Fallback
-                window.open(url, '_blank');
             }
+        } catch (err) {
+            console.error("Download failed", err);
+            if (url) window.open(url, '_blank');
         }
     };
 

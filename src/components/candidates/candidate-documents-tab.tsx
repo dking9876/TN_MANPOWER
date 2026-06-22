@@ -249,22 +249,24 @@ function CandidateDocumentCard({ document, candidateId, onUpsert, isUpdating, co
     };
 
     const handleDownload = async () => {
-        if (fileUrl) {
-            try {
-                const response = await fetch(fileUrl);
-                const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
+        try {
+            const supabase = createClient();
+            const { data, error } = await supabase.storage.from('candidate-documents').createSignedUrl(document.file_path, 60, {
+                download: document.file_name || true
+            });
+            
+            if (error) throw error;
+            
+            if (data?.signedUrl) {
                 const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = document.file_name || 'download';
+                a.href = data.signedUrl;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                window.URL.revokeObjectURL(blobUrl);
-            } catch (err) {
-                console.error("Download failed", err);
-                window.open(fileUrl, '_blank');
             }
+        } catch (err) {
+            console.error("Download failed", err);
+            if (fileUrl) window.open(fileUrl, '_blank');
         }
     };
 
