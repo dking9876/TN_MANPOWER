@@ -9,7 +9,8 @@ import { CompaniesSection } from "@/components/settings/companies-section";
 import { StatusesSection } from "@/components/settings/statuses-section";
 import { DocumentThresholdsSection } from "@/components/settings/document-thresholds-section";
 import { BonusAdminSection } from "@/components/settings/bonus-admin-section";
-import { Settings, Globe, Briefcase, Building2, ListChecks, FileWarning, Gift } from "lucide-react";
+import { EligibilityRulesSection } from "@/components/settings/eligibility-rules-section";
+import { Settings, Globe, Briefcase, Building2, ListChecks, FileWarning, Gift, ShieldAlert } from "lucide-react";
 
 export default function SettingsAdminPage() {
     return (
@@ -19,7 +20,7 @@ export default function SettingsAdminPage() {
                     System Settings
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                    Configure alert thresholds, manage countries, professions, and statuses
+                    Configure alert thresholds, manage countries, professions, eligibility rules, and statuses
                 </p>
             </div>
 
@@ -32,6 +33,10 @@ export default function SettingsAdminPage() {
                     <TabsTrigger value="document-alerts" className="gap-1.5">
                         <FileWarning className="h-3.5 w-3.5" />
                         Document Alerts
+                    </TabsTrigger>
+                    <TabsTrigger value="eligibility-rules" className="gap-1.5">
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        Eligibility Rules
                     </TabsTrigger>
                     <TabsTrigger value="countries" className="gap-1.5">
                         <Globe className="h-3.5 w-3.5" />
@@ -61,6 +66,10 @@ export default function SettingsAdminPage() {
 
                 <TabsContent value="document-alerts">
                     <DocumentThresholdsSection />
+                </TabsContent>
+
+                <TabsContent value="eligibility-rules">
+                    <EligibilityRulesSection />
                 </TabsContent>
 
                 <TabsContent value="countries">

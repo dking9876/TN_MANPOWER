@@ -39,8 +39,18 @@ import { INDUSTRIES, ENGLISH_LEVELS } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2, CalendarIcon, Check, ChevronsUpDown, X, Image as ImageIcon, Film } from "lucide-react";
-import { differenceInYears, parseISO, format } from "date-fns";
+import { AlertCircle, Loader2, CalendarIcon, Check, ChevronsUpDown, X, Image as ImageIcon, Film, ShieldAlert } from "lucide-react";
+import { differenceInYears, differenceInMonths, parseISO, format } from "date-fns";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CandidateFormProps {
     initialData?: Tables<"candidates">;
@@ -59,6 +69,11 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
     const [age, setAge] = useState<number | null>(null);
     const [openCountriesDropdown, setOpenCountriesDropdown] = useState(false);
     const [mediaFiles, setMediaFiles] = useState<{ id: string; file: File; title: string }[]>([]);
+    
+    // Eligibility Warning State
+    const [eligibilityWarnings, setEligibilityWarnings] = useState<{name: string, severity: string}[]>([]);
+    const [isWarningDialogOpen, setIsWarningDialogOpen] = useState(false);
+    const [pendingValues, setPendingValues] = useState<CandidateFormValues | null>(null);
 
     const createMediaMutation = useCreateCandidateMedia();
     const supabase = createClient();
@@ -150,6 +165,32 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
         : [];
 
     const onSubmit = async (values: CandidateFormValues) => {
+        const warnings = [];
+        if (age !== null && age < 18) {
+            warnings.push({ name: 'Under 18', severity: 'WARNING' });
+        }
+        if (isBlacklistWarning) {
+            warnings.push({ name: 'Visited Blacklisted Country', severity: 'WARNING' });
+        }
+        if (values.primary_industry === "CONSTRUCTION" && values.date_of_birth) {
+            const dob = parseISO(values.date_of_birth);
+            const ageMonths = differenceInMonths(new Date(), dob);
+            if (ageMonths < 300 || ageMonths > 530) {
+                warnings.push({ name: 'Construction Age Limit (25-44)', severity: 'WARNING' });
+            }
+        }
+        
+        if (warnings.length > 0 && !pendingValues) {
+            setEligibilityWarnings(warnings);
+            setPendingValues(values);
+            setIsWarningDialogOpen(true);
+            return;
+        }
+
+        await saveCandidate(values);
+    };
+
+    const saveCandidate = async (values: CandidateFormValues) => {
         try {
             let candidateId = "";
             if (isEditMode && initialData) {
@@ -1096,15 +1137,60 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                 </Card>
 
                 <div className="flex justify-end gap-4">
-                    <Button variant="outline" type="button" onClick={() => router.back()}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => router.back()}
+                        disabled={isLoading}
+                    >
                         Cancel
                     </Button>
                     <Button type="submit" disabled={isLoading}>
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {isEditMode ? "Update Candidate" : "Create Candidate"}
+                        {isEditMode ? "Save Changes" : "Create Candidate"}
                     </Button>
                 </div>
             </form>
+
+            <AlertDialog open={isWarningDialogOpen} onOpenChange={setIsWarningDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                            <ShieldAlert className="h-5 w-5" />
+                            Eligibility Warning
+                        </AlertDialogTitle>
+                        <AlertDialogDescription asChild>
+                            <div>
+                                This candidate has triggered the following eligibility flags. You can proceed to save, but their profile will be flagged.
+                                <ul className="mt-3 space-y-2 text-foreground">
+                                    {eligibilityWarnings.map((w, idx) => (
+                                        <li key={idx} className="flex items-center gap-2 bg-muted p-2 rounded-md">
+                                            <Badge variant={w.severity === 'BLOCK' ? 'destructive' : 'secondary'}>
+                                                {w.severity}
+                                            </Badge>
+                                            <span className="font-medium text-sm">{w.name}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="mt-6">
+                        <AlertDialogCancel onClick={() => {
+                            setPendingValues(null);
+                        }}>
+                            Cancel Edit
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={() => {
+                            if (pendingValues) saveCandidate(pendingValues);
+                            setIsWarningDialogOpen(false);
+                            setPendingValues(null);
+                        }}>
+                            Save Anyway
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Form>
     );
 }

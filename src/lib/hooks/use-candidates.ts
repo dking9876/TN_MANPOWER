@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { CandidateFormValues } from "@/lib/validations/candidate-schema";
 import { handleError } from "@/lib/utils/error-handler";
+import { processCandidateEligibility } from "@/app/actions/candidate-eligibility";
 
 const supabase = createClient();
 
@@ -37,7 +38,7 @@ export function useCandidates(filters: CandidateFilters) {
         queryFn: async () => {
             let query = supabase
                 .from("candidates")
-                .select("*, companies(id, name)", { count: "exact" });
+                .select("*, companies(id, name), candidate_eligibility_checks(*)", { count: "exact" });
 
             // Check if user is a referrer and apply filter
             const { data: { user } } = await supabase.auth.getUser();
@@ -120,7 +121,8 @@ export function useCandidate(id: string) {
                     creator:created_by (full_name),
                     updater:last_updated_by (full_name),
                     referrer:referrer_id (full_name),
-                    companies(id, name)
+                    companies(id, name),
+                    candidate_eligibility_checks(*)
                 `)
                 .eq("id", id)
                 .single();
@@ -169,6 +171,9 @@ export function useCreateCandidate() {
                 .single();
 
             if (error) throw error;
+            
+            await processCandidateEligibility(data.id, values);
+            
             return data;
         },
         onSuccess: () => {
@@ -201,6 +206,9 @@ export function useUpdateCandidate() {
                 .single();
 
             if (error) throw error;
+
+            await processCandidateEligibility(data.id, values as CandidateFormValues);
+
             return data;
         },
         onSuccess: (data) => {

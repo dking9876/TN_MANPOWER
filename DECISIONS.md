@@ -16,6 +16,7 @@
 | D6 | 2026-02-16 | **Git repo** | Set up after scaffold |
 | D7 | 2026-02-18 | **Admin Password Update** | Manual password set in UI for admin creation |
 | D8 | 2026-02-18 | **Settings Keys matching DB** | Thresholds use `staleness_threshold_days`, etc. |
+| D9 | 2026-07-11 | **Hybrid Rules Engine** | Hardcoded logic with DB-configurable severities. |
 
 ## Architecture Decisions
 
@@ -42,6 +43,7 @@
 | B3 | 2026-02-16 | **Age check = zod + DB constraint** | Rule 3 |
 | B4 | 2026-02-16 | **Audit log = DB trigger** | Rule 5 |
 | B5 | 2026-02-16 | **last_updated_at = DB trigger** | Rule 6 |
+| B6 | 2026-07-11 | **Soft Eligibility Checks** | Rules like age and blacklist warn but do not block candidate creation. |
 
 ---
 

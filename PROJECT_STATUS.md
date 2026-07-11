@@ -13,6 +13,7 @@
 | **1** | Foundation + Auth + Layout | 1-2 | ✅ Completed |
 | **2** | Candidates + Docs + Alerts | 3-4 | ✅ Completed |
 | **3** | Admin + Dashboard + Polish + Deploy | 5-6 | ✅ Phase 5 Done |
+| **4** | Eligibility Checks System | 7 | 🏃 In Progress |
 
 ---
 
@@ -74,6 +75,15 @@
 - [ ] Security audit
 - [ ] Clean up debug files (diagnose_candidates.ts, debug specs, test output files)
 - [ ] Final Vercel deployment
+
+### Phase 7: Eligibility Checks System (In Progress)
+- [ ] Database Schema: `candidate_eligibility_checks` table
+- [ ] Server Logic: `eligibility-rules.ts` and `candidate-actions.ts`
+- [ ] UI: Pre-submit warning dialog in `candidate-form.tsx`
+- [ ] UI: Admin configuration in settings
+- [ ] UI: Flags column in `candidate-table.tsx`
+- [ ] UI: Eligibility Checks tab in candidate details
+- [ ] Remove hard blockers for Under 18 and Blacklist
 
 ---
 

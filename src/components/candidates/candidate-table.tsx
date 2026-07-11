@@ -12,8 +12,9 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "./status-badge";
 import { INDUSTRIES } from "@/lib/constants";
-import { Ban, Eye, Pencil, Trash2 } from "lucide-react";
+import { Ban, Eye, Pencil, Trash2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
     Tooltip,
     TooltipContent,
@@ -60,6 +61,7 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                         <TableHead className="text-sm font-medium text-foreground h-14">Industry</TableHead>
                         <TableHead className="text-sm font-medium text-foreground h-14">Profession</TableHead>
                         <TableHead className="text-sm font-medium text-foreground h-14">Company</TableHead>
+                        <TableHead className="text-sm font-medium text-foreground h-14">Flags</TableHead>
                         <TableHead className="text-sm font-medium text-foreground h-14">Status</TableHead>
                         <TableHead className="text-sm font-medium text-foreground h-14">Last Updated</TableHead>
                         <TableHead className="text-sm font-medium text-foreground h-14 text-right">Actions</TableHead>
@@ -103,6 +105,31 @@ export function CandidateTable({ candidates, loading, onDelete }: CandidateTable
                             <TableCell className="py-5 font-medium text-foreground text-sm">{candidate.profession}</TableCell>
                             <TableCell className="py-5 font-medium text-foreground text-sm">
                                 {candidate.companies?.name || <span>-</span>}
+                            </TableCell>
+                            <TableCell className="py-5">
+                                <TooltipProvider>
+                                    <div className="flex gap-1 flex-wrap">
+                                        {candidate.candidate_eligibility_checks?.filter((c: any) => c.status === 'FAILED' && !c.is_overridden).map((check: any) => (
+                                            <Tooltip key={check.id || check.rule_id}>
+                                                <TooltipTrigger asChild>
+                                                    <Badge variant={check.severity === 'BLOCK' ? 'destructive' : 'secondary'} className="text-[10px] px-1.5 py-0.5 cursor-help">
+                                                        {check.severity === 'BLOCK' && <ShieldAlert className="w-3 h-3 mr-1 inline" />}
+                                                        {({ under_18: 'Under 18', blacklisted_country: 'Blacklist', construction_age: 'Const. Age' } as any)[check.rule_id] || check.rule_id}
+                                                    </Badge>
+                                                </TooltipTrigger>
+                                                <TooltipContent className="max-w-[200px]">
+                                                    <p className="font-semibold mb-1">
+                                                        {check.severity === 'BLOCK' ? 'Critical Flag' : check.severity === 'WARNING' ? 'Warning Flag' : 'Info Flag'}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">This candidate was saved successfully, but triggered this eligibility rule which requires your review.</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        ))}
+                                        {(!candidate.candidate_eligibility_checks || candidate.candidate_eligibility_checks.filter((c: any) => c.status === 'FAILED' && !c.is_overridden).length === 0) && (
+                                            <span className="text-muted-foreground">-</span>
+                                        )}
+                                    </div>
+                                </TooltipProvider>
                             </TableCell>
                             <TableCell className="py-5">
                                 <StatusBadge status={candidate.recruitment_status} />

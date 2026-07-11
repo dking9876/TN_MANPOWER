@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { StatusBadge } from "./status-badge";
 import { CandidateDocumentsTab } from "./candidate-documents-tab";
 import { CandidateMediaTab } from "./candidate-media-tab";
+import { CandidateEligibilityTab } from "./candidate-eligibility-tab";
 import {
     Select,
     SelectContent,
@@ -176,8 +177,9 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 max-w-[500px]">
+                <TabsList className="grid w-full grid-cols-5 max-w-[600px]">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="eligibility">Eligibility</TabsTrigger>
                     <TabsTrigger value="documents">Documents</TabsTrigger>
                     <TabsTrigger value="media">Media</TabsTrigger>
                     <TabsTrigger value="history">History</TabsTrigger>
@@ -414,6 +416,10 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                             </CardContent>
                         </Card>
                     </div>
+                </TabsContent>
+
+                <TabsContent value="eligibility" className="mt-6">
+                    <CandidateEligibilityTab candidate={candidate} />
                 </TabsContent>
 
                 <TabsContent value="documents" className="mt-6">

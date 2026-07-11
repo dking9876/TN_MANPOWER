@@ -2,11 +2,6 @@ import { z } from "zod";
 import { parseISO, differenceInYears } from "date-fns";
 import { INDUSTRIES, ENGLISH_LEVELS } from "@/lib/constants";
 
-// Helper to validate age >= 18
-const isAdult = (dateStr: string) => {
-    const date = parseISO(dateStr);
-    return differenceInYears(new Date(), date) >= 18;
-};
 
 // Enums from constants keys for Zod
 const IndustryEnum = z.enum(Object.keys(INDUSTRIES) as [string, ...string[]]);
@@ -22,9 +17,7 @@ export const candidateFormSchema = z.object({
     passport_number: z.string().min(1, "Passport number is required").regex(/^[a-zA-Z0-9]+$/, "Alphanumeric only"),
     passport_issue_date: z.string().optional().nullable(),
     passport_expire_date: z.string().optional().nullable(),
-    date_of_birth: z.string().refine(isAdult, {
-        message: "Candidate must be at least 18 years old",
-    }),
+    date_of_birth: z.string().min(1, "Date of birth is required"),
     primary_phone: z.string().min(1, "Primary phone is required"),
     emergency_phone: z.string().min(1, "Emergency phone is required"),
     // Send null if empty string
