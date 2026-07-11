@@ -191,7 +191,30 @@ export async function deleteUserAction(userId: string) {
 
         const admin = createAdminClient();
 
-        // Delete from public.users first
+        // 1. Clean up user-specific metadata to avoid foreign key violations
+        
+        // Delete alerts targeted to this user
+        const { error: alertsError } = await admin
+            .from("alerts")
+            .delete()
+            .eq("target_user_id", userId);
+        if (alertsError) throw new Error(alertsError.message);
+
+        // Delete recruiter-company linkages
+        const { error: recruiterCompaniesError } = await admin
+            .from("recruiter_companies")
+            .delete()
+            .eq("recruiter_id", userId);
+        if (recruiterCompaniesError) throw new Error(recruiterCompaniesError.message);
+
+        // Delete audit logs associated with this user
+        const { error: auditLogsError } = await admin
+            .from("audit_logs")
+            .delete()
+            .eq("user_id", userId);
+        if (auditLogsError) throw new Error(auditLogsError.message);
+
+        // 2. Delete from public.users
         const { error: profileError } = await admin
             .from("users")
             .delete()
@@ -199,7 +222,7 @@ export async function deleteUserAction(userId: string) {
 
         if (profileError) throw new Error(profileError.message);
 
-        // Delete from auth
+        // 3. Delete from auth
         const { error: authError } = await admin.auth.admin.deleteUser(userId);
         if (authError) throw new Error(authError.message);
 

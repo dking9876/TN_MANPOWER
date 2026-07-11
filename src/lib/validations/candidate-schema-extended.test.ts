@@ -25,6 +25,11 @@ describe('candidateFormSchema — Extended Tests (Phase 3)', () => {
         english_level: "GOOD",
         has_visited_other: false,
         referrer_id: "123e4567-e89b-12d3-a456-426614174000",
+        gender: null,
+        rating: null,
+        serial_number: null,
+        passport_issue_date: null,
+        passport_expire_date: null,
     };
 
     // --- Missing required fields ---
@@ -174,6 +179,46 @@ describe('candidateFormSchema — Extended Tests (Phase 3)', () => {
                 profession: "General Worker",
             });
             expect(result.success).toBe(true);
+        });
+    });
+
+    // --- New Fields Validation ---
+
+    it('accepts valid gender values', () => {
+        ['man', 'woman', null, ''].forEach((gender: any) => {
+            const result = candidateFormSchema.safeParse({
+                ...validData,
+                gender: gender === '' ? null : gender,
+            });
+            expect(result.success).toBe(true);
+        });
+    });
+
+    it('fails on invalid gender values', () => {
+        const result = candidateFormSchema.safeParse({
+            ...validData,
+            gender: 'alien',
+        });
+        expect(result.success).toBe(false);
+    });
+
+    it('accepts valid rating values', () => {
+        [1, 2, 3, 4, 5, null, ''].forEach((rating: any) => {
+            const result = candidateFormSchema.safeParse({
+                ...validData,
+                rating,
+            });
+            expect(result.success).toBe(true);
+        });
+    });
+
+    it('fails on invalid rating values', () => {
+        [0, 6, 3.5].forEach((rating) => {
+            const result = candidateFormSchema.safeParse({
+                ...validData,
+                rating,
+            });
+            expect(result.success).toBe(false);
         });
     });
 });

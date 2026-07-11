@@ -21,10 +21,10 @@ export async function exportCandidatesToCSV(filters: any) {
     const csvRows = [
         // Header
         [
-            "First Name", "Last Name", "National ID", "Passport Number",
-            "Date of Birth", "Primary Phone", "Emergency Phone", "Email",
+            "First Name", "Last Name", "Gender", "National ID", "Serial Number", "Passport Number",
+            "Passport Issue Date", "Passport Expire Date", "Date of Birth", "Primary Phone", "Emergency Phone", "Email",
             "Height", "Weight", "Shoe Size", "Pants Size", "Shirt Size", "Allergies",
-            "English Level", "Industry", "Profession", "Recruitment Status",
+            "English Level", "Rating", "Industry", "Profession", "Recruitment Status",
             "Has Visited Other Countries", "Countries Visited", "Is Blacklisted",
             "Interview Date",
             "Visa Number", "Visa Expiry Date",
@@ -50,8 +50,12 @@ export async function exportCandidatesToCSV(filters: any) {
         csvRows.push([
             c.first_name,
             c.last_name,
+            c.gender || "",
             c.national_id,
+            c.serial_number || "",
             c.passport_number,
+            c.passport_issue_date || "",
+            c.passport_expire_date || "",
             c.date_of_birth,
             c.primary_phone,
             c.emergency_phone,
@@ -63,6 +67,7 @@ export async function exportCandidatesToCSV(filters: any) {
             c.shirt_size || "",
             c.allergies || "",
             c.english_level,
+            c.rating || "",
             c.primary_industry,
             c.profession,
             c.recruitment_status,

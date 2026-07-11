@@ -22,11 +22,17 @@ function buildCSVRow(fields: any[]): string {
 }
 
 const CSV_HEADERS = [
-    "First Name", "Last Name", "National ID", "Passport Number",
-    "Date of Birth", "Primary Phone", "Emergency Phone", "Email",
-    "Height", "Weight", "Shoe Size", "Pants Size", "Allergies",
-    "English Level", "Industry", "Profession", "Recruitment Status",
+    "First Name", "Last Name", "Gender", "National ID", "Serial Number", "Passport Number",
+    "Passport Issue Date", "Passport Expire Date", "Date of Birth", "Primary Phone", "Emergency Phone", "Email",
+    "Height", "Weight", "Shoe Size", "Pants Size", "Shirt Size", "Allergies",
+    "English Level", "Rating", "Industry", "Profession", "Recruitment Status",
     "Has Visited Other Countries", "Countries Visited", "Is Blacklisted",
+    "Interview Date",
+    "Visa Number", "Visa Expiry Date",
+    "Insurance Purchased", "Insurance Purchase Date",
+    "Flight Date", "Flight Hour", "Flight Number",
+    "Connection Flight Date", "Connection Flight Hour", "Connection Flight Number",
+    "Arrival Date", "Referrer Got Paid",
     "Passport Received", "Passport Expiration",
     "Police Clearance Received", "Police Clearance Expiration",
     "Health Declaration Received", "Health Declaration Expiration",
@@ -67,8 +73,8 @@ describe('Phase 3: CSV Export Formatting', () => {
     });
 
     describe('CSV Headers', () => {
-        it('should have exactly 32 columns', () => {
-            expect(CSV_HEADERS).toHaveLength(32);
+        it('should have exactly 51 columns', () => {
+            expect(CSV_HEADERS).toHaveLength(51);
         });
 
         it('starts with First Name and ends with Last Updated At', () => {
@@ -114,11 +120,15 @@ describe('Phase 3: CSV Export Formatting', () => {
 
     describe('Candidate data mapping', () => {
         it('maps candidate object fields to correct CSV columns', () => {
-            const candidate = {
+            const candidate: any = {
                 first_name: "Jane",
                 last_name: "Smith",
+                gender: "woman",
                 national_id: "NID999",
+                serial_number: "SN999",
                 passport_number: "PP999",
+                passport_issue_date: "2020-01-01",
+                passport_expire_date: "2030-01-01",
                 date_of_birth: "1990-03-15",
                 primary_phone: "+1234567890",
                 emergency_phone: "+0987654321",
@@ -130,6 +140,7 @@ describe('Phase 3: CSV Export Formatting', () => {
                 shirt_size: "L",
                 allergies: null,
                 english_level: "GOOD",
+                rating: 5,
                 primary_industry: "NURSING",
                 profession: "Nurse",
                 recruitment_status: "DOCUMENTS_RECEIVED",
@@ -146,8 +157,12 @@ describe('Phase 3: CSV Export Formatting', () => {
             const row = [
                 candidate.first_name,
                 candidate.last_name,
+                candidate.gender || "",
                 candidate.national_id,
+                candidate.serial_number || "",
                 candidate.passport_number,
+                candidate.passport_issue_date || "",
+                candidate.passport_expire_date || "",
                 candidate.date_of_birth,
                 candidate.primary_phone,
                 candidate.emergency_phone,
@@ -159,6 +174,7 @@ describe('Phase 3: CSV Export Formatting', () => {
                 candidate.shirt_size || "",
                 candidate.allergies || "",
                 candidate.english_level,
+                candidate.rating || "",
                 candidate.primary_industry,
                 candidate.profession,
                 candidate.recruitment_status,
@@ -171,14 +187,14 @@ describe('Phase 3: CSV Export Formatting', () => {
                 visa?.is_received ? "Yes" : "No", visa?.expiration_date || "",
             ];
 
-            expect(row).toHaveLength(29); // 29 data columns (excluding creator/updater metadata)
+            expect(row).toHaveLength(34); // Updated length based on new fields
             expect(row[0]).toBe("Jane");
-            expect(row[18]).toBe("Yes"); // has_visited_other
-            expect(row[19]).toBe("USA, Canada"); // countries_visited joined
-            expect(row[20]).toBe("No"); // is_blacklisted
-            expect(row[21]).toBe("Yes"); // passport received
-            expect(row[22]).toBe("2030-01-01"); // passport expiration
-            expect(row[23]).toBe("No"); // police received
+            expect(row[23]).toBe("Yes"); // has_visited_other
+            expect(row[24]).toBe("USA, Canada"); // countries_visited joined
+            expect(row[25]).toBe("No"); // is_blacklisted
+            expect(row[26]).toBe("Yes"); // passport received
+            expect(row[27]).toBe("2030-01-01"); // passport expiration
+            expect(row[28]).toBe("No"); // police received
         });
     });
 });

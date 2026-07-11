@@ -77,6 +77,11 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
             primary_phone: initialData?.primary_phone || "+94",
             emergency_phone: initialData?.emergency_phone || "+94",
             email: initialData?.email || "",
+            gender: (initialData?.gender as "man" | "woman" | null) || null,
+            rating: initialData?.rating || "",
+            serial_number: initialData?.serial_number || "",
+            passport_issue_date: initialData?.passport_issue_date || null,
+            passport_expire_date: initialData?.passport_expire_date || null,
             height: initialData?.height || null,
             weight: initialData?.weight || null,
             shoe_size: initialData?.shoe_size || "",
@@ -231,26 +236,21 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                         />
                         <FormField<CandidateFormValues>
                             control={form.control}
-                            name="national_id"
+                            name="gender"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>National ID</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="123456789" {...field} value={(field.value as any) ?? ""} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField<CandidateFormValues>
-                            control={form.control}
-                            name="passport_number"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Passport Number</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="A1234567" {...field} value={(field.value as any) ?? ""} />
-                                    </FormControl>
+                                    <FormLabel>Gender (Optional)</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={(field.value as any) || undefined} value={(field.value as any) || undefined}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select gender" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="man">Man</SelectItem>
+                                            <SelectItem value="woman">Woman</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -300,6 +300,99 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                         />
                         <FormField<CandidateFormValues>
                             control={form.control}
+                            name="national_id"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>National ID</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="123456789" {...field} value={(field.value as any) ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
+                            name="serial_number"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Serial Number (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="SN-..." {...field} value={(field.value as any) ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
+                            name="passport_number"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Passport Number</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="A1234567" {...field} value={(field.value as any) ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
+                            name="rating"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Rating (Optional)</FormLabel>
+                                    <Select 
+                                        onValueChange={(val) => field.onChange(val === "none" ? null : parseInt(val, 10))} 
+                                        value={field.value ? field.value.toString() : "none"}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select rating" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            <SelectItem value="5">5 - ⭐⭐⭐⭐⭐</SelectItem>
+                                            <SelectItem value="4">4 - ⭐⭐⭐⭐</SelectItem>
+                                            <SelectItem value="3">3 - ⭐⭐⭐</SelectItem>
+                                            <SelectItem value="2">2 - ⭐⭐</SelectItem>
+                                            <SelectItem value="1">1 - ⭐</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
+                            name="passport_issue_date"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Passport Issue Date (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input type="date" {...field} value={(field.value as any) ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
+                            name="passport_expire_date"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Passport Expire Date (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input type="date" {...field} value={(field.value as any) ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField<CandidateFormValues>
+                            control={form.control}
                             name="primary_phone"
                             render={({ field }) => (
                                 <FormItem>
@@ -328,7 +421,7 @@ export function CandidateForm({ initialData, isEditMode = false }: CandidateForm
                             control={form.control}
                             name="email"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="md:col-span-2">
                                     <FormLabel>Email (Optional)</FormLabel>
                                     <FormControl>
                                         <Input type="email" placeholder="john@example.com" {...field} value={(field.value as any) ?? ""} />

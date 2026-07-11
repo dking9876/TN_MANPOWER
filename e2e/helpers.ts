@@ -5,7 +5,7 @@ export async function loginAsAdmin(page: Page) {
     await page.goto('/login');
     await page.waitForLoadState('networkidle');
     await page.fill('#email', 'admin@tnmanpower.com');
-    await page.fill('#password', 'Admin123!');
+    await page.fill('#password', '12345678');
     await page.click('button[type="submit"]');
     // Wait for URL to change to dashboard, with a fallback for slow hydration
     await expect(page).toHaveURL(/.*dashboard|.*candidates/, { timeout: 20000 });

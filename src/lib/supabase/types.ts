@@ -318,6 +318,7 @@ export type Database = {
           flight_date: string | null
           flight_hour: string | null
           flight_number: string | null
+          gender: string | null
           has_visited_other: boolean
           height: number | null
           id: string
@@ -330,13 +331,17 @@ export type Database = {
           last_updated_by: string
           national_id: string
           pants_size: string | null
+          passport_expire_date: string | null
+          passport_issue_date: string | null
           passport_number: string
           primary_industry: Database["public"]["Enums"]["industry"]
           primary_phone: string
           profession: string
+          rating: number | null
           recruitment_status: string
           referrer_got_paid: boolean | null
           referrer_id: string | null
+          serial_number: string | null
           shoe_size: string | null
           shirt_size: string | null
           visa_expiry_date: string | null
@@ -361,6 +366,7 @@ export type Database = {
           flight_date?: string | null
           flight_hour?: string | null
           flight_number?: string | null
+          gender?: string | null
           has_visited_other?: boolean
           height?: number | null
           id?: string
@@ -373,13 +379,17 @@ export type Database = {
           last_updated_by: string
           national_id: string
           pants_size?: string | null
+          passport_expire_date?: string | null
+          passport_issue_date?: string | null
           passport_number: string
           primary_industry: Database["public"]["Enums"]["industry"]
           primary_phone: string
           profession: string
+          rating?: number | null
           recruitment_status?: string
           referrer_got_paid?: boolean | null
           referrer_id?: string | null
+          serial_number?: string | null
           shoe_size?: string | null
           shirt_size?: string | null
           visa_expiry_date?: string | null
@@ -404,6 +414,7 @@ export type Database = {
           flight_date?: string | null
           flight_hour?: string | null
           flight_number?: string | null
+          gender?: string | null
           has_visited_other?: boolean
           height?: number | null
           id?: string
@@ -416,13 +427,17 @@ export type Database = {
           last_updated_by?: string
           national_id?: string
           pants_size?: string | null
+          passport_expire_date?: string | null
+          passport_issue_date?: string | null
           passport_number?: string
           primary_industry?: Database["public"]["Enums"]["industry"]
           primary_phone?: string
           profession?: string
+          rating?: number | null
           recruitment_status?: string
           referrer_got_paid?: boolean | null
           referrer_id?: string | null
+          serial_number?: string | null
           shoe_size?: string | null
           shirt_size?: string | null
           visa_expiry_date?: string | null

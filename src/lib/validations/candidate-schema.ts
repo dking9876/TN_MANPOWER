@@ -16,8 +16,12 @@ export const candidateFormSchema = z.object({
     // Personal Info
     first_name: z.string().min(1, "First name is required").max(40, "Max 40 characters"),
     last_name: z.string().min(1, "Last name is required").max(40, "Max 40 characters"),
+    gender: z.enum(["man", "woman"]).optional().nullable(),
     national_id: z.string().min(1, "National ID is required").regex(/^[a-zA-Z0-9]+$/, "Alphanumeric only"),
+    serial_number: z.string().optional().nullable(),
     passport_number: z.string().min(1, "Passport number is required").regex(/^[a-zA-Z0-9]+$/, "Alphanumeric only"),
+    passport_issue_date: z.string().optional().nullable(),
+    passport_expire_date: z.string().optional().nullable(),
     date_of_birth: z.string().refine(isAdult, {
         message: "Candidate must be at least 18 years old",
     }),
@@ -38,6 +42,7 @@ export const candidateFormSchema = z.object({
     primary_industry: IndustryEnum,
     profession: z.string().min(1, "Profession is required"),
     english_level: EnglishLevelEnum,
+    rating: z.coerce.number().int().min(1).max(5).optional().nullable().or(z.literal("")),
 
     // Background
     has_visited_other: z.boolean().default(false),

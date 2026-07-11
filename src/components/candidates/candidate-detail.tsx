@@ -200,6 +200,22 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-2">
+                                    <span className="text-muted-foreground">Gender:</span>
+                                    <span className="capitalize">{candidate.gender || "-"}</span>
+                                </div>
+                                <div className="grid grid-cols-2">
+                                    <span className="text-muted-foreground">Serial Number:</span>
+                                    <span className="font-mono">{candidate.serial_number || "-"}</span>
+                                </div>
+                                <div className="grid grid-cols-2">
+                                    <span className="text-muted-foreground">Passport Issue:</span>
+                                    <span>{candidate.passport_issue_date ? format(new Date(candidate.passport_issue_date), "PP") : "-"}</span>
+                                </div>
+                                <div className="grid grid-cols-2">
+                                    <span className="text-muted-foreground">Passport Expire:</span>
+                                    <span>{candidate.passport_expire_date ? format(new Date(candidate.passport_expire_date), "PP") : "-"}</span>
+                                </div>
+                                <div className="grid grid-cols-2">
                                     <span className="text-muted-foreground">Phone:</span>
                                     <span className="font-mono">{candidate.primary_phone}</span>
                                 </div>
@@ -228,6 +244,10 @@ export function CandidateDetail({ id }: CandidateDetailProps) {
                                 <div className="grid grid-cols-2">
                                     <span className="text-muted-foreground">Profession:</span>
                                     <span>{candidate.profession}</span>
+                                </div>
+                                <div className="grid grid-cols-2">
+                                    <span className="text-muted-foreground">Rating:</span>
+                                    <span>{candidate.rating ? "⭐".repeat(candidate.rating) : <span className="text-muted-foreground italic">None</span>}</span>
                                 </div>
                                 <div className="grid grid-cols-2">
                                     <span className="text-muted-foreground">Company:</span>

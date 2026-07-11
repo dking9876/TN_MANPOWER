@@ -52,10 +52,8 @@ test.describe('Admin User Management', () => {
         // Verify Activate menu item appears
         await userRow.locator('button').click();
         await expect(page.getByRole('menuitem', { name: /Activate/i })).toBeVisible({ timeout: 10000 });
-        await page.keyboard.press('Escape'); // Close menu
 
-        // 4. Delete User
-        await userRow.locator('button').click();
+        // 4. Delete User (menu is already open)
         await page.getByRole('menuitem', { name: /Delete/i }).click();
 
         // Confirm deletion
